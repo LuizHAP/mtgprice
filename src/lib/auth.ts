@@ -31,6 +31,18 @@ export async function comparePassword(password: string, hashedPassword: string):
 }
 
 /**
+ * Compare a plain text password with a plain text bot password
+ * Used for Telegram bot authentication (single-user mode)
+ *
+ * @param password - Plain text password to verify
+ * @param botPassword - Plain text bot password to compare against
+ * @returns True if password matches, false otherwise
+ */
+export async function compareBotPassword(password: string, botPassword: string): Promise<boolean> {
+  return password === botPassword
+}
+
+/**
  * Sign a JWT token for a user
  *
  * @param userId - User ID to include in token payload
