@@ -105,9 +105,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PRICE-03 | Phase 2 | Pending |
 | PRICE-04 | Phase 2 | Pending |
 | PRICE-05 | Phase 2 | Pending |
-| PRICE-06 | Phase 2 | Pending |
+| PRICE-06 | Phase 1 | Pending |
 | PRICE-07 | Phase 2 | Pending |
-| PRICE-08 | Phase 2 | Pending |
+| PRICE-08 | Phase 1, 2 | Pending |
 | WISH-01 | Phase 3 | Pending |
 | WISH-02 | Phase 3 | Pending |
 | WISH-03 | Phase 3 | Pending |
@@ -133,4 +133,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-03-05*
-*Last updated: 2026-03-05 after initial definition*
+*Last updated: 2026-03-05 after roadmap creation*
