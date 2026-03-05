@@ -48,11 +48,11 @@
 - [x] 01-02-PLAN.md — Create database schema with Drizzle ORM, TimescaleDB hypertables, and indexes
 
 **Wave 2 (Parallel):**
-- [ ] 01-03-PLAN.md — Implement Redis-backed token bucket rate limiting (TDD)
-- [ ] 01-04-PLAN.md — Implement JWT authentication system with bcrypt and Telegram linking (TDD)
+- [x] 01-03-PLAN.md — Implement Redis-backed token bucket rate limiting (TDD)
+- [x] 01-04-PLAN.md — Implement JWT authentication system with bcrypt and Telegram linking (TDD)
 
 **Wave 3 (Sequential):**
-- [ ] 01-05-PLAN.md — Implement Telegram bot with grammY, chat ID whitelist, and /start authentication
+- [x] 01-05-PLAN.md — Implement Telegram bot with grammY, chat ID whitelist, and /start authentication
 
 ---
 
@@ -152,16 +152,16 @@
 
 | Requirement | Phase | Plan | Status |
 |-------------|-------|------|--------|
-| AUTH-01 | 1 | 01-04, 01-05 | Pending |
-| AUTH-02 | 1 | 01-04 | Pending |
+| AUTH-01 | 1 | 01-04, 01-05 | Complete (2026-03-05) |
+| AUTH-02 | 1 | 01-04 | Complete (2026-03-05) |
 | PRICE-01 | 2 | - | Pending |
 | PRICE-02 | 2 | - | Pending |
 | PRICE-03 | 2 | - | Pending |
 | PRICE-04 | 2 | - | Pending |
 | PRICE-05 | 2 | - | Pending |
-| PRICE-06 | 1 | 01-03 | Pending |
+| PRICE-06 | 1 | 01-03 | Complete (2026-03-05) |
 | PRICE-07 | 2 | - | Pending |
-| PRICE-08 | 1 | 01-02 | Pending |
+| PRICE-08 | 1 | 01-02 | Complete (2026-03-05) |
 | WISH-01 | 3 | - | Pending |
 | WISH-02 | 3 | - | Pending |
 | WISH-03 | 3 | - | Pending |
@@ -184,6 +184,7 @@
 - v1 requirements: 24 total
 - Mapped to phases: 24
 - Mapped to plans: 4/24 (AUTH-01, AUTH-02, PRICE-06, PRICE-08)
+- Completed: 4/24 (AUTH-01, AUTH-02, PRICE-06, PRICE-08)
 - Unmapped: 20 (Phase 2-6 requirements)
 
 ---
