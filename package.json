@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "bot:dev": "tsx src/bot/index.ts",
+    "bot:dev": "tsx -r dotenv/config src/bot/index.ts",
     "bot:start": "node dist/bot/index.js",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "dotenv": "^17.3.1",
     "drizzle-orm": "^0.38.4",
     "grammy": "^1.36.2",
     "ioredis": "^5.5.0",

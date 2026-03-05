@@ -1,4 +1,5 @@
-import { index, pgTable, relations, serial, text, timestamp, varchar } from 'drizzle-orm/pg-core'
+import { relations } from 'drizzle-orm'
+import { index, pgTable, serial, text, timestamp, varchar } from 'drizzle-orm/pg-core'
 import { prices } from './prices'
 import { wishlists } from './wishlists'
 

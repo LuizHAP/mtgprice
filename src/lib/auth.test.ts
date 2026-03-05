@@ -11,14 +11,18 @@ import { comparePassword, hashPassword, signToken, verifyToken } from './auth'
 
 // Mock bcrypt
 vi.mock('bcrypt', () => ({
-  hash: vi.fn(),
-  compare: vi.fn(),
+  default: {
+    hash: vi.fn(),
+    compare: vi.fn(),
+  },
 }))
 
 // Mock jsonwebtoken
 vi.mock('jsonwebtoken', () => ({
-  sign: vi.fn(),
-  verify: vi.fn(),
+  default: {
+    sign: vi.fn(),
+    verify: vi.fn(),
+  },
 }))
 
 import bcrypt from 'bcrypt'
