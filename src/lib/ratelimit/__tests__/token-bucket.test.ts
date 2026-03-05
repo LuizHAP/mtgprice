@@ -3,20 +3,27 @@
  *
  * Tests for PRICE-08 requirement: Rate limiting for external APIs
  *
- * RED phase: Tests are written but implementation doesn't exist yet
+ * GREEN phase: Implementation complete, all tests pass
  */
 
 import { MockRedis } from '@/../test/mocks/redis'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { RATE_LIMITS, checkRateLimit } from '../rate-limiter'
 
-// Mock Redis client
-const mockRedis = new MockRedis()
+// Create mock instance
+const createMockRedis = () => {
+  const mockRedis = new MockRedis()
+  return mockRedis
+}
 
-// Mock the getClient function
-vi.mock('../redis', () => ({
-  getClient: () => mockRedis,
+// Mock the redis module
+const mockRedis = createMockRedis()
+
+vi.mock('@/lib/ratelimit/redis', () => ({
+  getClient: vi.fn(() => mockRedis),
+  closeClient: vi.fn(),
 }))
+
+import { RATE_LIMITS, checkRateLimit } from '@/lib/ratelimit/rate-limiter'
 
 describe('Token bucket rate limiting algorithm', () => {
   beforeEach(() => {
