@@ -1,9 +1,25 @@
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+current_phase: Phase 1 (Foundation & Infrastructure)
+current_plan: 04 - Implement rate limiting infrastructure
+status: executing
+last_updated: "2026-03-05T17:40:00.000Z"
+progress:
+  total_phases: 6
+  completed_phases: 0
+  total_plans: 6
+  completed_plans: 4
+  percent: 67
+---
+
 # MTG Price Monitor - Project State
 
 **Last updated:** 2026-03-05
 **Current phase:** Phase 1 (Foundation & Infrastructure)
-**Current plan:** 03 - Implement JWT authentication system with Telegram linking
-**Status:** In progress (2/6 plans complete)
+**Current plan:** 04 - Implement rate limiting infrastructure
+**Status:** In progress (4/6 plans complete)
 
 ## Project Reference
 
@@ -20,15 +36,15 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 ## Current Position
 
 **Phase:** 1 - Foundation & Infrastructure
-**Plan:** 03 - Implement JWT authentication system with Telegram linking
-**Status:** Plan 01-01 and 01-02 complete, continuing to Plan 03
+**Plan:** 04 - Implement rate limiting infrastructure
+**Status:** Plan 01-00, 01-01, 01-02, and 01-03 complete, continuing to Plan 04
 
 **Progress:**
 ```
-[███░░░░░░░░] 33% complete (2/6 plans)
+[███████░░░] 67% complete (4/6 plans)
 ```
 
-**Current focus:** Implementing JWT authentication system with Telegram linking (Plan 03)
+**Current focus:** Implementing rate limiting infrastructure (Plan 04)
 
 ## Performance Metrics
 
@@ -149,17 +165,26 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 - Added migration guide (drizzle/README.md) with step-by-step instructions
 - Commits: d5cd5ed (schema), 86ec42a (connection), fbd3b24 (hypertable)
 
+**2026-03-05 (Plan 01-03):** Redis-backed token bucket rate limiting with Next.js middleware
+- Implemented token bucket rate limiting algorithm with Redis Lua scripts for atomic operations
+- Created Redis client singleton with connection management and error handling
+- Added rate limit presets for Scryfall (10 req/sec), Telegram (100 req/min), TCGplayer (50 req/min)
+- Built Next.js middleware applying rate limiting to /api/external/* routes with IP-based identification
+- Created MockRedis class supporting eval, hmget, hmset, expire, and time commands for testing
+- Commits: 845e351 (test), c5e5843 (feat), 41d6697 (feat)
+- Known issue: Test mocking not working correctly - needs integration tests with real Redis for full test coverage
+
 ### Next Steps
 
-1. **Immediate (Plan 01-03):** Implement JWT authentication system with Telegram linking
+1. **Immediate (Plan 01-04):** Implement rate limiting infrastructure (Redis + token bucket algorithm)
 2. **Infrastructure setup:** Install PostgreSQL 16+ with TimescaleDB 2.15+ extension
 3. **Database setup:** Configure DATABASE_URL, run migrations, apply hypertable conversion
-4. **Plan 01-04:** Implement rate limiting infrastructure (Redis + token bucket algorithm)
+4. **Redis setup:** Install Redis and configure REDIS_URL environment variable
 5. **Plan 01-05:** Create test stubs and verify IOF rate (6.38%) with Brazilian Central Bank
 
 ### Context for Next Session
 
-**Current status:** Project initialization and database schema complete, ready to implement authentication (Plan 01-03).
+**Current status:** Project initialization, database schema, and rate limiting complete. Ready to implement additional infrastructure (Plan 01-04).
 
 **Key files created:**
 - `package.json, tsconfig.json, next.config.js` - Next.js project configuration
@@ -170,12 +195,17 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 - `src/db/index.ts` - Database client connection
 - `drizzle.config.ts` - Drizzle Kit configuration
 - `drizzle/*.sql` - TimescaleDB migration scripts
+- `src/lib/ratelimit/rate-limiter.ts` - Token bucket rate limiting with Lua scripts
+- `src/lib/ratelimit/redis.ts` - Redis client singleton
+- `middleware.ts` - Next.js middleware with rate limiting for /api/external/*
+- `test/mocks/redis.ts` - MockRedis class for testing
 
-**Before Plan 01-03:**
-- No infrastructure setup required (auth is code-only)
-- Will need JWT_SECRET environment variable for production
+**Before Plan 01-04:**
+- Redis required for rate limiting to function
+- Configure REDIS_URL environment variable
+- Install Redis locally or use Docker: `docker run -d -p 6379:6379 redis:7-alpine`
 
-**Important:** Phase 1 addresses critical pitfalls that cannot be retrofitted easily. Do not skip rate limiting or legal compliance.
+**Important:** Phase 1 addresses critical pitfalls that cannot be retrofitted easily. Rate limiting is now implemented and ready for use by external API integrations.
 
 ---
 *State initialized: 2026-03-05*
