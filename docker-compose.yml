@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: timescale/timescaledb:latest-pg16
+    container_name: mtgprice-db
+    environment:
+      POSTGRES_USER: mtgprice
+      POSTGRES_PASSWORD: mtgprice_password
+      POSTGRES_DB: mtgprice
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/home/postgres/pgdata/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mtgprice"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+    driver: local
