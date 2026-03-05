@@ -6,7 +6,7 @@
  */
 
 import type { JwtPayload } from '@/types/auth'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 
 /**

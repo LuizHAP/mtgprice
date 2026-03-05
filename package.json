@@ -20,7 +20,7 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "bcrypt": "^5.1.1",
+    "bcryptjs": "^2.4.3",
     "dotenv": "^17.3.1",
     "drizzle-orm": "^0.38.4",
     "grammy": "^1.36.2",
@@ -37,7 +37,7 @@
     "@biomejs/biome": "^1.9.4",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
-    "@types/bcrypt": "^5.0.2",
+    "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^22.13.5",
     "@types/react": "^19.1.0",
