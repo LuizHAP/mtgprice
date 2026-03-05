@@ -2,8 +2,8 @@
 
 **Last updated:** 2026-03-05
 **Current phase:** Phase 1 (Foundation & Infrastructure)
-**Current plan:** 02 - Create database schema with TimescaleDB hypertables
-**Status:** In progress (1/6 plans complete)
+**Current plan:** 03 - Implement JWT authentication system with Telegram linking
+**Status:** In progress (2/6 plans complete)
 
 ## Project Reference
 
@@ -20,19 +20,26 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 ## Current Position
 
 **Phase:** 1 - Foundation & Infrastructure
-**Plan:** 02 - Database schema with TimescaleDB hypertables
-**Status:** Plan 02 complete, continuing to Plan 03
+**Plan:** 03 - Implement JWT authentication system with Telegram linking
+**Status:** Plan 01-01 and 01-02 complete, continuing to Plan 03
 
 **Progress:**
 ```
-[██░░░░░░░░░] 17% complete (1/6 plans)
+[███░░░░░░░░] 33% complete (2/6 plans)
 ```
 
 **Current focus:** Implementing JWT authentication system with Telegram linking (Plan 03)
 
 ## Performance Metrics
 
-*Most recent plan (01-02):*
+*Most recent plan (01-01):*
+- Duration: ~4.5 minutes (269 seconds)
+- Tasks: 3/3 completed
+- Files created: 15
+- Commits: 3
+- Dependencies installed: 366 packages
+
+*Previous plan (01-02):*
 - Duration: ~4 minutes
 - Tasks: 3/3 completed
 - Files created: 10
@@ -52,18 +59,25 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 5. **Histórico completo:** Full history with charts selected — users want data beyond notifications
 
 **Technology stack (from research):**
-- Python 3.11+ — Backend language, best-in-class scraping ecosystem
-- FastAPI 0.115+ — Web framework, 3-5x faster than Flask
+- Node.js 20+ — Backend language (changed from Python during Phase 1)
+- Next.js 15+ — Web framework with App Router
+- TypeScript strict mode — Type safety
 - PostgreSQL 16+ + TimescaleDB 2.15+ — Time-series database, 65% lower storage vs InfluxDB
-- Scrapy 2.11+ + Playwright 1.41+ — Web scraping with built-in concurrency
-- python-telegram-bot 22.6+ — Telegram integration, fully async
-- APScheduler 3.10.4+ — Scheduled jobs, lightweight scheduling
+- grammY 1.36+ — Telegram integration, fully async
+- Biome 1.x — Linting + formatting (20x faster than ESLint+Prettier)
 
 **During Plan 01-02 (Database schema, 2026-03-05):**
 
 1. **Price storage model:** One row per source (card_id, source, price_brl, timestamp) — enables flexible comparison across 4 sources, handles different update schedules. Trade-off: 4x storage (~17.6M rows/year) but acceptable with TimescaleDB compression.
 2. **TimescaleDB hypertable with 7-day chunks:** Automatic time-based partitioning for 10-100x faster queries. Optimal for 2-3x daily checks across 4 sources (~48K rows/day).
 3. **Composite index on (card_id, timestamp DESC):** Covers 90% of queries that filter by card and order by time. Index order is critical: PostgreSQL reads left-to-right, so card_id must come first.
+
+**During Plan 01-01 (Project initialization, 2026-03-05):**
+
+1. **Package manager:** pnpm selected — faster, more disk-efficient, native monorepo support
+2. **Code quality:** Biome selected — single tool for linting + formatting, 20x faster than ESLint+Prettier
+3. **Git workflow:** Husky + lint-staged — automatic formatting on commit
+4. **Monorepo structure:** Domain-based directories (api, bot, scraper, db, lib, types, web) — clear separation of concerns
 
 ### Known Constraints
 
@@ -113,6 +127,20 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 
 ### Last Work Completed
 
+**2026-03-05 (Plan 01-01):** Project initialization with Next.js, TypeScript, Biome, and monorepo structure
+- Created package.json with all dependencies (Next.js 15.5.12, React 19.2.4, Drizzle, grammY, ioredis, Winston)
+- Configured TypeScript 5.9.3 with strict mode and path aliases (@/*)
+- Created Next.js configuration ready for middleware/CORS
+- Created .gitignore and .env.example with environment variable templates
+- Installed 366 packages via pnpm
+- Set up Biome 1.9.4 for linting + formatting (replaces ESLint + Prettier)
+- Initialized Husky 9.1.7 with pre-commit hook running lint-staged
+- Applied Biome formatting to all existing files (31 files, 0 errors)
+- Created monorepo directory structure: src/api, src/bot, src/scraper, src/db, src/lib, src/types, src/web
+- Added placeholder files in all directories to prevent "module not found" errors
+- Created src/lib/placeholder.ts documenting planned utilities (logger, auth, rate-limiter, telegram, currency, validation, errors)
+- Commits: a3a50c3 (init), 577a38c (biome/husky), 3430f9f (structure)
+
 **2026-03-05 (Plan 01-02):** Database schema with TimescaleDB hypertables
 - Created Drizzle ORM schema definitions for users, cards, prices, wishlists tables
 - Set up database connection client and Drizzle Kit configuration
@@ -120,12 +148,6 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 - Created composite index on (card_id, timestamp DESC) for 90% query coverage
 - Added migration guide (drizzle/README.md) with step-by-step instructions
 - Commits: d5cd5ed (schema), 86ec42a (connection), fbd3b24 (hypertable)
-
-**2026-03-05 (earlier):** Project initialization and roadmap creation
-- Defined 24 v1 requirements across 6 phases
-- Created roadmap with goal-backward success criteria
-- Validated 100% requirement coverage
-- Identified research gaps for Phase 2, 4, and 5
 
 ### Next Steps
 
@@ -137,9 +159,13 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 
 ### Context for Next Session
 
-**Current status:** Database schema complete, ready to implement authentication (Plan 01-03).
+**Current status:** Project initialization and database schema complete, ready to implement authentication (Plan 01-03).
 
 **Key files created:**
+- `package.json, tsconfig.json, next.config.js` - Next.js project configuration
+- `biome.json` - Biome linting + formatting configuration
+- `.husky/pre-commit` - Git hook for automatic formatting
+- `src/*/index.ts` - Monorepo directory structure with placeholders
 - `src/db/schema/*.ts` - Drizzle schema definitions
 - `src/db/index.ts` - Database client connection
 - `drizzle.config.ts` - Drizzle Kit configuration
@@ -153,3 +179,4 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 
 ---
 *State initialized: 2026-03-05*
+*Last updated: 2026-03-05T17:25:00Z*

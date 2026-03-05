@@ -44,8 +44,8 @@
 **Plans:** 5 plans in 3 waves
 
 **Wave 1 (Parallel):**
-- [ ] 01-01-PLAN.md — Initialize Next.js project with TypeScript, Biome, Vitest, and monorepo structure
-- [ ] 01-02-PLAN.md — Create database schema with Drizzle ORM, TimescaleDB hypertables, and indexes
+- [x] 01-01-PLAN.md — Initialize Next.js project with TypeScript, Biome, Vitest, and monorepo structure
+- [x] 01-02-PLAN.md — Create database schema with Drizzle ORM, TimescaleDB hypertables, and indexes
 
 **Wave 2 (Parallel):**
 - [ ] 01-03-PLAN.md — Implement Redis-backed token bucket rate limiting (TDD)
