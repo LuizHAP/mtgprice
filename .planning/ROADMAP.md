@@ -18,7 +18,7 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Infrastructure | 0/3 | Not started | - |
+| 1. Foundation & Infrastructure | 0/5 | Planning complete | - |
 | 2. Core Data Collection | 0/4 | Not started | - |
 | 3. User Interface & Wishlist | 0/3 | Not started | - |
 | 4. Opportunity Detection & Notifications | 0/3 | Not started | - |
@@ -41,7 +41,18 @@
 3. Sistema respeita rate limits de APIs externas (ex: Scryfall 10 req/sec)
 4. Sistema armazena histórico de preços com schema otimizado para consultas temporais
 
-**Plans:** TBD
+**Plans:** 5 plans in 3 waves
+
+**Wave 1 (Parallel):**
+- [ ] 01-01-PLAN.md — Initialize Next.js project with TypeScript, Biome, Vitest, and monorepo structure
+- [ ] 01-02-PLAN.md — Create database schema with Drizzle ORM, TimescaleDB hypertables, and indexes
+
+**Wave 2 (Parallel):**
+- [ ] 01-03-PLAN.md — Implement Redis-backed token bucket rate limiting (TDD)
+- [ ] 01-04-PLAN.md — Implement JWT authentication system with bcrypt and Telegram linking (TDD)
+
+**Wave 3 (Sequential):**
+- [ ] 01-05-PLAN.md — Implement Telegram bot with grammY, chat ID whitelist, and /start authentication
 
 ---
 
@@ -139,40 +150,41 @@
 
 ## Traceability
 
-| Requirement | Phase | Status |
-|-------------|-------|--------|
-| AUTH-01 | 1 | Pending |
-| AUTH-02 | 1 | Pending |
-| PRICE-01 | 2 | Pending |
-| PRICE-02 | 2 | Pending |
-| PRICE-03 | 2 | Pending |
-| PRICE-04 | 2 | Pending |
-| PRICE-05 | 2 | Pending |
-| PRICE-06 | 1 | Pending |
-| PRICE-07 | 2 | Pending |
-| PRICE-08 | 1, 2 | Pending |
-| WISH-01 | 3 | Pending |
-| WISH-02 | 3 | Pending |
-| WISH-03 | 3 | Pending |
-| WISH-04 | 3 | Pending |
-| WISH-05 | 3 | Pending |
-| DETECT-01 | 4 | Pending |
-| DETECT-02 | 4 | Pending |
-| DETECT-03 | 4 | Pending |
-| DETECT-04 | 4 | Pending |
-| NOTIF-01 | 4 | Pending |
-| NOTIF-02 | 4 | Pending |
-| NOTIF-03 | 2 | Pending |
-| META-01 | 5 | Pending |
-| META-02 | 5 | Pending |
-| META-03 | 5 | Pending |
-| DASH-01 | 3 | Pending |
-| DASH-02 | 3 | Pending |
+| Requirement | Phase | Plan | Status |
+|-------------|-------|------|--------|
+| AUTH-01 | 1 | 01-04, 01-05 | Pending |
+| AUTH-02 | 1 | 01-04 | Pending |
+| PRICE-01 | 2 | - | Pending |
+| PRICE-02 | 2 | - | Pending |
+| PRICE-03 | 2 | - | Pending |
+| PRICE-04 | 2 | - | Pending |
+| PRICE-05 | 2 | - | Pending |
+| PRICE-06 | 1 | 01-03 | Pending |
+| PRICE-07 | 2 | - | Pending |
+| PRICE-08 | 1 | 01-02 | Pending |
+| WISH-01 | 3 | - | Pending |
+| WISH-02 | 3 | - | Pending |
+| WISH-03 | 3 | - | Pending |
+| WISH-04 | 3 | - | Pending |
+| WISH-05 | 3 | - | Pending |
+| DETECT-01 | 4 | - | Pending |
+| DETECT-02 | 4 | - | Pending |
+| DETECT-03 | 4 | - | Pending |
+| DETECT-04 | 4 | - | Pending |
+| NOTIF-01 | 4 | - | Pending |
+| NOTIF-02 | 4 | - | Pending |
+| NOTIF-03 | 2 | - | Pending |
+| META-01 | 5 | - | Pending |
+| META-02 | 5 | - | Pending |
+| META-03 | 5 | - | Pending |
+| DASH-01 | 3 | - | Pending |
+| DASH-02 | 3 | - | Pending |
 
 **Coverage:**
 - v1 requirements: 24 total
 - Mapped to phases: 24
-- Unmapped: 0 ✓
+- Mapped to plans: 4/24 (AUTH-01, AUTH-02, PRICE-06, PRICE-08)
+- Unmapped: 20 (Phase 2-6 requirements)
 
 ---
 
