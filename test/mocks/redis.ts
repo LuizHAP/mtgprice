@@ -106,8 +106,8 @@ class MockRedis {
     if (currentTokens >= tokens) {
       currentTokens -= tokens
       this.data.hashes.set(key, {
-        tokens: currentTokens,
-        last_refill: lastRefill,
+        tokens: String(currentTokens),
+        last_refill: String(lastRefill),
       })
       this.data.expirations.set(key, Date.now() + interval * 1000)
       return [1, currentTokens] // allowed, remaining
@@ -126,7 +126,7 @@ class MockRedis {
         return this.hmget(key, ...(args.slice(1) as string[]))
       }
       case 'HMSET':
-        return this.hmset(args[0] as string, args.slice(1) as [string, string | number][])
+        return this.hmset(args[0] as string, args.slice(1) as unknown as [string, string | number][])
       case 'EXPIRE':
         return this.expire(args[0] as string, Number(args[1]))
       case 'TIME':

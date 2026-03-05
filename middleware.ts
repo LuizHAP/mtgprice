@@ -53,7 +53,7 @@ export async function middleware(request: NextRequest) {
 
     // Extract identifier (IP address or user ID)
     const identifier =
-      request.ip || request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'anonymous'
+      request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'anonymous'
 
     try {
       // Check rate limit

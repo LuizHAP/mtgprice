@@ -15,27 +15,31 @@ export async function startCommandHandler(ctx: Context): Promise<void> {
   // Extract password from command arguments
   const messageText = ctx.message?.text
   if (!messageText) {
-    return ctx.reply('Usage: /start <password>')
+    await ctx.reply('Usage: /start <password>')
+    return
   }
 
   const parts = messageText.split(' ')
   if (parts.length < 2) {
-    return ctx.reply('Usage: /start <password>')
+    await ctx.reply('Usage: /start <password>')
+    return
   }
 
   const password = parts[1]
 
   // Verify password
-  const isValid = await compareBotPassword(password, botPassword)
+  const isValid = await compareBotPassword(password, botPassword as string)
 
   if (!isValid) {
-    return ctx.reply('Invalid password. Access denied.')
+    await ctx.reply('Invalid password. Access denied.')
+    return
   }
 
   // Get chat ID
   const chatId = ctx.chat?.id?.toString()
   if (!chatId) {
-    return ctx.reply('Unable to identify your chat. Please try again.')
+    await ctx.reply('Unable to identify your chat. Please try again.')
+    return
   }
 
   try {
@@ -48,7 +52,8 @@ export async function startCommandHandler(ctx: Context): Promise<void> {
       .returning()
 
     if (updatedUsers.length === 0) {
-      return ctx.reply('User not found. Please create an account first.')
+      await ctx.reply('User not found. Please create an account first.')
+      return
     }
 
     await ctx.reply('Welcome! Your Telegram account is now linked. You will receive notifications here.')
