@@ -2,7 +2,8 @@
 
 **Last updated:** 2026-03-05
 **Current phase:** Phase 1 (Foundation & Infrastructure)
-**Status:** Planning complete, ready to start Phase 1
+**Current plan:** 02 - Create database schema with TimescaleDB hypertables
+**Status:** In progress (1/6 plans complete)
 
 ## Project Reference
 
@@ -19,19 +20,24 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 ## Current Position
 
 **Phase:** 1 - Foundation & Infrastructure
-**Plan:** TBD (not yet planned)
-**Status:** Not started
+**Plan:** 02 - Database schema with TimescaleDB hypertables
+**Status:** Plan 02 complete, continuing to Plan 03
 
 **Progress:**
 ```
-[░░░░░░░░░░] 0% complete
+[██░░░░░░░░░] 17% complete (1/6 plans)
 ```
 
-**Current focus:** Establishing database schema, authentication system, and rate limiting infrastructure
+**Current focus:** Implementing JWT authentication system with Telegram linking (Plan 03)
 
 ## Performance Metrics
 
-*No metrics yet — project hasn't started*
+*Most recent plan (01-02):*
+- Duration: ~4 minutes
+- Tasks: 3/3 completed
+- Files created: 10
+- Commits: 3
+- Lines of code: ~280
 
 ## Accumulated Context
 
@@ -52,6 +58,12 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 - Scrapy 2.11+ + Playwright 1.41+ — Web scraping with built-in concurrency
 - python-telegram-bot 22.6+ — Telegram integration, fully async
 - APScheduler 3.10.4+ — Scheduled jobs, lightweight scheduling
+
+**During Plan 01-02 (Database schema, 2026-03-05):**
+
+1. **Price storage model:** One row per source (card_id, source, price_brl, timestamp) — enables flexible comparison across 4 sources, handles different update schedules. Trade-off: 4x storage (~17.6M rows/year) but acceptable with TimescaleDB compression.
+2. **TimescaleDB hypertable with 7-day chunks:** Automatic time-based partitioning for 10-100x faster queries. Optimal for 2-3x daily checks across 4 sources (~48K rows/day).
+3. **Composite index on (card_id, timestamp DESC):** Covers 90% of queries that filter by card and order by time. Index order is critical: PostgreSQL reads left-to-right, so card_id must come first.
 
 ### Known Constraints
 
@@ -101,7 +113,15 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 
 ### Last Work Completed
 
-**2026-03-05:** Project initialization and roadmap creation
+**2026-03-05 (Plan 01-02):** Database schema with TimescaleDB hypertables
+- Created Drizzle ORM schema definitions for users, cards, prices, wishlists tables
+- Set up database connection client and Drizzle Kit configuration
+- Created TimescaleDB hypertable migration SQL (7-day chunks for time-series optimization)
+- Created composite index on (card_id, timestamp DESC) for 90% query coverage
+- Added migration guide (drizzle/README.md) with step-by-step instructions
+- Commits: d5cd5ed (schema), 86ec42a (connection), fbd3b24 (hypertable)
+
+**2026-03-05 (earlier):** Project initialization and roadmap creation
 - Defined 24 v1 requirements across 6 phases
 - Created roadmap with goal-backward success criteria
 - Validated 100% requirement coverage
@@ -109,19 +129,25 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 
 ### Next Steps
 
-1. Plan Phase 1 (Foundation & Infrastructure) with `/gsd:plan-phase 1`
-2. Implement database schema with TimescaleDB hypertables
-3. Implement authentication system (JWT + Telegram linking)
-4. Implement rate limiting infrastructure (token bucket algorithm)
-5. Verify IOF rate (6.38%) with Brazilian Central Bank
+1. **Immediate (Plan 01-03):** Implement JWT authentication system with Telegram linking
+2. **Infrastructure setup:** Install PostgreSQL 16+ with TimescaleDB 2.15+ extension
+3. **Database setup:** Configure DATABASE_URL, run migrations, apply hypertable conversion
+4. **Plan 01-04:** Implement rate limiting infrastructure (Redis + token bucket algorithm)
+5. **Plan 01-05:** Create test stubs and verify IOF rate (6.38%) with Brazilian Central Bank
 
 ### Context for Next Session
 
-The project is ready to start Phase 1 implementation. Focus on:
-- Database schema design with time-series partitioning
-- User authentication with Telegram integration
-- Rate limiting to prevent API blocks
-- Legal/ToS review for all price sources
+**Current status:** Database schema complete, ready to implement authentication (Plan 01-03).
+
+**Key files created:**
+- `src/db/schema/*.ts` - Drizzle schema definitions
+- `src/db/index.ts` - Database client connection
+- `drizzle.config.ts` - Drizzle Kit configuration
+- `drizzle/*.sql` - TimescaleDB migration scripts
+
+**Before Plan 01-03:**
+- No infrastructure setup required (auth is code-only)
+- Will need JWT_SECRET environment variable for production
 
 **Important:** Phase 1 addresses critical pitfalls that cannot be retrofitted easily. Do not skip rate limiting or legal compliance.
 

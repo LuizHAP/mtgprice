@@ -21,7 +21,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **PRICE-05**: Sistema converte preços USD/EUR → BRL com IOF de 6.38% (cartão de crédito)
 - [ ] **PRICE-06**: Sistema implementa rate limiting para respeitar limites das APIs e evitar bloqueios (ex: Scryfall 10 req/sec)
 - [ ] **PRICE-07**: Sistema realiza checagens de preços 2-3x ao dia de forma agendada
-- [ ] **PRICE-08**: Sistema armazena histórico de preços para cada carta/fonte
+- [x] **PRICE-08**: Sistema armazena histórico de preços para cada carta/fonte
 
 ### Wishlist
 
@@ -107,7 +107,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PRICE-05 | Phase 2 | Pending |
 | PRICE-06 | Phase 1 | Pending |
 | PRICE-07 | Phase 2 | Pending |
-| PRICE-08 | Phase 1, 2 | Pending |
+| PRICE-08 | Phase 1, 2 | Complete |
 | WISH-01 | Phase 3 | Pending |
 | WISH-02 | Phase 3 | Pending |
 | WISH-03 | Phase 3 | Pending |
