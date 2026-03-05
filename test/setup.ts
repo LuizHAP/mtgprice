@@ -1,6 +1,9 @@
 import '@testing-library/jest-dom'
 import { cleanup } from '@testing-library/react'
-import { afterEach, vi } from 'vitest'
+import { afterEach, beforeAll, vi } from 'vitest'
+
+// Set up environment variables for tests
+process.env.JWT_SECRET = 'test-secret-key-for-jwt-signing'
 
 // Cleanup after each test
 afterEach(() => {
