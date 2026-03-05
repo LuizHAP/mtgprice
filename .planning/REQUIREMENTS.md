@@ -9,8 +9,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Autenticação
 
-- [ ] **AUTH-01**: User pode vincular conta ao Telegram para receber notificações
-- [ ] **AUTH-02**: Sessão do usuário persiste entre acessos ao dashboard web
+- [x] **AUTH-01**: User pode vincular conta ao Telegram para receber notificações
+- [x] **AUTH-02**: Sessão do usuário persiste entre acessos ao dashboard web
 
 ### Coleta de Preços
 
@@ -98,8 +98,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | Phase 1 | Pending |
-| AUTH-02 | Phase 1 | Pending |
+| AUTH-01 | Phase 1 | Complete |
+| AUTH-02 | Phase 1 | Complete |
 | PRICE-01 | Phase 2 | Pending |
 | PRICE-02 | Phase 2 | Pending |
 | PRICE-03 | Phase 2 | Pending |

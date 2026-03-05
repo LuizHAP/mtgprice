@@ -3,23 +3,23 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: Phase 1 (Foundation & Infrastructure)
-current_plan: 04 - Implement rate limiting infrastructure
+current_plan: 05 - Implement Telegram bot with grammY
 status: executing
-last_updated: "2026-03-05T17:40:00.000Z"
+last_updated: "2026-03-05T17:55:47.312Z"
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 6
-  completed_plans: 4
-  percent: 67
+  completed_plans: 5
+  percent: 83
 ---
 
 # MTG Price Monitor - Project State
 
 **Last updated:** 2026-03-05
 **Current phase:** Phase 1 (Foundation & Infrastructure)
-**Current plan:** 04 - Implement rate limiting infrastructure
-**Status:** In progress (4/6 plans complete)
+**Current plan:** 05 - Implement Telegram bot with grammY
+**Status:** In progress (5/6 plans complete)
 
 ## Project Reference
 
@@ -36,19 +36,24 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 ## Current Position
 
 **Phase:** 1 - Foundation & Infrastructure
-**Plan:** 04 - Implement rate limiting infrastructure
-**Status:** Plan 01-00, 01-01, 01-02, and 01-03 complete, continuing to Plan 04
+**Plan:** 05 - Implement Telegram bot with grammY
+**Status:** Plan 01-00, 01-01, 01-02, 01-03, and 01-04 complete, continuing to Plan 05
 
 **Progress:**
-```
-[███████░░░] 67% complete (4/6 plans)
+[████████░░] 83% complete (5/6 plans)
 ```
 
-**Current focus:** Implementing rate limiting infrastructure (Plan 04)
+**Current focus:** Implementing Telegram bot with grammY (Plan 05)
 
 ## Performance Metrics
 
-*Most recent plan (01-01):*
+*Most recent plan (01-04):*
+- Duration: ~10 minutes (622 seconds)
+- Tasks: 8/8 completed
+- Files created: 8
+- Commits: 8
+
+*Previous plan (01-01):*
 - Duration: ~4.5 minutes (269 seconds)
 - Tasks: 3/3 completed
 - Files created: 15
@@ -87,6 +92,12 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 1. **Price storage model:** One row per source (card_id, source, price_brl, timestamp) — enables flexible comparison across 4 sources, handles different update schedules. Trade-off: 4x storage (~17.6M rows/year) but acceptable with TimescaleDB compression.
 2. **TimescaleDB hypertable with 7-day chunks:** Automatic time-based partitioning for 10-100x faster queries. Optimal for 2-3x daily checks across 4 sources (~48K rows/day).
 3. **Composite index on (card_id, timestamp DESC):** Covers 90% of queries that filter by card and order by time. Index order is critical: PostgreSQL reads left-to-right, so card_id must come first.
+
+**During Plan 01-04 (JWT Authentication, 2026-03-05):**
+
+1. **JWT Secret in Test Setup:** Added JWT_SECRET environment variable to test/setup.ts to enable JWT testing in development environment.
+2. **HttpOnly Cookie Configuration:** Set sameSite: 'lax' for better compatibility while maintaining security against XSS attacks.
+3. **Middleware Extension:** Extended Plan 01-03 middleware to combine rate limiting and auth protection in a single file.
 
 **During Plan 01-01 (Project initialization, 2026-03-05):**
 
@@ -174,17 +185,28 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 - Commits: 845e351 (test), c5e5843 (feat), 41d6697 (feat)
 - Known issue: Test mocking not working correctly - needs integration tests with real Redis for full test coverage
 
+**2026-03-05 (Plan 01-04):** JWT-based authentication system with bcrypt and Telegram linking
+- Created TypeScript type definitions for authentication (User, LoginInput, JwtPayload, etc.)
+- Implemented auth utilities with bcrypt password hashing (10 salt rounds) and JWT signing/verification
+- Built comprehensive test suite using TDD approach (RED → GREEN) with 10 passing tests
+- Created login endpoint (/api/auth/login) with httpOnly cookie session management
+- Created logout endpoint (/api/auth/logout) for session destruction (AUTH-02 complete)
+- Created token verification endpoint (/api/auth/verify) for authentication status checks
+- Created Telegram linking endpoint (/api/auth/link-telegram) for account linking (AUTH-01 complete)
+- Extended Next.js middleware to combine rate limiting (Plan 01-03) and auth protection (this plan)
+- Commits: a07f923 (types), 1b64cce (test-red), 9d431ec (feat-green), 5aa856a (login), d54c9c5 (logout), 605e47f (verify), b01a0a9 (telegram), 61b920f (middleware)
+
 ### Next Steps
 
-1. **Immediate (Plan 01-04):** Implement rate limiting infrastructure (Redis + token bucket algorithm)
+1. **Immediate (Plan 01-05):** Implement Telegram bot with grammY, chat ID whitelist, and /start authentication
 2. **Infrastructure setup:** Install PostgreSQL 16+ with TimescaleDB 2.15+ extension
 3. **Database setup:** Configure DATABASE_URL, run migrations, apply hypertable conversion
 4. **Redis setup:** Install Redis and configure REDIS_URL environment variable
-5. **Plan 01-05:** Create test stubs and verify IOF rate (6.38%) with Brazilian Central Bank
+5. **Phase 2:** Core data collection from multiple sources (Liga Magic, TCGPlayer, CardMarket, CardKingdom)
 
 ### Context for Next Session
 
-**Current status:** Project initialization, database schema, and rate limiting complete. Ready to implement additional infrastructure (Plan 01-04).
+**Current status:** Project initialization, database schema, rate limiting, and JWT authentication complete. Ready to implement Telegram bot (Plan 01-05).
 
 **Key files created:**
 - `package.json, tsconfig.json, next.config.js` - Next.js project configuration
@@ -197,15 +219,20 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 - `drizzle/*.sql` - TimescaleDB migration scripts
 - `src/lib/ratelimit/rate-limiter.ts` - Token bucket rate limiting with Lua scripts
 - `src/lib/ratelimit/redis.ts` - Redis client singleton
-- `middleware.ts` - Next.js middleware with rate limiting for /api/external/*
+- `src/lib/auth.ts` - JWT signing/verification and bcrypt password hashing
+- `src/types/auth.ts` - Authentication type definitions
+- `src/app/api/auth/login/route.ts` - Login endpoint with httpOnly cookies
+- `src/app/api/auth/logout/route.ts` - Logout endpoint (AUTH-02 complete)
+- `src/app/api/auth/verify/route.ts` - Token verification endpoint
+- `src/app/api/auth/link-telegram/route.ts` - Telegram account linking (AUTH-01 complete)
+- `middleware.ts` - Next.js middleware with rate limiting + auth protection
 - `test/mocks/redis.ts` - MockRedis class for testing
+- `test/setup.ts` - Test setup with JWT_SECRET environment variable
 
-**Before Plan 01-04:**
-- Redis required for rate limiting to function
-- Configure REDIS_URL environment variable
-- Install Redis locally or use Docker: `docker run -d -p 6379:6379 redis:7-alpine`
-
-**Important:** Phase 1 addresses critical pitfalls that cannot be retrofitted easily. Rate limiting is now implemented and ready for use by external API integrations.
+**Before Plan 01-05:**
+- Configure TELEGRAM_BOT_TOKEN environment variable
+- Register Telegram bot with @BotFather
+- Consider creating Telegram bot commands and handlers
 
 ---
 *State initialized: 2026-03-05*
