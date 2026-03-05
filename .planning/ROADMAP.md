@@ -7,7 +7,7 @@
 
 ## Phases
 
-- [ ] **Phase 1: Foundation & Infrastructure** - Database, authentication, and base infrastructure
+- [x] **Phase 1: Foundation & Infrastructure** - Database, authentication, and base infrastructure (completed 2026-03-05)
 - [ ] **Phase 2: Core Data Collection** - Multi-source price collection with currency conversion
 - [ ] **Phase 3: User Interface & Wishlist** - Web dashboard and Telegram bot for wishlist management
 - [ ] **Phase 4: Opportunity Detection & Notifications** - Alert system with batching and smart thresholds
@@ -18,7 +18,7 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Infrastructure | 0/5 | Planning complete | - |
+| 1. Foundation & Infrastructure | 6/6 | Complete   | 2026-03-05 |
 | 2. Core Data Collection | 0/4 | Not started | - |
 | 3. User Interface & Wishlist | 0/3 | Not started | - |
 | 4. Opportunity Detection & Notifications | 0/3 | Not started | - |
@@ -41,7 +41,7 @@
 3. Sistema respeita rate limits de APIs externas (ex: Scryfall 10 req/sec)
 4. Sistema armazena histórico de preços com schema otimizado para consultas temporais
 
-**Plans:** 5 plans in 3 waves
+**Plans:** 6/6 plans complete
 
 **Wave 1 (Parallel):**
 - [x] 01-01-PLAN.md — Initialize Next.js project with TypeScript, Biome, Vitest, and monorepo structure

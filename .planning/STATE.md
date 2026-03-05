@@ -3,23 +3,23 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: Phase 1 (Foundation & Infrastructure)
-current_plan: 05 - Implement Telegram bot with grammY
-status: executing
-last_updated: "2026-03-05T17:55:47.312Z"
+current_plan: COMPLETED - Phase 1 complete
+status: completed
+last_updated: "2026-03-05T22:28:19Z"
 progress:
   total_phases: 6
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 6
-  completed_plans: 5
-  percent: 83
+  completed_plans: 6
+  percent: 100
 ---
 
 # MTG Price Monitor - Project State
 
 **Last updated:** 2026-03-05
-**Current phase:** Phase 1 (Foundation & Infrastructure)
-**Current plan:** 05 - Implement Telegram bot with grammY
-**Status:** In progress (5/6 plans complete)
+**Current phase:** Phase 1 (Foundation & Infrastructure) - COMPLETED
+**Current plan:** All 6 plans complete
+**Status:** Phase 1 complete (6/6 plans, 100%)
 
 ## Project Reference
 
@@ -35,19 +35,35 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 
 ## Current Position
 
-**Phase:** 1 - Foundation & Infrastructure
-**Plan:** 05 - Implement Telegram bot with grammY
-**Status:** Plan 01-00, 01-01, 01-02, 01-03, and 01-04 complete, continuing to Plan 05
+**Phase:** 1 - Foundation & Infrastructure (COMPLETED)
+**Plan:** All 6 plans complete
+**Status:** Phase 1 foundation complete, ready for Phase 2 (Core Data Collection)
 
 **Progress:**
-[████████░░] 83% complete (5/6 plans)
+[██████████] 100% complete (6/6 plans)
 ```
 
-**Current focus:** Implementing Telegram bot with grammY (Plan 05)
+**Completed Plans:**
+- 01-00: Planning and research
+- 01-01: Project initialization with Next.js, TypeScript, Biome
+- 01-02: Database schema with Drizzle ORM and TimescaleDB
+- 01-03: Redis-backed token bucket rate limiting
+- 01-04: JWT authentication system with bcrypt and Telegram linking
+- 01-05: Telegram bot with grammY, chat ID whitelist, and /start authentication
+
+**Next:** Phase 2 - Core Data Collection from multiple sources (Liga Magic, TCGPlayer, CardMarket, CardKingdom)
 
 ## Performance Metrics
 
-*Most recent plan (01-04):*
+*Most recent plan (01-05):*
+- Duration: ~15 minutes (~900 seconds)
+- Tasks: 5/5 completed (4 implementation + 1 verification checkpoint)
+- Files created: 5
+- Files modified: 4
+- Commits: 6
+- Deviations: 4 auto-fixed (2 bugs, 1 blocking, 1 missing critical)
+
+*Previous plan (01-04):*
 - Duration: ~10 minutes (622 seconds)
 - Tasks: 8/8 completed
 - Files created: 8
@@ -98,6 +114,14 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 1. **JWT Secret in Test Setup:** Added JWT_SECRET environment variable to test/setup.ts to enable JWT testing in development environment.
 2. **HttpOnly Cookie Configuration:** Set sameSite: 'lax' for better compatibility while maintaining security against XSS attacks.
 3. **Middleware Extension:** Extended Plan 01-03 middleware to combine rate limiting and auth protection in a single file.
+
+**During Plan 01-05 (Telegram Bot, 2026-03-05):**
+
+1. **Chat ID Whitelist Security:** Implemented middleware-based chat ID whitelist for single-user security per CONTEXT.md decision (lines 73-77). Only whitelisted user can interact with bot.
+2. **Password-Based Bot Authentication:** Created compareBotPassword function for /start command, reusing bcrypt from auth utilities for consistency.
+3. **Docker Compose Infrastructure:** Created docker-compose.yml with TimescaleDB image for easy local development setup (PostgreSQL 16 + TimescaleDB 2.15).
+4. **Polling Mode for Development:** Bot uses long polling (bot.start()) for development. Webhooks will be configured for production deployment.
+5. **Command Registration in Bot Menu:** Used bot.api.setMyCommands to register /start, /price, /history in Telegram's command menu for better UX.
 
 **During Plan 01-01 (Project initialization, 2026-03-05):**
 
@@ -196,17 +220,40 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 - Extended Next.js middleware to combine rate limiting (Plan 01-03) and auth protection (this plan)
 - Commits: a07f923 (types), 1b64cce (test-red), 9d431ec (feat-green), 5aa856a (login), d54c9c5 (logout), 605e47f (verify), b01a0a9 (telegram), 61b920f (middleware)
 
+**2026-03-05 (Plan 01-05):** Telegram bot with grammY, chat ID whitelist, and password authentication
+- Created grammY bot instance with error handling in src/lib/telegram.ts
+- Implemented chat ID whitelist middleware blocking unauthorized users
+- Created /start command handler with password verification using compareBotPassword
+- Added compareBotPassword function to src/lib/auth.ts for bot authentication
+- Set up bot startup with command registration in Telegram menu (/start, /price, /history)
+- Created docker-compose.yml for PostgreSQL 16 + TimescaleDB 2.15 local development
+- Fixed dotenv configuration for environment variable loading
+- Fixed Drizzle ORM import errors in drizzle.config.ts
+- Bot tested and verified working: MTG Price Alert bot (@mtg_price_alert_bot)
+- AUTH-01 requirement complete (users can link Telegram account via bot)
+- Commits: 52b9629 (bot startup), bedba89 (compareBotPassword), 2b14012 (dotenv + drizzle fixes), f7b703e (summary)
+
 ### Next Steps
 
-1. **Immediate (Plan 01-05):** Implement Telegram bot with grammY, chat ID whitelist, and /start authentication
-2. **Infrastructure setup:** Install PostgreSQL 16+ with TimescaleDB 2.15+ extension
-3. **Database setup:** Configure DATABASE_URL, run migrations, apply hypertable conversion
-4. **Redis setup:** Install Redis and configure REDIS_URL environment variable
-5. **Phase 2:** Core data collection from multiple sources (Liga Magic, TCGPlayer, CardMarket, CardKingdom)
+**Phase 1 Complete!** All 6 plans finished (01-00 through 01-05).
+
+**Immediate (Phase 2 Planning):**
+1. Plan Phase 2: Core Data Collection from multiple sources
+2. Implement price scrapers for Liga Magic, TCGPlayer, CardMarket, CardKingdom
+3. Add currency conversion with IOF calculation (6.38% for credit card)
+4. Set up scheduled jobs for 2-3x daily price checks
+5. Store price history in TimescaleDB hypertables
+
+**Infrastructure ready:**
+- PostgreSQL 16 + TimescaleDB 2.15 (docker-compose.yml created)
+- Database schema with hypertables and indexes
+- Rate limiting infrastructure (Redis-backed)
+- JWT authentication system
+- Telegram bot with chat ID whitelist
 
 ### Context for Next Session
 
-**Current status:** Project initialization, database schema, rate limiting, and JWT authentication complete. Ready to implement Telegram bot (Plan 01-05).
+**Current status:** Phase 1 complete. All infrastructure ready for Phase 2 data collection.
 
 **Key files created:**
 - `package.json, tsconfig.json, next.config.js` - Next.js project configuration
@@ -220,6 +267,10 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 - `src/lib/ratelimit/rate-limiter.ts` - Token bucket rate limiting with Lua scripts
 - `src/lib/ratelimit/redis.ts` - Redis client singleton
 - `src/lib/auth.ts` - JWT signing/verification and bcrypt password hashing
+- `src/lib/telegram.ts` - grammY bot instance
+- `src/bot/index.ts` - Bot entry point and command registration
+- `src/bot/commands/start.ts` - /start command with password authentication
+- `src/bot/middleware/whitelist.ts` - Chat ID whitelist security
 - `src/types/auth.ts` - Authentication type definitions
 - `src/app/api/auth/login/route.ts` - Login endpoint with httpOnly cookies
 - `src/app/api/auth/logout/route.ts` - Logout endpoint (AUTH-02 complete)
@@ -228,12 +279,15 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 - `middleware.ts` - Next.js middleware with rate limiting + auth protection
 - `test/mocks/redis.ts` - MockRedis class for testing
 - `test/setup.ts` - Test setup with JWT_SECRET environment variable
+- `docker-compose.yml` - PostgreSQL + TimescaleDB Docker configuration
 
-**Before Plan 01-05:**
-- Configure TELEGRAM_BOT_TOKEN environment variable
-- Register Telegram bot with @BotFather
-- Consider creating Telegram bot commands and handlers
+**Before Phase 2:**
+- All infrastructure ready for data collection
+- Database schema optimized for time-series price data
+- Rate limiting in place for external API calls
+- Authentication system complete
+- Telegram bot functional and tested
 
 ---
 *State initialized: 2026-03-05*
-*Last updated: 2026-03-05T17:25:00Z*
+*Last updated: 2026-03-05T22:28:19Z*
