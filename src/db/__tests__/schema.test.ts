@@ -6,7 +6,7 @@
  * TODO: Implement in Plan 01-02 after schema created
  */
 
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 describe('Database schema validation', () => {
   it.todo('should define users table with correct columns', async () => {

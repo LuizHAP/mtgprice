@@ -6,7 +6,7 @@
  * TODO: Implement in Plan 01-04 TDD cycle
  */
 
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 describe('JWT token generation and verification', () => {
   it.todo('should sign token with user payload', async () => {

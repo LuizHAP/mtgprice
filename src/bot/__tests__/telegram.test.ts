@@ -6,7 +6,7 @@
  * TODO: Implement in Plan 01-05 after bot created
  */
 
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 describe('Telegram bot authentication', () => {
   it.todo('should reject commands from non-whitelisted chat IDs', async () => {

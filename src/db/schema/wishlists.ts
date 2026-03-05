@@ -1,12 +1,16 @@
-import { pgTable, serial, varchar, integer, timestamp } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
-import { users } from './users'
+import { integer, pgTable, serial, timestamp, varchar } from 'drizzle-orm/pg-core'
 import { cards } from './cards'
+import { users } from './users'
 
 export const wishlists = pgTable('wishlists', {
   id: serial('id').primaryKey(),
-  userId: integer('user_id').notNull().references(() => users.id),
-  cardId: varchar('card_id', { length: 255 }).notNull().references(() => cards.oracleId),
+  userId: integer('user_id')
+    .notNull()
+    .references(() => users.id),
+  cardId: varchar('card_id', { length: 255 })
+    .notNull()
+    .references(() => cards.oracleId),
   addedAt: timestamp('added_at').notNull().defaultNow(),
 })
 

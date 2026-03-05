@@ -6,7 +6,7 @@
  * TODO: Implement in Plan 01-04 TDD cycle
  */
 
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 describe('Password hashing with bcrypt', () => {
   it.todo('should hash password with 10 salt rounds', async () => {

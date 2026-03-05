@@ -12,21 +12,17 @@ const originalError = console.error
 const originalWarn = console.warn
 
 beforeAll(() => {
-  console.error = (...args: any[]) => {
-    if (
-      typeof args[0] === 'string' &&
-      args[0].includes('Warning: ReactDOM.render')
-    ) {
+  console.error = (...args: unknown[]) => {
+    if (typeof args[0] === 'string' && args[0].includes('Warning: ReactDOM.render')) {
       return
     }
     originalError.call(console, ...args)
   }
 
-  console.warn = (...args: any[]) => {
+  console.warn = (...args: unknown[]) => {
     if (
       typeof args[0] === 'string' &&
-      (args[0].includes('componentWillReceiveProps') ||
-        args[0].includes('Warning:'))
+      (args[0].includes('componentWillReceiveProps') || args[0].includes('Warning:'))
     ) {
       return
     }

@@ -6,7 +6,7 @@
  * TODO: Implement in Plan 01-02 after TimescaleDB setup
  */
 
-import { describe, it, expect, beforeAll, afterAll } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 describe('TimescaleDB hypertables', () => {
   it.todo('should convert prices table to hypertable', async () => {

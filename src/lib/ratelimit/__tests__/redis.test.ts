@@ -6,7 +6,7 @@
  * TODO: Implement in Plan 01-03 after Redis client setup
  */
 
-import { describe, it, expect, beforeAll, afterAll } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 describe('Redis-backed rate limiter', () => {
   it.todo('should store rate limit state in Redis', async () => {

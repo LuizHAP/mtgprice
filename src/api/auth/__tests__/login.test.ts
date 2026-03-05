@@ -6,9 +6,9 @@
  * TODO: Implement in Plan 01-04 after endpoint created
  */
 
-import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import { http } from 'msw'
 import { setupServer } from 'msw/node'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 const server = setupServer()
 

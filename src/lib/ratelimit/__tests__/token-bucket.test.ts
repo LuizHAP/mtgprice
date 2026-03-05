@@ -6,7 +6,7 @@
  * TODO: Implement in Plan 01-03 TDD cycle
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 describe('Token bucket rate limiting algorithm', () => {
   it.todo('should allow requests within limit', async () => {
