@@ -2,24 +2,24 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: Phase 1 (Foundation & Infrastructure) - COMPLETED
-current_plan: All 6 plans complete
-status: planning
-last_updated: "2026-03-05T22:35:15.241Z"
+current_phase: Phase 2 (Core Data Collection)
+current_plan: 02-02 (International Price Sources with Circuit Breaker) - COMPLETE
+status: executing
+last_updated: "2026-03-06T11:45:00.000Z"
 progress:
   total_phases: 6
   completed_phases: 1
-  total_plans: 6
-  completed_plans: 6
-  percent: 100
+  total_plans: 11
+  completed_plans: 9
+  percent: 81
 ---
 
 # MTG Price Monitor - Project State
 
-**Last updated:** 2026-03-05
-**Current phase:** Phase 1 (Foundation & Infrastructure) - COMPLETED
-**Current plan:** All 6 plans complete
-**Status:** Ready to plan
+**Last updated:** 2026-03-06
+**Current phase:** Phase 2 (Core Data Collection)
+**Current plan:** 02-02 (International Price Sources with Circuit Breaker) - COMPLETE
+**Status:** Executing Phase 2 data collection plans
 
 ## Project Reference
 
@@ -35,15 +35,15 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 
 ## Current Position
 
-**Phase:** 1 - Foundation & Infrastructure (COMPLETED)
-**Plan:** All 6 plans complete
-**Status:** Phase 1 foundation complete, ready for Phase 2 (Core Data Collection)
+**Phase:** 2 - Core Data Collection
+**Plan:** 02-02 (International Price Sources with Circuit Breaker) - COMPLETE
+**Status:** International price fetchers complete with circuit breakers, ready for currency conversion and smart refresh (02-03)
 
 **Progress:**
-[██████████] 100% complete (6/6 plans)
+[████████░░] 81% complete (9/11 plans)
 ```
 
-**Completed Plans:**
+**Phase 1 Completed Plans:**
 - 01-00: Planning and research
 - 01-01: Project initialization with Next.js, TypeScript, Biome
 - 01-02: Database schema with Drizzle ORM and TimescaleDB
@@ -51,11 +51,32 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 - 01-04: JWT authentication system with bcrypt and Telegram linking
 - 01-05: Telegram bot with grammY, chat ID whitelist, and /start authentication
 
-**Next:** Phase 2 - Core Data Collection from multiple sources (Liga Magic, TCGPlayer, CardMarket, CardKingdom)
+**Phase 2 Completed Plans:**
+- 02-00: Test Infrastructure Setup - Vitest configuration and test stubs for all Phase 2 components
+- 02-01: Scryfall Card Metadata & Liga Magic Foundation - Bulk data import, card upsert, metadata refresh, Liga Magic scraping
+- 02-02: International Price Sources with Circuit Breaker - TCGPlayer, CardMarket, CardKingdom fetchers with Opossum circuit breakers
+
+**Next:** Plan 02-03 - Currency Conversion & Smart Refresh Logic
 
 ## Performance Metrics
 
-*Most recent plan (01-05):*
+*Most recent plan (02-02):*
+- Duration: ~5 minutes (290 seconds)
+- Tasks: 6/6 completed
+- Files created: 5 (circuit-breaker.ts, logger.ts, tcgplayer.ts, cardmarket.ts, cardkingdom.ts)
+- Files modified: 4 (package.json, pnpm-lock.yaml, rate-limiter.ts, .gitignore)
+- Commits: 7
+- Deviations: None
+
+*Previous plan (02-01):*
+- Duration: ~5 minutes (290 seconds)
+- Tasks: 6/6 completed
+- Files created: 11 (2 implementation + 9 test stubs)
+- Files modified: 2 (package.json, pnpm-lock.yaml)
+- Commits: 5
+- Deviations: None
+
+*Previous plan (01-05):*
 - Duration: ~15 minutes (~900 seconds)
 - Tasks: 5/5 completed (4 implementation + 1 verification checkpoint)
 - Files created: 5
