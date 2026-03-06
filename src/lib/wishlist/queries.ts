@@ -1,30 +1,20 @@
 import { db } from '@/db'
 import { cards, prices, wishlists } from '@/db/schema'
-import { and, desc, eq, ilike, sql } from 'drizzle-orm'
+import type { BestPrice, PriceTrend } from '@/types/wishlist'
+import { and, desc, eq } from 'drizzle-orm'
 
-export interface LatestPrices {
+/**
+ * Get latest prices from all 4 sources for a specific card
+ *
+ * @param cardId - Oracle ID of the card
+ * @returns Object with latest prices from each source (null if no price available)
+ */
+export async function getLatestPricesForCard(cardId: string): Promise<{
   ligaMagic: number | null
   tcgplayer: number | null
   cardmarket: number | null
   cardkingdom: number | null
-}
-
-export interface BestPrice {
-  source: string
-  priceBrl: number
-}
-
-export interface PriceTrend {
-  trend: 'up' | 'down' | 'stable'
-  percentChange: number | null
-}
-
-/**
- * Get latest prices from all 4 sources for a specific card
- */
-export async function getLatestPricesForCard(
-  cardId: string
-): Promise<LatestPrices> {
+}> {
   const sources = ['liga_magic', 'tcgplayer', 'cardmarket', 'cardkingdom'] as const
 
   const pricePromises = sources.map(async (source) => {
@@ -53,8 +43,16 @@ export async function getLatestPricesForCard(
 
 /**
  * Find the lowest price across all sources
+ *
+ * @param prices - Object with prices from all 4 sources
+ * @returns Best price with source name, or null if no prices available
  */
-export function getBestPrice(prices: LatestPrices): BestPrice | null {
+export function getBestPrice(prices: {
+  ligaMagic: number | null
+  tcgplayer: number | null
+  cardmarket: number | null
+  cardkingdom: number | null
+}): BestPrice | null {
   const sourceMap = {
     ligaMagic: 'Liga Magic',
     tcgplayer: 'TCGPlayer',
@@ -73,17 +71,19 @@ export function getBestPrice(prices: LatestPrices): BestPrice | null {
     return null
   }
 
-  return validPrices.reduce((best, current) =>
-    current.priceBrl < best.priceBrl ? current : best
-  )
+  return validPrices.reduce((best, current) => (current.priceBrl < best.priceBrl ? current : best))
 }
 
 /**
  * Calculate price trend vs 7 days ago
+ *
+ * @param currentPrice - Current price in BRL
+ * @param priceHistory - Array of historical price records
+ * @returns Price trend with direction and percentage change
  */
 export function calculatePriceTrend(
   currentPrice: number,
-  priceHistory: Array<{ timestamp: Date; priceBrl: string | null }>
+  priceHistory: Array<{ timestamp: Date; priceBrl: string | null }>,
 ): PriceTrend {
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
   const tolerance = 6 * 60 * 60 * 1000 // 6 hours tolerance
@@ -137,15 +137,22 @@ export async function getUserWishlist(userId: number) {
 
 /**
  * Add card to wishlist
+ *
+ * @param userId - User ID to add card for
+ * @param cardId - Oracle ID of the card to add
+ * @throws Error if card already in wishlist (PostgreSQL error code 23505)
  */
-export async function addCardToWishlist(userId: number, cardId: string) {
+export async function addCardToWishlist(userId: number, cardId: string): Promise<void> {
   try {
     await db.insert(wishlists).values({
       userId,
       cardId,
     })
   } catch (error) {
-    if ((error as { code?: string }).code === '23505') {
+    if (
+      error instanceof Error &&
+      (('code' in error && error.code === '23505') || error.message.includes('unique constraint'))
+    ) {
       throw new Error('Card already in wishlist')
     }
     throw error
@@ -154,13 +161,20 @@ export async function addCardToWishlist(userId: number, cardId: string) {
 
 /**
  * Remove card from wishlist
+ *
+ * @param userId - User ID to remove card for
+ * @param cardId - Oracle ID of the card to remove
+ * @throws Error if card not in wishlist (0 rows affected)
  */
-export async function removeCardFromWishlist(userId: number, cardId: string) {
+export async function removeCardFromWishlist(userId: number, cardId: string): Promise<void> {
   const result = await db
     .delete(wishlists)
     .where(and(eq(wishlists.userId, userId), eq(wishlists.cardId, cardId)))
+    .returning()
 
-  return result
+  if (result.length === 0) {
+    throw new Error('Card not in wishlist')
+  }
 }
 
 /**
