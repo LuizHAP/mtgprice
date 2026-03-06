@@ -3,23 +3,26 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
-    // Test environment for DOM/React testing
-    environment: 'jsdom',
-
-    // Enable global test utilities (describe, it, expect, etc.)
-    globals: true,
+    // Test environment for backend testing (node for API/scraping tests)
+    environment: 'node',
 
     // Setup file for global test configuration
     setupFiles: ['./test/setup.ts'],
 
-    // Test file patterns
-    include: ['**/*.test.ts', '**/*.test.tsx'],
+    // Test file patterns - focus on __tests__ directories
+    include: ['src/**/__tests__/**/*.test.ts'],
     exclude: ['node_modules', '.next', 'dist', 'build'],
 
-    // Coverage configuration
+    // Coverage configuration with 80% thresholds
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
+      thresholds: {
+        lines: 80,
+        functions: 80,
+        branches: 80,
+        statements: 80,
+      },
       exclude: [
         'node_modules/',
         '.next/',
@@ -32,11 +35,17 @@ export default defineConfig({
       ],
     },
 
-    // Timeout for tests (default 5000ms)
+    // Timeout for tests - 10 seconds for API/scraping tests
     testTimeout: 10000,
 
-    // Show verbose output
-    reporters: ['default'],
+    // Show verbose output for better debugging
+    reporters: ['verbose'],
+
+    // Enable global test utilities
+    globals: true,
+
+    // Enable parallel test execution by default
+    parallel: true,
   },
 
   // Path aliases to match tsconfig.json
