@@ -1,8 +1,5 @@
-import type { NewCard, NewPrice, NewWishlist } from '@/db/schema'
-import type * as schema from '@/db/schema'
-import { cards } from '@/db/schema/cards'
-import { prices } from '@/db/schema/prices'
-import { wishlists } from '@/db/schema/wishlists'
+import { db } from '@/db'
+import { cards, prices, wishlists } from '@/db/schema'
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
 
 /**
@@ -21,9 +18,11 @@ import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
  * await truncateTable(db, wishlists)
  * ```
  */
-export async function truncateTable<T extends keyof schema.Schema>(
-  db: PostgresJsDatabase<schema.Schema>,
-  table: schema.Schema[T],
+export async function truncateTable(
+  // biome-ignore lint/suspicious/noExplicitAny: Test helper accepts any db instance
+  db: PostgresJsDatabase<any>,
+  // biome-ignore lint/suspicious/noExplicitAny: Test helper accepts any table
+  table: any,
 ): Promise<void> {
   await db.delete(table)
 }
@@ -46,10 +45,11 @@ export async function truncateTable<T extends keyof schema.Schema>(
  * ```
  */
 export async function seedTestCard(
-  db: PostgresJsDatabase<schema.Schema>,
-  cardData: Partial<NewCard> = {},
+  // biome-ignore lint/suspicious/noExplicitAny: Test helper accepts any db instance
+  db: PostgresJsDatabase<any>,
+  cardData: Partial<typeof cards.$inferInsert> = {},
 ): Promise<typeof cards.$inferSelect> {
-  const defaultCard: NewCard = {
+  const defaultCard: typeof cards.$inferInsert = {
     oracleId: `test-oracle-${Date.now()}`,
     name: 'Test Card',
     set: 'TST',
@@ -81,13 +81,14 @@ export async function seedTestCard(
  * ```
  */
 export async function seedTestPrice(
-  db: PostgresJsDatabase<schema.Schema>,
-  priceData: Partial<NewPrice> = {},
+  // biome-ignore lint/suspicious/noExplicitAny: Test helper accepts any db instance
+  db: PostgresJsDatabase<any>,
+  priceData: Partial<typeof prices.$inferInsert> = {},
 ): Promise<typeof prices.$inferSelect> {
-  const defaultPrice: NewPrice = {
+  const defaultPrice: typeof prices.$inferInsert = {
     cardId: `test-oracle-${Date.now()}`,
     source: 'liga_magic',
-    priceBrl: 100.0,
+    priceBrl: '100.00',
     timestamp: new Date(),
   }
 
@@ -112,10 +113,11 @@ export async function seedTestPrice(
  * ```
  */
 export async function seedTestWishlist(
-  db: PostgresJsDatabase<schema.Schema>,
-  wishlistData: Partial<NewWishlist> = {},
+  // biome-ignore lint/suspicious/noExplicitAny: Test helper accepts any db instance
+  db: PostgresJsDatabase<any>,
+  wishlistData: Partial<typeof wishlists.$inferInsert> = {},
 ): Promise<typeof wishlists.$inferSelect> {
-  const defaultWishlist: NewWishlist = {
+  const defaultWishlist: typeof wishlists.$inferInsert = {
     userId: 1,
     cardId: `test-oracle-${Date.now()}`,
     addedAt: new Date(),
@@ -140,9 +142,10 @@ export async function seedTestWishlist(
  * ```
  */
 export async function seedTestCards(
-  db: PostgresJsDatabase<schema.Schema>,
+  // biome-ignore lint/suspicious/noExplicitAny: Test helper accepts any db instance
+  db: PostgresJsDatabase<any>,
   count: number,
-  overrides: Partial<NewCard> = {},
+  overrides: Partial<typeof cards.$inferInsert> = {},
 ): Promise<(typeof cards.$inferSelect)[]> {
   const cardsPromises = Array.from({ length: count }, (_, i) =>
     seedTestCard(db, {
@@ -170,7 +173,8 @@ export async function seedTestCards(
  * ```
  */
 export async function seedTestPricesForAllSources(
-  db: PostgresJsDatabase<schema.Schema>,
+  // biome-ignore lint/suspicious/noExplicitAny: Test helper accepts any db instance
+  db: PostgresJsDatabase<any>,
   cardId: string,
   basePrice: number,
   timestamp: Date = new Date(),
@@ -182,7 +186,7 @@ export async function seedTestPricesForAllSources(
     seedTestPrice(db, {
       cardId,
       source,
-      priceBrl: basePrice * (1 + priceVariations[i]),
+      priceBrl: (basePrice * (1 + priceVariations[i])).toFixed(2),
       timestamp,
     }),
   )

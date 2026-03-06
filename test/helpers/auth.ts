@@ -1,5 +1,4 @@
-import { createToken } from '@/lib/auth'
-import type { Headers } from 'node-fetch'
+import { signToken } from '@/lib/auth'
 
 /**
  * Authentication helpers for API endpoint tests
@@ -16,8 +15,8 @@ import type { Headers } from 'node-fetch'
  * const token = createTestToken(1)
  * ```
  */
-export function createTestToken(userId: number = 1): string {
-  return createToken({ userId, username: 'testuser' })
+export function createTestToken(userId = 1): string {
+  return signToken(userId, 'test@example.com')
 }
 
 /**
@@ -58,6 +57,6 @@ export function createMockRequest(token?: string): Partial<Request> {
     headers: new Headers({
       Authorization: `Bearer ${jwtToken}`,
       'Content-Type': 'application/json',
-    }),
+    }) as unknown as Headers,
   }
 }

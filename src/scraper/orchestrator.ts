@@ -16,7 +16,7 @@ import { shouldFetchPrice } from './smart-refresh'
 import { default as fetchCardKingdomPrice } from './providers/cardkingdom'
 import { default as fetchCardMarketPrice } from './providers/cardmarket'
 // Import all fetchers
-import fetchLigaMagicPrice from './providers/liga-magic'
+import { fetchCardPrice as fetchLigaMagicPrice } from './providers/liga-magic'
 import { default as fetchTCGPlayerPrice } from './providers/tcgplayer'
 
 /**

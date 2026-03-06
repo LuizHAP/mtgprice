@@ -9,10 +9,11 @@
  * Reduces API calls by ~66% vs fetching all cards every run per CONTEXT.md
  */
 
+import { db } from '@/db'
+import { prices } from '@/db/schema'
+import { logger } from '@/lib/logger'
 import { differenceInHours } from 'date-fns'
-import { and, desc, eq, prices } from 'src/db/schema'
-import { db } from '../db'
-import { logger } from '../lib/logger'
+import { and, desc, eq, sql } from 'drizzle-orm'
 
 /**
  * Smart refresh threshold in hours

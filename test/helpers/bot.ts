@@ -1,4 +1,5 @@
-import type { Context, Message } from 'grammy'
+import type { Context } from 'grammy'
+import { vi } from 'vitest'
 
 /**
  * Mock grammY Context factory for testing Telegram bot commands
@@ -22,14 +23,17 @@ export interface MockContextOptions {
 /**
  * Creates a mock grammY Message object
  */
-export function createMockMessage(options: MockMessageOptions): Message {
+export function createMockMessage(
+  options: MockMessageOptions,
+): // biome-ignore lint/suspicious/noExplicitAny: Mock object for testing
+any {
   const { text, chatId = 123456, userId = 123456, username = 'testuser' } = options
 
   return {
     message_id: 1,
     date: Date.now() / 1000,
     chat: {
-      id: typeof chatId === 'number' ? chatId : parseInt(chatId, 10),
+      id: typeof chatId === 'number' ? chatId : Number.parseInt(chatId, 10),
       type: 'private',
       username,
       first_name: 'Test',
@@ -44,7 +48,7 @@ export function createMockMessage(options: MockMessageOptions): Message {
       language_code: 'en',
     },
     text,
-  } as unknown as Message
+  }
 }
 
 /**
@@ -59,20 +63,14 @@ export function createMockMessage(options: MockMessageOptions): Message {
  * ```
  */
 export function createMockContext(options: MockContextOptions = {}): Context {
-  const {
-    message: messageOptions,
-    chatId = 123456,
-    userId = 123456,
-    username = 'testuser',
-    match,
-  } = options
+  const { message: messageOptions, chatId = 123456, userId = 123456, username = 'testuser', match } = options
 
   const message = messageOptions ? createMockMessage(messageOptions) : undefined
 
   const mockContext = {
     message,
     chat: {
-      id: typeof chatId === 'number' ? chatId : parseInt(chatId.toString(), 10),
+      id: typeof chatId === 'number' ? chatId : Number.parseInt(chatId.toString(), 10),
       type: 'private',
     },
     from: {

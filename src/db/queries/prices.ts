@@ -9,9 +9,10 @@
  * Uses Drizzle ORM with TimescaleDB hypertable optimization.
  */
 
-import { and, desc, eq, gt, prices, sql } from 'src/db/schema'
-import { db } from '../db'
-import { logger } from '../lib/logger'
+import { db } from '@/db'
+import { prices } from '@/db/schema'
+import { logger } from '@/lib/logger'
+import { and, desc, eq, gt, sql } from 'drizzle-orm'
 
 /**
  * Insert a single price record

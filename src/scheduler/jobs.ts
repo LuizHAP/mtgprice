@@ -9,11 +9,11 @@
  * Per CONTEXT.md: 2-3x daily checks (NOT real-time per NOTIF-03)
  */
 
+import { db } from '@/db'
+import { cards } from '@/db/schema'
+import { logger } from '@/lib/logger'
+import fetchAllPrices from '@/scraper/orchestrator'
 import cron from 'node-cron'
-import { cards } from 'src/db/schema'
-import { db } from '../db'
-import { logger } from '../lib/logger'
-import fetchAllPrices from '../scraper/orchestrator'
 
 /**
  * Flag to prevent concurrent executions

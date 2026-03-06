@@ -198,8 +198,8 @@ async function testFullPipeline() {
       log(colors.green, `  ✓ Successfully fetched ${stats.fetched} prices`)
     }
 
-    if (stats.errors.length > 0) {
-      log(colors.yellow, `  ⚠ Encountered ${stats.errors.length} errors`)
+    if (stats.failed > 0) {
+      log(colors.yellow, `  ⚠ Encountered ${stats.failed} errors`)
     }
 
     await waitForEnter('Check stored prices in database')
@@ -329,7 +329,7 @@ async function testCircuitBreaker() {
     log(colors.cyan, '\n⚡ Testing circuit breaker configuration...')
 
     // Check circuit breaker implementation
-    const circuitBreakerFile = await import('../src/scraper/circuit-breaker.ts')
+    const circuitBreakerFile = await import('../src/scraper/circuit-breaker')
 
     log(colors.white, '  Circuit breaker configuration:')
     log(colors.white, '    - Error threshold: 50% (opens circuit when half fail)')

@@ -103,4 +103,4 @@ export function wrapWithCircuitBreaker<T, R>(
 /**
  * Export types for use in other modules
  */
-export type { CircuitBreaker as OpossumCircuitBreaker } from 'opossum'
+export type { default as OpossumCircuitBreaker } from 'opossum'

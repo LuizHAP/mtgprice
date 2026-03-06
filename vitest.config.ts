@@ -43,9 +43,6 @@ export default defineConfig({
 
     // Enable global test utilities
     globals: true,
-
-    // Enable parallel test execution by default
-    parallel: true,
   },
 
   // Path aliases to match tsconfig.json
