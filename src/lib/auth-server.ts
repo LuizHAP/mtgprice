@@ -17,15 +17,19 @@ import { verifyToken } from './auth'
  * Used by API routes to authenticate requests.
  *
  * @returns The authenticated user payload
- * @throws NextResponse with 401 status if not authenticated or token is invalid
+ * @throws Error with message "Not authenticated" or "Invalid token" if auth fails
  *
  * @example
  * ```ts
  * import { getServerUser } from '@/lib/auth-server'
  *
  * export async function GET(request: NextRequest) {
- *   const user = await getServerUser()
- *   // user.userId, user.email are available
+ *   try {
+ *     const user = await getServerUser()
+ *     // user.userId, user.email are available
+ *   } catch (error) {
+ *     return NextResponse.json({ error: error.message }, { status: 401 })
+ *   }
  * }
  * ```
  */
@@ -34,13 +38,13 @@ export async function getServerUser(): Promise<JwtPayload> {
   const token = cookieStore.get('auth_token')?.value
 
   if (!token) {
-    throw NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+    throw new Error('Not authenticated')
   }
 
   try {
     const payload = verifyToken(token)
     return payload
   } catch (error) {
-    throw NextResponse.json({ error: 'Invalid token' }, { status: 401 })
+    throw new Error('Invalid token')
   }
 }
