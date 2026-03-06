@@ -1,0 +1,224 @@
+/**
+ * Cron job scheduling for 2-3x daily price collection
+ *
+ * Provides functions to:
+ * - Schedule price collection with node-cron
+ * - Execute price collection for all monitored cards
+ * - Prevent concurrent executions
+ *
+ * Per CONTEXT.md: 2-3x daily checks (NOT real-time per NOTIF-03)
+ */
+
+import cron from 'node-cron'
+import { cards } from 'src/db/schema'
+import { db } from '../db'
+import { logger } from '../lib/logger'
+import fetchAllPrices from '../scraper/orchestrator'
+
+/**
+ * Flag to prevent concurrent executions
+ */
+let isRunning = false
+
+/**
+ * Get monitored card IDs from database
+ *
+ * Queries the cards table for all oracle IDs.
+ * In Phase 2, this returns manually seeded 100-500 cards.
+ * In Phase 3+, this will filter by wishlist membership.
+ *
+ * @returns Array of oracle IDs
+ *
+ * @example
+ * ```ts
+ * const cardIds = await getMonitoredCardIds()
+ * console.log(`Monitoring ${cardIds.length} cards`)
+ * ```
+ */
+async function getMonitoredCardIds(): Promise<string[]> {
+  try {
+    const allCards = await db.query.cards.findMany({
+      columns: {
+        oracleId: true,
+      },
+    })
+
+    return allCards.map((card) => card.oracleId)
+  } catch (error) {
+    logger.error(`Error getting monitored card IDs: ${error}`)
+    return []
+  }
+}
+
+/**
+ * Execute price collection for all monitored cards
+ *
+ * Runs full orchestration for all cards in the database.
+ * Logs execution statistics and errors.
+ * Prevents concurrent executions with isRunning flag.
+ *
+ * @returns Statistics object with success/failure counts
+ *
+ * @example
+ * ```ts
+ * const stats = await executePriceCollection()
+ * console.log(`Fetched: ${stats.fetched}, Failed: ${stats.failed}`)
+ * ```
+ */
+export async function executePriceCollection(): Promise<{
+  total: number
+  fetched: number
+  skipped: number
+  failed: number
+}> {
+  // Prevent concurrent executions
+  if (isRunning) {
+    logger.warn('Price collection already running, skipping this execution')
+    return {
+      total: 0,
+      fetched: 0,
+      skipped: 0,
+      failed: 0,
+    }
+  }
+
+  isRunning = true
+  logger.info('Starting price collection')
+
+  try {
+    // Get monitored cards
+    const cardIds = await getMonitoredCardIds()
+
+    if (cardIds.length === 0) {
+      logger.warn('No monitored cards found in database')
+      return {
+        total: 0,
+        fetched: 0,
+        skipped: 0,
+        failed: 0,
+      }
+    }
+
+    logger.info(`Fetching prices for ${cardIds.length} monitored cards`)
+
+    // Execute orchestration
+    const stats = await fetchAllPrices(cardIds)
+
+    logger.info(
+      `Price collection complete: ${stats.fetched} fetched, ${stats.skipped} skipped, ${stats.failed} failed`,
+    )
+
+    if (stats.errors.length > 0) {
+      logger.warn(`Encountered ${stats.errors.length} errors during collection`)
+      for (const error of stats.errors.slice(0, 5)) {
+        logger.debug(`  - ${error}`)
+      }
+      if (stats.errors.length > 5) {
+        logger.debug(`  ... and ${stats.errors.length - 5} more errors`)
+      }
+    }
+
+    return {
+      total: cardIds.length,
+      fetched: stats.fetched,
+      skipped: stats.skipped,
+      failed: stats.failed,
+    }
+  } catch (error) {
+    logger.error(`Critical error during price collection: ${error}`)
+    return {
+      total: 0,
+      fetched: 0,
+      skipped: 0,
+      failed: 1,
+    }
+  } finally {
+    isRunning = false
+  }
+}
+
+/**
+ * Scheduled task instances
+ */
+let morningJob: cron.ScheduledTask | null = null
+let afternoonJob: cron.ScheduledTask | null = null
+let eveningJob: cron.ScheduledTask | null = null
+
+/**
+ * Schedule price collection with node-cron
+ *
+ * Configures 3 cron jobs for 2-3x daily price checks.
+ * Default schedule: 9AM, 3PM, 9PM (Brazil time).
+ *
+ * Claude's discretion: Schedule times configurable via environment variables.
+ *
+ * @returns Object with start() and stop() methods
+ *
+ * @example
+ * ```ts
+ * const scheduler = schedulePriceCollection()
+ * scheduler.start() // Begin scheduled collection
+ * scheduler.stop() // Stop scheduled collection
+ * ```
+ */
+export function schedulePriceCollection(): {
+  start: () => void
+  stop: () => void
+} {
+  // Schedule times (configurable via environment variables)
+  const morningSchedule = process.env.CRON_MORNING || '0 9 * * *' // 9:00 AM daily
+  const afternoonSchedule = process.env.CRON_AFTERNOON || '0 15 * * *' // 3:00 PM daily
+  const eveningSchedule = process.env.CRON_EVENING || '0 21 * * *' // 9:00 PM daily
+
+  logger.info(
+    `Scheduling price collection: morning=${morningSchedule}, afternoon=${afternoonSchedule}, evening=${eveningSchedule}`,
+  )
+
+  // Create morning job
+  morningJob = cron.schedule(
+    morningSchedule,
+    async () => {
+      logger.info('Morning price collection triggered')
+      await executePriceCollection()
+    },
+    { scheduled: false },
+  )
+
+  // Create afternoon job
+  afternoonJob = cron.schedule(
+    afternoonSchedule,
+    async () => {
+      logger.info('Afternoon price collection triggered')
+      await executePriceCollection()
+    },
+    { scheduled: false },
+  )
+
+  // Create evening job
+  eveningJob = cron.schedule(
+    eveningSchedule,
+    async () => {
+      logger.info('Evening price collection triggered')
+      await executePriceCollection()
+    },
+    { scheduled: false },
+  )
+
+  return {
+    start: () => {
+      logger.info('Starting price collection scheduler')
+      morningJob?.start()
+      afternoonJob?.start()
+      eveningJob?.start()
+    },
+    stop: () => {
+      logger.info('Stopping price collection scheduler')
+      morningJob?.stop()
+      afternoonJob?.stop()
+      eveningJob?.stop()
+    },
+  }
+}
+
+// Export executePriceCollection for manual testing
+export { executePriceCollection as default }
