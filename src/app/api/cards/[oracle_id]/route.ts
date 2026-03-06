@@ -1,7 +1,7 @@
 import { db } from '@/db'
 import { cards } from '@/db/schema'
 import { eq } from 'drizzle-orm'
-import { NextRequest, NextResponse } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 
 /**
  * GET /api/cards/[oracle_id]
@@ -11,19 +11,12 @@ import { NextRequest, NextResponse } from 'next/server'
  *
  * Public endpoint - no authentication required.
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ oracle_id: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ oracle_id: string }> }) {
   try {
     const { oracle_id } = await params
 
     // Query card by oracle_id
-    const result = await db
-      .select()
-      .from(cards)
-      .where(eq(cards.oracleId, oracle_id))
-      .limit(1)
+    const result = await db.select().from(cards).where(eq(cards.oracleId, oracle_id)).limit(1)
 
     // Check if card exists
     if (result.length === 0) {
@@ -34,9 +27,6 @@ export async function GET(
     return NextResponse.json({ card: result[0] }, { status: 200 })
   } catch (error) {
     console.error('Error fetching card details:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch card details' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to fetch card details' }, { status: 500 })
   }
 }

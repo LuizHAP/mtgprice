@@ -1,9 +1,9 @@
-import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
+import type { NewCard, NewPrice, NewWishlist } from '@/db/schema'
+import type * as schema from '@/db/schema'
 import { cards } from '@/db/schema/cards'
 import { prices } from '@/db/schema/prices'
 import { wishlists } from '@/db/schema/wishlists'
-import type { NewCard, NewPrice, NewWishlist } from '@/db/schema'
-import type * as schema from '@/db/schema'
+import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
 
 /**
  * Database test helpers for seeding and truncating test data
@@ -143,7 +143,7 @@ export async function seedTestCards(
   db: PostgresJsDatabase<schema.Schema>,
   count: number,
   overrides: Partial<NewCard> = {},
-): Promise<typeof cards.$inferSelect[]> {
+): Promise<(typeof cards.$inferSelect)[]> {
   const cardsPromises = Array.from({ length: count }, (_, i) =>
     seedTestCard(db, {
       name: `Test Card ${i}`,
@@ -174,7 +174,7 @@ export async function seedTestPricesForAllSources(
   cardId: string,
   basePrice: number,
   timestamp: Date = new Date(),
-): Promise<typeof prices.$inferSelect[]> {
+): Promise<(typeof prices.$inferSelect)[]> {
   const sources = ['liga_magic', 'tcgplayer', 'cardmarket', 'cardkingdom'] as const
   const priceVariations = [0, 0.05, -0.03, 0.02] // Small variations per source
 
