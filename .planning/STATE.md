@@ -3,22 +3,22 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: Phase 2 (Core Data Collection)
-current_plan: 02-02 (International Price Sources with Circuit Breaker) - COMPLETE
+current_plan: 02-03 (Currency Conversion & Smart Refresh Logic) - COMPLETE
 status: executing
-last_updated: "2026-03-06T11:45:00.000Z"
+last_updated: "2026-03-06T11:51:00.000Z"
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 11
-  completed_plans: 9
-  percent: 81
+  completed_plans: 10
+  percent: 90
 ---
 
 # MTG Price Monitor - Project State
 
 **Last updated:** 2026-03-06
 **Current phase:** Phase 2 (Core Data Collection)
-**Current plan:** 02-02 (International Price Sources with Circuit Breaker) - COMPLETE
+**Current plan:** 02-03 (Currency Conversion & Smart Refresh Logic) - COMPLETE
 **Status:** Executing Phase 2 data collection plans
 
 ## Project Reference
@@ -36,11 +36,11 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 ## Current Position
 
 **Phase:** 2 - Core Data Collection
-**Plan:** 02-02 (International Price Sources with Circuit Breaker) - COMPLETE
-**Status:** International price fetchers complete with circuit breakers, ready for currency conversion and smart refresh (02-03)
+**Plan:** 02-03 (Currency Conversion & Smart Refresh Logic) - COMPLETE
+**Status:** Currency conversion with IOF and smart refresh logic complete, ready for orchestrator and scheduling (02-04)
 
 **Progress:**
-[████████░░] 81% complete (9/11 plans)
+[█████████░] 90% complete (10/11 plans)
 ```
 
 **Phase 1 Completed Plans:**
@@ -55,12 +55,21 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 - 02-00: Test Infrastructure Setup - Vitest configuration and test stubs for all Phase 2 components
 - 02-01: Scryfall Card Metadata & Liga Magic Foundation - Bulk data import, card upsert, metadata refresh, Liga Magic scraping
 - 02-02: International Price Sources with Circuit Breaker - TCGPlayer, CardMarket, CardKingdom fetchers with Opossum circuit breakers
+- 02-03: Currency Conversion & Smart Refresh Logic - IOF calculation, exchange rate fetching, 8-hour smart refresh
 
-**Next:** Plan 02-03 - Currency Conversion & Smart Refresh Logic
+**Next:** Plan 02-04 - Orchestration, Scheduling & Price Storage
 
 ## Performance Metrics
 
-*Most recent plan (02-02):*
+*Most recent plan (02-03):*
+- Duration: ~6 minutes (360 seconds)
+- Tasks: 5/5 completed
+- Files created: 2 (currency.ts, smart-refresh.ts)
+- Files modified: 0
+- Commits: 6
+- Deviations: None
+
+*Previous plan (02-02):*
 - Duration: ~5 minutes (290 seconds)
 - Tasks: 6/6 completed
 - Files created: 5 (circuit-breaker.ts, logger.ts, tcgplayer.ts, cardmarket.ts, cardkingdom.ts)
