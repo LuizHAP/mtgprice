@@ -1,8 +1,9 @@
-import { db } from '@/db'
+import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
 import { cards } from '@/db/schema/cards'
 import { prices } from '@/db/schema/prices'
 import { wishlists } from '@/db/schema/wishlists'
 import type { NewCard, NewPrice, NewWishlist } from '@/db/schema'
+import type * as schema from '@/db/schema'
 
 /**
  * Database test helpers for seeding and truncating test data
@@ -11,7 +12,8 @@ import type { NewCard, NewPrice, NewWishlist } from '@/db/schema'
 /**
  * Truncates a table to clear all rows for test isolation
  *
- * @param tableName - The table to truncate (use with Drizzle schema)
+ * @param db - Drizzle database instance
+ * @param table - Drizzle table schema object
  *
  * @example
  * ```ts
@@ -19,13 +21,17 @@ import type { NewCard, NewPrice, NewWishlist } from '@/db/schema'
  * await truncateTable(db, wishlists)
  * ```
  */
-export async function truncateTable(db: any, table: any): Promise<void> {
+export async function truncateTable<T extends keyof schema.Schema>(
+  db: PostgresJsDatabase<schema.Schema>,
+  table: schema.Schema[T],
+): Promise<void> {
   await db.delete(table)
 }
 
 /**
  * Seeds a test card into the cards table
  *
+ * @param db - Drizzle database instance
  * @param cardData - Partial card data (defaults provided for required fields)
  * @returns The inserted card
  *
@@ -40,9 +46,9 @@ export async function truncateTable(db: any, table: any): Promise<void> {
  * ```
  */
 export async function seedTestCard(
-  db: any,
+  db: PostgresJsDatabase<schema.Schema>,
   cardData: Partial<NewCard> = {},
-): Promise<any> {
+): Promise<typeof cards.$inferSelect> {
   const defaultCard: NewCard = {
     oracleId: `test-oracle-${Date.now()}`,
     name: 'Test Card',
@@ -61,6 +67,7 @@ export async function seedTestCard(
 /**
  * Seeds a test price into the prices table
  *
+ * @param db - Drizzle database instance
  * @param priceData - Partial price data (defaults provided for required fields)
  * @returns The inserted price
  *
@@ -74,9 +81,9 @@ export async function seedTestCard(
  * ```
  */
 export async function seedTestPrice(
-  db: any,
+  db: PostgresJsDatabase<schema.Schema>,
   priceData: Partial<NewPrice> = {},
-): Promise<any> {
+): Promise<typeof prices.$inferSelect> {
   const defaultPrice: NewPrice = {
     cardId: `test-oracle-${Date.now()}`,
     source: 'liga_magic',
@@ -92,6 +99,7 @@ export async function seedTestPrice(
 /**
  * Seeds a test wishlist entry into the wishlists table
  *
+ * @param db - Drizzle database instance
  * @param wishlistData - Partial wishlist data (defaults provided for required fields)
  * @returns The inserted wishlist entry
  *
@@ -104,9 +112,9 @@ export async function seedTestPrice(
  * ```
  */
 export async function seedTestWishlist(
-  db: any,
+  db: PostgresJsDatabase<schema.Schema>,
   wishlistData: Partial<NewWishlist> = {},
-): Promise<any> {
+): Promise<typeof wishlists.$inferSelect> {
   const defaultWishlist: NewWishlist = {
     userId: 1,
     cardId: `test-oracle-${Date.now()}`,
@@ -121,6 +129,7 @@ export async function seedTestWishlist(
 /**
  * Seeds multiple test cards for bulk operations
  *
+ * @param db - Drizzle database instance
  * @param count - Number of cards to create
  * @param overrides - Optional partial data to apply to all cards
  * @returns Array of inserted cards
@@ -131,10 +140,10 @@ export async function seedTestWishlist(
  * ```
  */
 export async function seedTestCards(
-  db: any,
+  db: PostgresJsDatabase<schema.Schema>,
   count: number,
   overrides: Partial<NewCard> = {},
-): Promise<any[]> {
+): Promise<typeof cards.$inferSelect[]> {
   const cardsPromises = Array.from({ length: count }, (_, i) =>
     seedTestCard(db, {
       name: `Test Card ${i}`,
@@ -149,6 +158,7 @@ export async function seedTestCards(
 /**
  * Seeds multiple test prices for a single card across all sources
  *
+ * @param db - Drizzle database instance
  * @param cardId - The card ID to create prices for
  * @param basePrice - Base price in BRL (varied slightly per source)
  * @param timestamp - Optional timestamp (defaults to now)
@@ -160,11 +170,11 @@ export async function seedTestCards(
  * ```
  */
 export async function seedTestPricesForAllSources(
-  db: any,
+  db: PostgresJsDatabase<schema.Schema>,
   cardId: string,
   basePrice: number,
   timestamp: Date = new Date(),
-): Promise<any[]> {
+): Promise<typeof prices.$inferSelect[]> {
   const sources = ['liga_magic', 'tcgplayer', 'cardmarket', 'cardkingdom'] as const
   const priceVariations = [0, 0.05, -0.03, 0.02] // Small variations per source
 
