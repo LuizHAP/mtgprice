@@ -155,3 +155,52 @@ function clearStaleCacheEntries(): void {
 
 // Clear stale cache every 10 minutes
 setInterval(clearStaleCacheEntries, 10 * 60 * 1000)
+
+/**
+ * Currency type for conversion
+ */
+export type Currency = 'USD' | 'EUR'
+
+/**
+ * Convert foreign currency to BRL with IOF tax
+ *
+ * Fetches exchange rate, converts the amount, then applies IOF.
+ * This is the main function used by the orchestrator before storing prices.
+ *
+ * @param price - Price in foreign currency (USD or EUR)
+ * @param fromCurrency - Source currency ('USD' | 'EUR')
+ * @returns Price in BRL with IOF applied, rounded to 2 decimals
+ * @throws Error on unsupported currency or if exchange rate fetch fails
+ *
+ * @example
+ * ```ts
+ * // Exchange rate: 5.00 BRL per USD, IOF: 6.38%
+ * await convertToBRL(100, 'USD')  // Returns: 531.90
+ * // Calculation: 100 * 5.00 = 500 * 1.0638 = 531.90
+ * ```
+ */
+export async function convertToBRL(price: number, fromCurrency: Currency): Promise<number> {
+  // Validate inputs
+  if (price <= 0) {
+    throw new Error(`Price must be positive: ${price}`)
+  }
+
+  if (fromCurrency !== 'USD' && fromCurrency !== 'EUR') {
+    throw new Error(`Unsupported currency: ${fromCurrency}. Only USD and EUR are supported.`)
+  }
+
+  // Fetch exchange rate
+  const exchangeRate = await getExchangeRate(fromCurrency)
+
+  // Convert to BRL
+  const converted = price * exchangeRate
+
+  // Apply IOF
+  const withIOF = applyIOF(converted)
+
+  logger.debug(
+    `Converted ${price} ${fromCurrency} to ${withIOF} BRL (rate: ${exchangeRate}, IOF: ${IOF_RATE * 100}%)`,
+  )
+
+  return withIOF
+}
