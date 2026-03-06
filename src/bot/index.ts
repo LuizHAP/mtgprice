@@ -1,6 +1,10 @@
 import { bot } from '../lib/telegram'
 import { whitelistMiddleware } from './middleware/whitelist'
 import './commands/start' // Import to register the command
+import './commands/add' // Import to register the command
+import './commands/remove' // Import to register the command
+import './commands/list' // Import to register the command
+import './commands/price' // Import to register the command
 
 console.log('🤖 Starting Telegram bot...')
 console.log('📍 Chat ID whitelist:', process.env.TELEGRAM_CHAT_ID || 'NOT SET')
@@ -13,8 +17,10 @@ bot.use(whitelistMiddleware)
 bot.api
   .setMyCommands([
     { command: 'start', description: 'Authenticate with password' },
-    { command: 'price', description: 'Check card price' }, // Placeholder for Phase 4
-    { command: 'history', description: 'View price history alerts' }, // Placeholder for Phase 4
+    { command: 'add', description: 'Add card to wishlist' },
+    { command: 'remove', description: 'Remove card from wishlist' },
+    { command: 'list', description: 'View your wishlist' },
+    { command: 'price', description: 'Check card price' },
   ])
   .then(() => console.log('✅ Commands registered'))
   .catch((err) => console.error('❌ Failed to register commands:', err))
