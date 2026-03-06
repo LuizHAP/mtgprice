@@ -8,7 +8,7 @@
 ## Phases
 
 - [x] **Phase 1: Foundation & Infrastructure** - Database, authentication, and base infrastructure (completed 2026-03-05)
-- [ ] **Phase 2: Core Data Collection** - Multi-source price collection with currency conversion
+- [x] **Phase 2: Core Data Collection** - Multi-source price collection with currency conversion (completed 2026-03-06, verified ✓)
 - [ ] **Phase 3: User Interface & Wishlist** - Web dashboard and Telegram bot for wishlist management
 - [ ] **Phase 4: Opportunity Detection & Notifications** - Alert system with batching and smart thresholds
 - [ ] **Phase 5: Metagame Integration** - Automatic format-based monitoring
@@ -16,14 +16,14 @@
 
 ## Progress
 
-| Phase | Plans Complete | Status | Completed |
-|-------|----------------|--------|-----------|
-| 1. Foundation & Infrastructure | 6/6 | Complete   | 2026-03-05 |
-| 2. Core Data Collection | 0/4 | Not started | - |
-| 3. User Interface & Wishlist | 0/3 | Not started | - |
-| 4. Opportunity Detection & Notifications | 0/3 | Not started | - |
-| 5. Metagame Integration | 0/2 | Not started | - |
-| 6. Polish & Optimization | 0/2 | Not started | - |
+| Phase | Plans Complete | Status | Completed | Verified |
+|-------|----------------|--------|-----------|----------|
+| 1. Foundation & Infrastructure | 6/6 | Complete   | 2026-03-05 | ✓ |
+| 2. Core Data Collection | 5/5 | Complete   | 2026-03-06 | ✓ |
+| 3. User Interface & Wishlist | 0/3 | Not started | - | - |
+| 4. Opportunity Detection & Notifications | 0/3 | Not started | - | - |
+| 5. Metagame Integration | 0/2 | Not started | - | - |
+| 6. Polish & Optimization | 0/2 | Not started | - | - |
 
 ## Phase Details
 
@@ -70,7 +70,24 @@
 3. Sistema realiza checagens de preços 2-3x ao dia de forma agendada
 4. Histórico de preços é armazenado para cada carta e fonte
 
-**Plans:** TBD
+**Plans:** 5/5 plans complete
+
+**Wave 0 (Parallel):**
+- [x] 02-00-PLAN.md — Test infrastructure setup (Vitest config + test stubs)
+
+**Wave 1 (Parallel):**
+- [x] 02-01-PLAN.md — Scryfall card metadata & Liga Magic foundation
+
+**Wave 2 (Sequential):**
+- [x] 02-02-PLAN.md — International price sources with circuit breaker (TCGPlayer, CardMarket, CardKingdom)
+
+**Wave 3 (Sequential):**
+- [x] 02-03-PLAN.md — Currency conversion & smart refresh logic
+
+**Wave 4 (Sequential):**
+- [x] 02-04-PLAN.md — Orchestration, scheduling & price storage
+
+**Verification:** ✓ PASSED (8/8 must-haves verified, 2026-03-06)
 
 ---
 
