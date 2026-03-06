@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: Phase 3 (Wishlist Management & User Dashboard)
-current_plan: 03-00 (Test Infrastructure Setup)
+current_plan: 03-01 (Wishlist CRUD API Endpoints)
 status: completed
-last_updated: "2026-03-06T21:58:50.000Z"
+last_updated: "2026-03-06T22:05:00.000Z"
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 16
-  completed_plans: 12
-  percent: 75
+  completed_plans: 13
+  percent: 81
 ---
 
 # MTG Price Monitor - Project State
@@ -36,11 +36,11 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 ## Current Position
 
 **Phase:** 3 - Wishlist Management & User Dashboard
-**Plan:** 03-02 (Card Search and Price Comparison API)
-**Status:** API endpoints complete, ready for web UI components (03-03)
+**Plan:** 03-01 (Wishlist CRUD API Endpoints)
+**Status:** Wishlist CRUD API complete, ready for card search API (03-02)
 
 **Progress:**
-[████████░░] 81%
+[████████░░] 81% (13/16 plans)
 ```
 
 **Phase 1 Completed Plans:**
@@ -58,22 +58,22 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 - 02-03: Currency Conversion & Smart Refresh Logic - IOF calculation, exchange rate fetching, 8-hour smart refresh
 - 02-04: Orchestration, Scheduling & Price Storage - Multi-source orchestration, cron jobs, database queries
 
-**Phase 3 Plans:**
+**Phase 3 Completed Plans:**
 - 03-00: Test Infrastructure Setup ✅
-- 03-01: Wishlist CRUD API Endpoints (NOT EXECUTED - skipped to 03-02)
+- 03-01: Wishlist CRUD API Endpoints ✅
 - 03-02: Card Search and Price Comparison API ✅
 
-**Next:** Plan 03-01 - Wishlist CRUD API Implementation (backfill)
+**Next:** Plan 03-03 - Web Dashboard Wishlist Management
 
 ## Performance Metrics
 
-*Most recent plan (03-00):*
-- Duration: ~3.6 minutes (219 seconds)
-- Tasks: 6/6 completed
-- Files created: 11 (3 test helpers + 8 test stub files)
-- Files modified: 2 (package.json, pnpm-lock.yaml)
+*Most recent plan (03-01):*
+- Duration: ~13 minutes (780 seconds)
+- Tasks: 5/5 completed
+- Files created: 5 (types, validators, auth-server, 2 API routes)
+- Files modified: 13 (including pre-existing bug fixes)
 - Commits: 3
-- Deviations: 1 auto-fixed (TypeScript any types in db.ts helper)
+- Deviations: Multiple pre-existing bugs fixed (import paths, Drizzle operators, TypeScript errors)
 
 *Previous plan (03-02):*
 - Duration: ~2 minutes (163 seconds)
