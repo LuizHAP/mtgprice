@@ -27,15 +27,21 @@ export interface RateLimitConfig {
 /**
  * Rate limit presets for external APIs
  *
- * Based on documented API limits:
+ * Based on documented API limits with 80% safety buffer (per CONTEXT.md):
  * - Scryfall: 10 requests per second
  * - Telegram: 100 requests per 60 seconds
- * - TCGplayer: 50 requests per 60 seconds
+ * - TCGplayer: 50 req/min documented → 80% = 40 req/min
+ * - CardMarket: Unknown → conservative 40 req/min
+ * - CardKingdom: Unknown → conservative 40 req/min
+ * - LigaMagic: Unknown → conservative 30 req/min (scraping, slower)
  */
 export const RATE_LIMITS = {
-  SCRYFALL: { limit: 10, interval: 1 },
-  TELEGRAM: { limit: 100, interval: 60 },
-  TCGPLAYER: { limit: 50, interval: 60 },
+  SCRYFALL: { limit: 10, interval: 1 }, // 10 req/sec
+  TELEGRAM: { limit: 100, interval: 60 }, // 100 req/min
+  TCGPLAYER: { limit: 40, interval: 60 }, // 50 req/min → 80% = 40
+  CARDMARKET: { limit: 40, interval: 60 }, // Unknown → conservative 40
+  CARDKINGDOM: { limit: 40, interval: 60 }, // Unknown → conservative 40
+  LIGAMAGIC: { limit: 30, interval: 60 }, // Unknown → conservative 30
 } as const
 
 /**
