@@ -20,7 +20,7 @@
 |-------|----------------|--------|-----------|----------|
 | 1. Foundation & Infrastructure | 6/6 | Complete   | 2026-03-05 | ✓ |
 | 2. Core Data Collection | 5/5 | Complete   | 2026-03-06 | ✓ |
-| 3. User Interface & Wishlist | 0/3 | Not started | - | - |
+| 3. User Interface & Wishlist | 0/5 | Planning   | - | - |
 | 4. Opportunity Detection & Notifications | 0/3 | Not started | - | - |
 | 5. Metagame Integration | 0/2 | Not started | - | - |
 | 6. Polish & Optimization | 0/2 | Not started | - | - |
@@ -106,7 +106,18 @@
 4. User pode comparar preços da mesma carta entre múltiplas fontes (Liga Magic, TCGPlayer, CardMarket, CardKingdom)
 5. User pode visualizar lista de cartas monitoradas via interface web
 
-**Plans:** TBD
+**Plans:** 5 plans
+
+**Wave 0 (Parallel):**
+- [ ] 03-00-PLAN.md — Test infrastructure setup (Vitest config + test stubs for UI and bot commands)
+
+**Wave 1 (Parallel):**
+- [ ] 03-01-PLAN.md — Wishlist API endpoints (GET list, POST add, DELETE remove) with authentication and price enrichment
+- [ ] 03-02-PLAN.md — Card search API and price comparison endpoints (autocomplete, card details, all sources)
+
+**Wave 2 (Parallel):**
+- [ ] 03-03-PLAN.md — Web dashboard UI (wishlist page, search bar, card grid, price table, Shadcn/ui setup) — has checkpoint for Shadcn/ui installation
+- [ ] 03-04-PLAN.md — Telegram bot commands (/add, /remove, /list, /price) with conversational flows and rate limiting
 
 ---
 
@@ -171,38 +182,38 @@
 |-------------|-------|------|--------|
 | AUTH-01 | 1 | 01-04, 01-05 | Complete (2026-03-05) |
 | AUTH-02 | 1 | 01-04 | Complete (2026-03-05) |
-| PRICE-01 | 2 | - | Pending |
-| PRICE-02 | 2 | - | Pending |
-| PRICE-03 | 2 | - | Pending |
-| PRICE-04 | 2 | - | Pending |
-| PRICE-05 | 2 | - | Pending |
+| PRICE-01 | 2 | 02-01 | Complete (2026-03-06) |
+| PRICE-02 | 2 | 02-02 | Complete (2026-03-06) |
+| PRICE-03 | 2 | 02-02 | Complete (2026-03-06) |
+| PRICE-04 | 2 | 02-02 | Complete (2026-03-06) |
+| PRICE-05 | 2 | 02-03 | Complete (2026-03-06) |
 | PRICE-06 | 1 | 01-03 | Complete (2026-03-05) |
-| PRICE-07 | 2 | - | Pending |
-| PRICE-08 | 1 | 01-02 | Complete (2026-03-05) |
-| WISH-01 | 3 | - | Pending |
-| WISH-02 | 3 | - | Pending |
-| WISH-03 | 3 | - | Pending |
-| WISH-04 | 3 | - | Pending |
-| WISH-05 | 3 | - | Pending |
+| PRICE-07 | 2 | 02-04 | Complete (2026-03-06) |
+| PRICE-08 | 1, 2 | 01-02, 02-04 | Complete (2026-03-06) |
+| WISH-01 | 3 | 03-01, 03-03, 03-04 | Pending |
+| WISH-02 | 3 | 03-01, 03-03, 03-04 | Pending |
+| WISH-03 | 3 | 03-02, 03-03 | Pending |
+| WISH-04 | 3 | 03-04 | Pending |
+| WISH-05 | 3 | 03-03 | Pending |
 | DETECT-01 | 4 | - | Pending |
 | DETECT-02 | 4 | - | Pending |
 | DETECT-03 | 4 | - | Pending |
 | DETECT-04 | 4 | - | Pending |
 | NOTIF-01 | 4 | - | Pending |
 | NOTIF-02 | 4 | - | Pending |
-| NOTIF-03 | 2 | - | Pending |
+| NOTIF-03 | 2 | 02-04 | Complete (2026-03-06) |
 | META-01 | 5 | - | Pending |
 | META-02 | 5 | - | Pending |
 | META-03 | 5 | - | Pending |
-| DASH-01 | 3 | - | Pending |
-| DASH-02 | 3 | - | Pending |
+| DASH-01 | 3 | 03-02, 03-03 | Pending |
+| DASH-02 | 3 | 03-03 | Pending |
 
 **Coverage:**
 - v1 requirements: 24 total
 - Mapped to phases: 24
-- Mapped to plans: 4/24 (AUTH-01, AUTH-02, PRICE-06, PRICE-08)
-- Completed: 4/24 (AUTH-01, AUTH-02, PRICE-06, PRICE-08)
-- Unmapped: 20 (Phase 2-6 requirements)
+- Mapped to plans: 15/24 (AUTH-01, AUTH-02, PRICE-01 through PRICE-08, NOTIF-03, WISH-01 through WISH-05, DASH-01, DASH-02)
+- Completed: 11/24 (AUTH-01, AUTH-02, PRICE-01 through PRICE-08, NOTIF-03)
+- Unmapped: 9 (Phase 4-6 requirements)
 
 ---
 
@@ -248,4 +259,4 @@ From research/SUMMARY.md, the following areas need attention during planning:
 
 ---
 *Roadmap created: 2026-03-05*
-*Last updated: 2026-03-05*
+*Last updated: 2026-03-06*
