@@ -20,7 +20,7 @@
 |-------|----------------|--------|-----------|----------|
 | 1. Foundation & Infrastructure | 6/6 | Complete   | 2026-03-05 | ✓ |
 | 2. Core Data Collection | 5/5 | Complete   | 2026-03-06 | ✓ |
-| 3. User Interface & Wishlist | 0/5 | Planning   | - | - |
+| 3. User Interface & Wishlist | 4/5 | Gap Closure | - | - |
 | 4. Opportunity Detection & Notifications | 0/3 | Not started | - | - |
 | 5. Metagame Integration | 0/2 | Not started | - | - |
 | 6. Polish & Optimization | 0/2 | Not started | - | - |
@@ -106,18 +106,23 @@
 4. User pode comparar preços da mesma carta entre múltiplas fontes (Liga Magic, TCGPlayer, CardMarket, CardKingdom)
 5. User pode visualizar lista de cartas monitoradas via interface web
 
-**Plans:** 5 plans
+**Plans:** 5 plans + 1 gap closure plan
 
 **Wave 0 (Parallel):**
-- [ ] 03-00-PLAN.md — Test infrastructure setup (Vitest config + test stubs for UI and bot commands)
+- [x] 03-00-PLAN.md — Test infrastructure setup (Vitest config + test stubs for UI and bot commands)
 
 **Wave 1 (Parallel):**
-- [ ] 03-01-PLAN.md — Wishlist API endpoints (GET list, POST add, DELETE remove) with authentication and price enrichment
-- [ ] 03-02-PLAN.md — Card search API and price comparison endpoints (autocomplete, card details, all sources)
+- [x] 03-01-PLAN.md — Wishlist API endpoints (GET list, POST add, DELETE remove) with authentication and price enrichment
+- [x] 03-02-PLAN.md — Card search API and price comparison endpoints (autocomplete, card details, all sources)
 
 **Wave 2 (Parallel):**
-- [ ] 03-03-PLAN.md — Web dashboard UI (wishlist page, search bar, card grid, price table, Shadcn/ui setup) — has checkpoint for Shadcn/ui installation
-- [ ] 03-04-PLAN.md — Telegram bot commands (/add, /remove, /list, /price) with conversational flows and rate limiting
+- [x] 03-03-PLAN.md — Web dashboard UI (wishlist page, search bar, card grid, price table, Shadcn/ui setup)
+- [x] 03-04-PLAN.md — Telegram bot commands (/add, /remove, /list, /price) with conversational flows and rate limiting
+
+**Gap Closure (Wave 3):**
+- [ ] 03-05-PLAN.md — Fix DELETE endpoint 500 error and add unique constraint for duplicate detection
+
+**UAT Status:** 2 issues identified (see 03-UAT.md)
 
 ---
 
@@ -190,8 +195,8 @@
 | PRICE-06 | 1 | 01-03 | Complete (2026-03-05) |
 | PRICE-07 | 2 | 02-04 | Complete (2026-03-06) |
 | PRICE-08 | 1, 2 | 01-02, 02-04 | Complete (2026-03-06) |
-| WISH-01 | 3 | 03-01, 03-03, 03-04 | Pending |
-| WISH-02 | 3 | 03-01, 03-03, 03-04 | Pending |
+| WISH-01 | 3 | 03-01, 03-03, 03-04, 03-05 | Gap Closure |
+| WISH-02 | 3 | 03-01, 03-03, 03-04, 03-05 | Gap Closure |
 | WISH-03 | 3 | 03-02, 03-03 | Pending |
 | WISH-04 | 3 | 03-04 | Pending |
 | WISH-05 | 3 | 03-03 | Pending |
@@ -259,4 +264,4 @@ From research/SUMMARY.md, the following areas need attention during planning:
 
 ---
 *Roadmap created: 2026-03-05*
-*Last updated: 2026-03-06*
+*Last updated: 2026-03-07*
