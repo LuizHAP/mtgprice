@@ -25,11 +25,11 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Wishlist
 
-- [ ] **WISH-01**: User pode adicionar cartas específicas à wishlist manualmente
-- [ ] **WISH-02**: User pode remover cartas da wishlist
-- [ ] **WISH-03**: User pode buscar cartas por nome no sistema
+- [x] **WISH-01**: User pode adicionar cartas específicas à wishlist manualmente
+- [x] **WISH-02**: User pode remover cartas da wishlist
+- [x] **WISH-03**: User pode buscar cartas por nome no sistema
 - [ ] **WISH-04**: User pode gerenciar wishlist via comandos do Telegram bot (/add, /remove, /wishlist)
-- [ ] **WISH-05**: User pode gerenciar wishlist via interface web dashboard
+- [x] **WISH-05**: User pode gerenciar wishlist via interface web dashboard
 
 ### Detecção de Oportunidade
 
@@ -52,8 +52,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Dashboard
 
-- [ ] **DASH-01**: User pode comparar preços da mesma carta entre múltiplas fontes (Liga Magic, TCGPlayer, CardMarket, CardKingdom)
-- [ ] **DASH-02**: User pode visualizar lista de cartas monitoradas via interface web
+- [x] **DASH-01**: User pode comparar preços da mesma carta entre múltiplas fontes (Liga Magic, TCGPlayer, CardMarket, CardKingdom)
+- [x] **DASH-02**: User pode visualizar lista de cartas monitoradas via interface web
 
 ## v2 Requirements
 
@@ -108,11 +108,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PRICE-06 | Phase 1 | Complete |
 | PRICE-07 | Phase 2 | Pending |
 | PRICE-08 | Phase 1, 2 | Complete |
-| WISH-01 | Phase 3 | Pending |
-| WISH-02 | Phase 3 | Pending |
-| WISH-03 | Phase 3 | Pending |
+| WISH-01 | Phase 3 | Complete |
+| WISH-02 | Phase 3 | Complete |
+| WISH-03 | Phase 3 | Complete |
 | WISH-04 | Phase 3 | Pending |
-| WISH-05 | Phase 3 | Pending |
+| WISH-05 | Phase 3 | Complete |
 | DETECT-01 | Phase 4 | Pending |
 | DETECT-02 | Phase 4 | Pending |
 | DETECT-03 | Phase 4 | Pending |
@@ -123,8 +123,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | META-01 | Phase 5 | Pending |
 | META-02 | Phase 5 | Pending |
 | META-03 | Phase 5 | Pending |
-| DASH-01 | Phase 3 | Pending |
-| DASH-02 | Phase 3 | Pending |
+| DASH-01 | Phase 3 | Complete |
+| DASH-02 | Phase 3 | Complete |
 
 **Coverage:**
 - v1 requirements: 24 total
