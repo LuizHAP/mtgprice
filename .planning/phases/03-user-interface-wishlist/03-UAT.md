@@ -1,9 +1,9 @@
 ---
-status: complete
+status: diagnosed
 phase: 03-user-interface-wishlist
 source: [03-00-SUMMARY.md, 03-01-SUMMARY.md, 03-02-SUMMARY.md, 03-03-SUMMARY.md, 03-04-SUMMARY.md]
 started: 2026-03-07T12:00:00Z
-updated: 2026-03-07T12:55:00Z
+updated: 2026-03-07T12:58:00Z
 ---
 
 ## Current Test
@@ -121,7 +121,16 @@ skipped: 12
   reason: "User reported: Authentication works and POST successfully adds cards. However: 1) Duplicate detection doesn't work - same card added twice instead of returning 409. 2) DELETE /api/wishlist/[card_id] returns 500 Internal Server Error."
   severity: major
   test: 2
-  root_cause: ""
-  artifacts: []
-  missing: []
-  debug_session: ""
+  root_cause: "Two separate issues: 1) DELETE bug in src/lib/wishlist/queries.ts:175 - null check missing (result.length fails when result is null). 2) Duplicate detection bug - missing unique constraint on (userId, cardId) in wishlists table schema (src/db/schema/wishlists.ts)"
+  artifacts:
+    - path: "src/lib/wishlist/queries.ts"
+      issue: "Line 175 checks result.length without null check - .delete().returning() can return null"
+      fix: "Change to: if (!result || result.length === 0)"
+    - path: "src/db/schema/wishlists.ts"
+      issue: "Missing unique constraint on (userId, cardId) combination"
+      fix: "Add unique constraint: uniqueUserCard: unique().on(table.userId, table.cardId)"
+  missing:
+    - "Add unique constraint to wishlists schema"
+    - "Create migration to add unique constraint to existing database table"
+    - "Add null check to removeCardFromWishlist function"
+  debug_session: "afb6225, ac5d74a"
