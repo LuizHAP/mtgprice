@@ -43,12 +43,14 @@ export default async function HomePage() {
 
         {/* Call to action */}
         <div className="flex justify-center gap-4">
-          <Button size="lg" asChild>
-            <Link href="/wishlist">View Wishlist</Link>
-          </Button>
-          <Button size="lg" variant="outline" asChild>
-            <Link href="/about">Learn More</Link>
-          </Button>
+          <Link href="/wishlist">
+            <Button size="lg">View Wishlist</Button>
+          </Link>
+          <Link href="/about">
+            <Button size="lg" variant="outline">
+              Learn More
+            </Button>
+          </Link>
         </div>
 
         {/* Features */}

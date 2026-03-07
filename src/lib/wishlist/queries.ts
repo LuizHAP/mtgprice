@@ -172,7 +172,7 @@ export async function removeCardFromWishlist(userId: number, cardId: string): Pr
     .where(and(eq(wishlists.userId, userId), eq(wishlists.cardId, cardId)))
     .returning()
 
-  if (result.length === 0) {
+  if (!result || result.length === 0) {
     throw new Error('Card not in wishlist')
   }
 }
