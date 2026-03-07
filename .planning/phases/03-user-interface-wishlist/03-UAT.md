@@ -1,9 +1,9 @@
 ---
-status: diagnosed
+status: resolved
 phase: 03-user-interface-wishlist
 source: [03-00-SUMMARY.md, 03-01-SUMMARY.md, 03-02-SUMMARY.md, 03-03-SUMMARY.md, 03-04-SUMMARY.md]
 started: 2026-03-07T12:00:00Z
-updated: 2026-03-07T12:58:00Z
+updated: 2026-03-07T13:10:00Z
 ---
 
 ## Current Test
@@ -117,7 +117,7 @@ skipped: 12
 ## Gaps
 
 - truth: "POST /api/wishlist adds card, returns 409 on duplicate, DELETE /api/wishlist/[card_id] removes card"
-  status: failed
+  status: resolved
   reason: "User reported: Authentication works and POST successfully adds cards. However: 1) Duplicate detection doesn't work - same card added twice instead of returning 409. 2) DELETE /api/wishlist/[card_id] returns 500 Internal Server Error."
   severity: major
   test: 2
