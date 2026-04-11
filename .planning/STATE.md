@@ -4,14 +4,14 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: Phase 3 (Wishlist Management & User Dashboard)
 current_plan: 03-04 (Telegram Bot Wishlist Commands)
-status: planning
-last_updated: "2026-03-07T13:11:41.677Z"
+status: executing
+last_updated: "2026-04-11T12:35:47.153Z"
 progress:
   total_phases: 6
   completed_phases: 3
-  total_plans: 17
+  total_plans: 22
   completed_plans: 17
-  percent: 100
+  percent: 77
 ---
 
 # MTG Price Monitor - Project State
@@ -19,7 +19,7 @@ progress:
 **Last updated:** 2026-03-06
 **Current phase:** Phase 3 (Wishlist Management & User Dashboard)
 **Current plan:** 03-04 (Telegram Bot Wishlist Commands)
-**Status:** Ready to plan
+**Status:** Ready to execute
 
 ## Project Reference
 
@@ -27,6 +27,7 @@ progress:
 
 **What we're building:**
 Sistema inteligente de monitoramento de preços de cartas de Magic: The Gathering que:
+
 - Monitora automaticamente cartas de múltiplos formatos (Standard, Modern, Pioneer, Legacy, Vintage, Pauper, Commander)
 - Busca preços em fontes brasileiras (Liga Magic) e internacionais (TCGPlayer, CardMarket, CardKingdom)
 - Converte moeda com IOF de 6.38% (cartão de crédito)
@@ -41,9 +42,11 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 
 **Progress:**
 [██████████] 100%
+
 ```
 
 **Phase 1 Completed Plans:**
+
 - 01-00: Planning and research
 - 01-01: Project initialization with Next.js, TypeScript, Biome
 - 01-02: Database schema with Drizzle ORM and TimescaleDB
@@ -52,6 +55,7 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 - 01-05: Telegram bot with grammY, chat ID whitelist, and /start authentication
 
 **Phase 2 Completed Plans:**
+
 - 02-00: Test Infrastructure Setup - Vitest configuration and test stubs for all Phase 2 components
 - 02-01: Scryfall Card Metadata & Liga Magic Foundation - Bulk data import, card upsert, metadata refresh, Liga Magic scraping
 - 02-02: International Price Sources with Circuit Breaker - TCGPlayer, CardMarket, CardKingdom fetchers with Opossum circuit breakers
@@ -59,6 +63,7 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 - 02-04: Orchestration, Scheduling & Price Storage - Multi-source orchestration, cron jobs, database queries
 
 **Phase 3 Completed Plans:**
+
 - 03-00: Test Infrastructure Setup ✅
 - 03-01: Wishlist CRUD API Endpoints ✅
 - 03-02: Card Search and Price Comparison API ✅
@@ -70,6 +75,7 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 ## Performance Metrics
 
 *Most recent plan (03-04):*
+
 - Duration: ~4 minutes (240 seconds)
 - Tasks: 7/7 completed
 - Files created: 7 (2 utils, 1 middleware, 4 command handlers)
@@ -79,6 +85,7 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 - Total lines: 808
 
 *Previous plan (03-03):*
+
 - Duration: ~5 minutes (324 seconds)
 - Tasks: 7/7 completed (1 checkpoint, 6 implementation)
 - Files created: 8 (2 layout, 5 wishlist components, 2 pages)
@@ -87,6 +94,7 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 - Deviations: 1 auto-fixed (TypeScript linting error in PriceTable)
 
 *Previous plan (03-02):*
+
 - Duration: ~2 minutes (163 seconds)
 - Tasks: 3/3 completed
 - Files created: 4 (cards/search, cards/[oracle_id], prices/[oracle_id], queries.ts)
@@ -95,6 +103,7 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 - Deviations: 2 auto-fixed (missing queries file, TypeScript linting)
 
 *Previous plan (02-04):*
+
 - Duration: ~10 minutes (600 seconds)
 - Tasks: 5/5 completed
 - Files created: 4 (prices.ts, orchestrator.ts, jobs.ts, scheduler/index.ts)
@@ -103,6 +112,7 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 - Deviations: None
 
 *Previous plan (02-03):*
+
 - Duration: ~6 minutes (360 seconds)
 - Tasks: 5/5 completed
 - Files created: 2 (currency.ts, smart-refresh.ts)
@@ -111,6 +121,7 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 - Deviations: None
 
 *Previous plan (02-02):*
+
 - Duration: ~5 minutes (290 seconds)
 - Tasks: 6/6 completed
 - Files created: 5 (circuit-breaker.ts, logger.ts, tcgplayer.ts, cardmarket.ts, cardkingdom.ts)
@@ -119,6 +130,7 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 - Deviations: None
 
 *Previous plan (02-01):*
+
 - Duration: ~5 minutes (290 seconds)
 - Tasks: 6/6 completed
 - Files created: 11 (2 implementation + 9 test stubs)
@@ -127,6 +139,7 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 - Deviations: None
 
 *Previous plan (01-05):*
+
 - Duration: ~15 minutes (~900 seconds)
 - Tasks: 5/5 completed (4 implementation + 1 verification checkpoint)
 - Files created: 5
@@ -135,12 +148,14 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 - Deviations: 4 auto-fixed (2 bugs, 1 blocking, 1 missing critical)
 
 *Previous plan (01-04):*
+
 - Duration: ~10 minutes (622 seconds)
 - Tasks: 8/8 completed
 - Files created: 8
 - Commits: 8
 
 *Previous plan (01-01):*
+
 - Duration: ~4.5 minutes (269 seconds)
 - Tasks: 3/3 completed
 - Files created: 15
@@ -148,6 +163,7 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 - Dependencies installed: 366 packages
 
 *Previous plan (01-02):*
+
 - Duration: ~4 minutes
 - Tasks: 3/3 completed
 - Files created: 10
@@ -167,6 +183,7 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 5. **Histórico completo:** Full history with charts selected — users want data beyond notifications
 
 **Technology stack (from research):**
+
 - Node.js 20+ — Backend language (changed from Python during Phase 1)
 - Next.js 15+ — Web framework with App Router
 - TypeScript strict mode — Type safety
@@ -222,18 +239,22 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 ### Research Gaps to Address
 
 **Liga Magic integration approach:**
+
 - Unknown if Liga Magic has official API or requires scraping only
 - Handling: Phase 2 planning should include verification of robots.txt, ToS, and API access
 
 **Opportunity detection algorithm thresholds:**
+
 - Unknown optimal thresholds for "below historical average" detection
 - Handling: Start with conservative defaults (15% drop + below 30-day average), plan for A/B testing
 
 **Metagame data availability (Phase 5):**
+
 - Unknown if MTGTop8/EDHREC have APIs or require scraping
 - Handling: Phase 5 planning should include verification of metagame sources
 
 **IOF calculation accuracy:**
+
 - Need to verify 6.38% IOF is still current rate in 2026
 - Handling: Verify with Brazilian Central Bank before Phase 1
 
@@ -250,6 +271,7 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 ### Last Work Completed
 
 **2026-03-05 (Plan 01-01):** Project initialization with Next.js, TypeScript, Biome, and monorepo structure
+
 - Created package.json with all dependencies (Next.js 15.5.12, React 19.2.4, Drizzle, grammY, ioredis, Winston)
 - Configured TypeScript 5.9.3 with strict mode and path aliases (@/*)
 - Created Next.js configuration ready for middleware/CORS
@@ -264,6 +286,7 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 - Commits: a3a50c3 (init), 577a38c (biome/husky), 3430f9f (structure)
 
 **2026-03-05 (Plan 01-02):** Database schema with TimescaleDB hypertables
+
 - Created Drizzle ORM schema definitions for users, cards, prices, wishlists tables
 - Set up database connection client and Drizzle Kit configuration
 - Created TimescaleDB hypertable migration SQL (7-day chunks for time-series optimization)
@@ -272,6 +295,7 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 - Commits: d5cd5ed (schema), 86ec42a (connection), fbd3b24 (hypertable)
 
 **2026-03-05 (Plan 01-03):** Redis-backed token bucket rate limiting with Next.js middleware
+
 - Implemented token bucket rate limiting algorithm with Redis Lua scripts for atomic operations
 - Created Redis client singleton with connection management and error handling
 - Added rate limit presets for Scryfall (10 req/sec), Telegram (100 req/min), TCGplayer (50 req/min)
@@ -281,6 +305,7 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 - Known issue: Test mocking not working correctly - needs integration tests with real Redis for full test coverage
 
 **2026-03-05 (Plan 01-04):** JWT-based authentication system with bcrypt and Telegram linking
+
 - Created TypeScript type definitions for authentication (User, LoginInput, JwtPayload, etc.)
 - Implemented auth utilities with bcrypt password hashing (10 salt rounds) and JWT signing/verification
 - Built comprehensive test suite using TDD approach (RED → GREEN) with 10 passing tests
@@ -292,6 +317,7 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 - Commits: a07f923 (types), 1b64cce (test-red), 9d431ec (feat-green), 5aa856a (login), d54c9c5 (logout), 605e47f (verify), b01a0a9 (telegram), 61b920f (middleware)
 
 **2026-03-05 (Plan 01-05):** Telegram bot with grammY, chat ID whitelist, and password authentication
+
 - Created grammY bot instance with error handling in src/lib/telegram.ts
 - Implemented chat ID whitelist middleware blocking unauthorized users
 - Created /start command handler with password verification using compareBotPassword
@@ -309,6 +335,7 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 **Phase 1 Complete!** All 6 plans finished (01-00 through 01-05).
 
 **Immediate (Phase 2 Planning):**
+
 1. Plan Phase 2: Core Data Collection from multiple sources
 2. Implement price scrapers for Liga Magic, TCGPlayer, CardMarket, CardKingdom
 3. Add currency conversion with IOF calculation (6.38% for credit card)
@@ -316,6 +343,7 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 5. Store price history in TimescaleDB hypertables
 
 **Infrastructure ready:**
+
 - PostgreSQL 16 + TimescaleDB 2.15 (docker-compose.yml created)
 - Database schema with hypertables and indexes
 - Rate limiting infrastructure (Redis-backed)
@@ -327,6 +355,7 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 **Current status:** Phase 1 complete. All infrastructure ready for Phase 2 data collection.
 
 **Key files created:**
+
 - `package.json, tsconfig.json, next.config.js` - Next.js project configuration
 - `biome.json` - Biome linting + formatting configuration
 - `.husky/pre-commit` - Git hook for automatic formatting
@@ -353,6 +382,7 @@ Sistema inteligente de monitoramento de preços de cartas de Magic: The Gatherin
 - `docker-compose.yml` - PostgreSQL + TimescaleDB Docker configuration
 
 **Before Phase 2:**
+
 - All infrastructure ready for data collection
 - Database schema optimized for time-series price data
 - Rate limiting in place for external API calls

@@ -21,7 +21,7 @@
 | 1. Foundation & Infrastructure | 6/6 | Complete   | 2026-03-05 | ✓ |
 | 2. Core Data Collection | 5/5 | Complete   | 2026-03-06 | ✓ |
 | 3. User Interface & Wishlist | 4/5 | Gap Closure | - | - |
-| 4. Opportunity Detection & Notifications | 0/3 | Not started | - | - |
+| 4. Opportunity Detection & Notifications | 0/5 | Planned | - | - |
 | 5. Metagame Integration | 0/2 | Not started | - | - |
 | 6. Polish & Optimization | 0/2 | Not started | - | - |
 
@@ -142,7 +142,18 @@
 5. Alertas contêm: nome da carta, preço atual, preço médio, % queda, fonte(s)
 6. Telegram bot responde a comandos: /price (consultar preço), /history (histórico de alertas), /config (configurações)
 
-**Plans:** TBD
+**Plans:** 5 plans
+
+**Wave 1 (Parallel):**
+- [ ] 04-01-PLAN.md — Opportunities schema + migration + [BLOCKING] schema push + .env.example DETECT_* vars
+- [ ] 04-02-PLAN.md — Detection config loader (TDD) — validates DETECT_* env vars with safe defaults
+
+**Wave 2 (Sequential):**
+- [ ] 04-03-PLAN.md — Detection algorithm (pure detector + DB queries + wishlist orchestrator with cooldown and outlier guard)
+
+**Wave 3 (Parallel):**
+- [ ] 04-04-PLAN.md — Digest builder + Telegram sender + executePriceCollection hook (D-14/D-22/D-23/D-24)
+- [ ] 04-05-PLAN.md — /history and /config bot commands + register in bot.api.setMyCommands
 
 ---
 
@@ -200,12 +211,12 @@
 | WISH-03 | 3 | 03-02, 03-03 | Pending |
 | WISH-04 | 3 | 03-04 | Pending |
 | WISH-05 | 3 | 03-03 | Pending |
-| DETECT-01 | 4 | - | Pending |
-| DETECT-02 | 4 | - | Pending |
-| DETECT-03 | 4 | - | Pending |
-| DETECT-04 | 4 | - | Pending |
-| NOTIF-01 | 4 | - | Pending |
-| NOTIF-02 | 4 | - | Pending |
+| DETECT-01 | 4 | 04-03 | Planned |
+| DETECT-02 | 4 | 04-03 | Planned |
+| DETECT-03 | 4 | 04-03, 04-04 | Planned |
+| DETECT-04 | 4 | 04-03, 04-04 | Planned |
+| NOTIF-01 | 4 | 04-04 | Planned |
+| NOTIF-02 | 4 | 04-05 | Planned |
 | NOTIF-03 | 2 | 02-04 | Complete (2026-03-06) |
 | META-01 | 5 | - | Pending |
 | META-02 | 5 | - | Pending |
