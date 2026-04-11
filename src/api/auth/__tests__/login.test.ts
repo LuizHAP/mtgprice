@@ -6,17 +6,9 @@
  * TODO: Implement in Plan 01-04 after endpoint created
  */
 
-import { http } from 'msw'
-import { setupServer } from 'msw/node'
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-
-const server = setupServer()
+import { describe, it } from 'vitest'
 
 describe('Login API endpoint', () => {
-  beforeAll(() => server.listen())
-  afterEach(() => server.resetHandlers())
-  afterAll(() => server.close())
-
   it.todo('should return 401 for invalid credentials', async () => {
     // Verify POST /api/auth/login returns 401 for wrong password
     // Verify error message is generic (doesn't reveal user existence)

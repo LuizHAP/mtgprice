@@ -92,8 +92,8 @@ class MockRedis {
 
     // Get current bucket state
     const hash = this.data.hashes.get(key) || {}
-    let currentTokens = Number(hash.tokens) || limit
-    let lastRefill = Number(hash.last_refill) || now
+    let currentTokens = hash.tokens !== undefined ? Number(hash.tokens) : limit
+    let lastRefill = hash.last_refill !== undefined ? Number(hash.last_refill) : now
 
     // Refill tokens based on time elapsed
     const elapsed = now - lastRefill
@@ -144,9 +144,16 @@ class MockRedis {
   }
 
   /**
-   * Advance mock time by seconds (for testing token refill)
+   * Advance mock time by seconds (for testing token refill).
+   *
+   * If no mock time has been set yet, snapshots the current wall-clock
+   * time first so the advance is consistent with `last_refill` values
+   * that earlier eval calls stored using real time.
    */
   advanceMockTime = (seconds: number): void => {
+    if (this.currentTime === 0) {
+      this.currentTime = Date.now() / 1000
+    }
     this.currentTime += seconds
   }
 
