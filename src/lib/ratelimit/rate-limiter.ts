@@ -29,6 +29,7 @@ export interface RateLimitConfig {
  *
  * Based on documented API limits with 80% safety buffer (per CONTEXT.md):
  * - Scryfall: 10 requests per second
+ * - Scryfall (heavy): 2 requests per second (cards/collection, cards/named)
  * - Telegram: 100 requests per 60 seconds
  * - TCGplayer: 50 req/min documented → 80% = 40 req/min
  * - CardMarket: Unknown → conservative 40 req/min
@@ -36,7 +37,8 @@ export interface RateLimitConfig {
  * - LigaMagic: Unknown → conservative 30 req/min (scraping, slower)
  */
 export const RATE_LIMITS = {
-  SCRYFALL: { limit: 10, interval: 1 }, // 10 req/sec
+  SCRYFALL: { limit: 10, interval: 1 }, // 10 req/sec — bulk endpoints
+  SCRYFALL_HEAVY: { limit: 2, interval: 1 }, // 2 req/sec — /cards/collection, /cards/named (heavier endpoints per scryfall.com/docs/api/rate-limits)
   TELEGRAM: { limit: 100, interval: 60 }, // 100 req/min
   TCGPLAYER: { limit: 40, interval: 60 }, // 50 req/min → 80% = 40
   CARDMARKET: { limit: 40, interval: 60 }, // Unknown → conservative 40

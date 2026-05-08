@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm'
-import { integer, pgTable, serial, timestamp, unique, varchar } from 'drizzle-orm/pg-core'
+import { boolean, integer, pgTable, serial, timestamp, unique, varchar } from 'drizzle-orm/pg-core'
 import { cards } from './cards'
 import { users } from './users'
 
@@ -14,6 +14,7 @@ export const wishlists = pgTable(
       .notNull()
       .references(() => cards.oracleId),
     addedAt: timestamp('added_at').notNull().defaultNow(),
+    isAutoAdded: boolean('is_auto_added').notNull().default(false),
   },
   (table) => ({
     uniqueUserCard: unique('uniqueUserCard').on(table.userId, table.cardId),
