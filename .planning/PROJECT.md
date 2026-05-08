@@ -12,7 +12,9 @@ Jogadores de MTG compram cartas no momento ideal baseado em análise de tendênc
 
 ### Validated
 
-(None yet — ship to validate)
+- [x] Detecção de oportunidades de compra — Validated in Phase 04: queda ≥15% vs baseline 30 dias, guarda two-consecutive-runs (D-07), cooldown por carta/fonte
+- [x] Sistema de notificação via Telegram — Validated in Phase 04: digest agrupado enviado via bot após cada coleta, persist-first garantido
+- [x] Bot do Telegram com comandos de gerenciamento (parcial) — Validated in Phase 04: /history (D-18), /config (D-20), whitelist herdada
 
 ### Active
 
@@ -95,5 +97,9 @@ Considerar IOF (Imposto sobre Operações Financeiras) de cartão de crédito: 6
 | Interface web + bot | Flexibilidade para gerenciar como preferir | — Pending |
 | Histórico completo com gráficos | Usuário quer visualizar dados além das notificações | — Pending |
 
+## Current State
+
+Phase 04 complete — opportunity detection + Telegram digest + /history + /config commands all live. Pipeline: price collection → detect drops ≥15% (two-consecutive-runs guard, 7-day cooldown) → grouped digest sent to whitelisted chat. Bot now has 7 registered commands. Next: Phase 05 (metagame-integration).
+
 ---
-*Last updated: 2026-03-05 after initialization*
+*Last updated: 2026-05-08 after Phase 04 completion*
