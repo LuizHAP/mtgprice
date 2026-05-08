@@ -152,8 +152,8 @@
 - [x] 04-03-PLAN.md — Detection algorithm (pure detector + DB queries + wishlist orchestrator with cooldown and outlier guard)
 
 **Wave 3 (Parallel):**
-- [ ] 04-04-PLAN.md — Digest builder + Telegram sender + executePriceCollection hook (D-14/D-22/D-23/D-24)
-- [ ] 04-05-PLAN.md — /history and /config bot commands + register in bot.api.setMyCommands
+- [x] 04-04-PLAN.md — Digest builder + Telegram sender + executePriceCollection hook (D-14/D-22/D-23/D-24)
+- [x] 04-05-PLAN.md — /history and /config bot commands + register in bot.api.setMyCommands
 
 ---
 
