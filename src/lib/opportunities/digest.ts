@@ -127,8 +127,14 @@ export async function sendDigestAndPersist(
   for (const op of opportunities) {
     try {
       const row = await insertOpportunity(op)
-      insertedIds.push(row.id)
-      persisted += 1
+      if (row !== null) {
+        insertedIds.push(row.id)
+        persisted += 1
+      } else {
+        logger.warn(
+          `insertOpportunity skipped for ${op.cardId}/${op.source}: duplicate unsent row (concurrent insert)`,
+        )
+      }
     } catch (err) {
       logger.error(
         `insertOpportunity failed for ${op.cardId}/${op.source}: ${err instanceof Error ? err.message : String(err)}`,

@@ -248,11 +248,15 @@ export async function deleteStaleCandidates(): Promise<number> {
  *
  * All numeric columns are sent as strings (Drizzle numeric mapping requirement).
  *
- * @returns The inserted row with id and sentToUser.
+ * Uses onConflictDoNothing() to guard against duplicate inserts from concurrent
+ * runs (paired with the partial unique index on (card_id, source) where
+ * sent_to_user = false). Returns null when a conflict is silently skipped.
+ *
+ * @returns The inserted row with id and sentToUser, or null on conflict.
  */
 export async function insertOpportunity(
   op: DetectedOpportunity,
-): Promise<{ id: number; sentToUser: boolean }> {
+): Promise<{ id: number; sentToUser: boolean } | null> {
   const [row] = await db
     .insert(opportunities)
     .values({
@@ -262,8 +266,9 @@ export async function insertOpportunity(
       baselinePrice: op.baselinePrice.toFixed(2),
       dropPercent: op.dropPercent.toFixed(2),
     })
+    .onConflictDoNothing()
     .returning({ id: opportunities.id, sentToUser: opportunities.sentToUser })
-  return row
+  return row ?? null
 }
 
 // ─── 11. markOpportunitySent ──────────────────────────────────────────────────

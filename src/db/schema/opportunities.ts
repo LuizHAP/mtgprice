@@ -1,5 +1,14 @@
-import { relations } from 'drizzle-orm'
-import { boolean, index, numeric, pgTable, serial, timestamp, varchar } from 'drizzle-orm/pg-core'
+import { relations, sql } from 'drizzle-orm'
+import {
+  boolean,
+  index,
+  numeric,
+  pgTable,
+  serial,
+  timestamp,
+  uniqueIndex,
+  varchar,
+} from 'drizzle-orm/pg-core'
 import { cards } from './cards'
 
 export type OpportunitySource = 'ligamagic' | 'tcgplayer' | 'cardmarket' | 'cardkingdom'
@@ -24,6 +33,12 @@ export const opportunities = pgTable(
       table.source,
       table.detectedAt,
     ),
+    // Prevent duplicate unsent alerts for the same (card, source) from concurrent runs.
+    // Combined with onConflictDoNothing() in insertOpportunity.
+    // Historical (sent) records are still allowed — this index only covers unsent rows.
+    cardSourceUnsentIdx: uniqueIndex('opportunities_card_source_unsent_unique_idx')
+      .on(table.cardId, table.source)
+      .where(sql`sent_to_user = false`),
   }),
 )
 
