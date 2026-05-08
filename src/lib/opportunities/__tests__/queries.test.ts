@@ -302,6 +302,7 @@ describe('insertOpportunity', () => {
     const mockInserted = [{ id: 1, sentToUser: false }]
     const insertBuilder: MockBuilder = {
       values: vi.fn().mockReturnThis(),
+      onConflictDoNothing: vi.fn().mockReturnThis(),
       returning: vi.fn().mockResolvedValue(mockInserted),
     }
     vi.mocked(db.insert).mockReturnValue(insertBuilder)
