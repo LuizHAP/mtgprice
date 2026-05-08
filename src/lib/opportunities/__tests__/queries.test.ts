@@ -40,14 +40,7 @@ import { logger } from '@/lib/logger'
 import { evaluateCandidate } from '@/lib/opportunities/detector'
 import { getUserWishlist } from '@/lib/wishlist/queries'
 import type { DetectionConfig } from '../config'
-import {
-  deleteCandidate,
-  deleteStaleCandidates,
-  detectOpportunitiesForWishlist,
-  getRecentOpportunities,
-  insertCandidate,
-  insertOpportunity,
-} from '../queries'
+import { detectOpportunitiesForWishlist, getRecentOpportunities, insertOpportunity } from '../queries'
 
 const baseConfig: DetectionConfig = {
   dropThreshold: 0.15,
@@ -71,47 +64,59 @@ const mockCard = {
   addedAt: new Date('2026-01-01'),
 }
 
-// Helper to create a chainable Drizzle-like mock builder
-function createSelectBuilder(returnValue: unknown) {
-  const builder = {
-    from: vi.fn().mockReturnThis(),
-    where: vi.fn().mockReturnThis(),
-    limit: vi.fn().mockReturnThis(),
-    orderBy: vi.fn().mockResolvedValue(returnValue),
-    innerJoin: vi.fn().mockReturnThis(),
+// biome-ignore lint/suspicious/noExplicitAny: test mock helpers use any for Drizzle builder chains
+type MockBuilder = any
+
+/**
+ * Create a fully-chainable mock Drizzle select builder.
+ *
+ * The builder wraps a resolved Promise so that `await db.select()...from().where().limit(n)`
+ * works. The terminal method is `.limit()` which resolves to the returnValue.
+ */
+function createSelectBuilder(returnValue: unknown): MockBuilder {
+  const builder: MockBuilder = {
+    from: vi.fn(),
+    where: vi.fn(),
+    limit: vi.fn(),
+    orderBy: vi.fn(),
+    innerJoin: vi.fn(),
     execute: vi.fn().mockResolvedValue(returnValue),
   }
-  // Make from return the whole builder so .where etc work
   builder.from.mockReturnValue(builder)
   builder.where.mockReturnValue(builder)
-  builder.limit.mockReturnValue(builder)
   builder.innerJoin.mockReturnValue(builder)
+  builder.orderBy.mockReturnValue(builder)
+  // limit is the terminal — resolves the array
+  builder.limit.mockResolvedValue(returnValue)
   return builder
 }
 
-function createInsertBuilder(returnValue: unknown) {
-  const builder = {
-    into: vi.fn().mockReturnThis(),
-    values: vi.fn().mockReturnThis(),
-    onConflictDoNothing: vi.fn().mockReturnThis(),
-    returning: vi.fn().mockResolvedValue(returnValue),
+function createInsertBuilder(returnValue: unknown): MockBuilder {
+  const builder: MockBuilder = {
+    values: vi.fn(),
+    onConflictDoNothing: vi.fn(),
+    returning: vi.fn(),
     execute: vi.fn().mockResolvedValue(returnValue),
   }
-  builder.into.mockReturnValue(builder)
   builder.values.mockReturnValue(builder)
-  builder.onConflictDoNothing.mockReturnValue(builder)
+  // onConflictDoNothing is the terminal for insertCandidate — must resolve
+  builder.onConflictDoNothing.mockResolvedValue(returnValue)
+  builder.returning.mockResolvedValue(returnValue)
   return builder
 }
 
-function createDeleteBuilder(returnValue: unknown) {
-  const builder = {
-    from: vi.fn().mockReturnThis(),
-    where: vi.fn().mockReturnThis(),
-    returning: vi.fn().mockResolvedValue(returnValue),
+function createDeleteBuilder(returnValue: unknown): MockBuilder {
+  const builder: MockBuilder = {
+    from: vi.fn(),
+    where: vi.fn(),
+    returning: vi.fn(),
     execute: vi.fn().mockResolvedValue(returnValue),
   }
   builder.from.mockReturnValue(builder)
+  // where is chainable (both deleteCandidate and deleteStaleCandidates chain .returning() after)
   builder.where.mockReturnValue(builder)
+  // returning is the terminal — resolves the array
+  builder.returning.mockResolvedValue(returnValue)
   return builder
 }
 
@@ -128,15 +133,8 @@ describe('detectOpportunitiesForWishlist', () => {
     const mockWishlist = [mockCard]
     vi.mocked(getUserWishlist).mockResolvedValue(mockWishlist)
 
-    // isInCooldown: no rows → not in cooldown
-    const selectBuilder = createSelectBuilder([])
-    vi.mocked(db.select).mockReturnValue(selectBuilder as ReturnType<typeof db.select>)
-
-    // deleteStaleCandidates → 0 deleted
-    const deleteBuilder = createDeleteBuilder([])
-    vi.mocked(db.delete).mockReturnValue(deleteBuilder as ReturnType<typeof db.delete>)
-
-    // evaluateCandidate → does not fire
+    vi.mocked(db.select).mockImplementation(() => createSelectBuilder([]))
+    vi.mocked(db.delete).mockImplementation(() => createDeleteBuilder([]))
     vi.mocked(evaluateCandidate).mockReturnValue({ fires: false, dropPercent: null, reason: 'cold_start' })
 
     await detectOpportunitiesForWishlist(1, baseConfig)
@@ -145,172 +143,112 @@ describe('detectOpportunitiesForWishlist', () => {
     expect(evaluateCandidate).toHaveBeenCalledTimes(4)
   })
 
-  it('Test 2: isInCooldown true → evaluateCandidate NOT called for that pair', async () => {
+  it('Test 2: isInCooldown true → evaluateCandidate NOT called AND candidate state NOT touched', async () => {
     const mockWishlist = [mockCard]
     vi.mocked(getUserWishlist).mockResolvedValue(mockWishlist)
 
-    // isInCooldown: returns 1 row → in cooldown
-    const selectBuilder = createSelectBuilder([{ id: 1 }])
-    vi.mocked(db.select).mockReturnValue(selectBuilder as ReturnType<typeof db.select>)
-
-    // deleteStaleCandidates
-    const deleteBuilder = createDeleteBuilder([])
-    vi.mocked(db.delete).mockReturnValue(deleteBuilder as ReturnType<typeof db.delete>)
+    // isInCooldown returns 1 row → in cooldown for all pairs
+    vi.mocked(db.select).mockImplementation(() => createSelectBuilder([{ id: 1 }]))
+    vi.mocked(db.delete).mockImplementation(() => createDeleteBuilder([]))
 
     await detectOpportunitiesForWishlist(1, baseConfig)
 
-    // evaluateCandidate should NOT be called (all 4 sources in cooldown)
     expect(evaluateCandidate).not.toHaveBeenCalled()
-    // deleteCandidate should NOT be called either
-    // We check via the delete mock — only stale cleanup should be called
+    expect(db.insert).not.toHaveBeenCalled()
   })
 
-  it('Test 3 (D-07 Branch A): evaluateCandidate fires=false → deleteCandidate called, insertCandidate NOT called, NOT in result', async () => {
+  it('Test 3 (D-07 Branch A): fires=false → deleteCandidate called, insertCandidate NOT called, result empty', async () => {
     const mockWishlist = [{ ...mockCard, oracleId: 'oracle-A' }]
     vi.mocked(getUserWishlist).mockResolvedValue(mockWishlist)
 
-    // isInCooldown → no cooldown
-    const selectCooldownBuilder = createSelectBuilder([])
-
-    // getCandidate → null (no existing candidate)
-    const selectCandidateBuilder = createSelectBuilder([])
-
-    let selectCallCount = 0
-    vi.mocked(db.select).mockImplementation(() => {
-      selectCallCount++
-      // First calls are stale + cooldown checks; subsequent are getCandidate
-      return selectCooldownBuilder as ReturnType<typeof db.select>
-    })
-
+    vi.mocked(db.select).mockImplementation(() => createSelectBuilder([]))
     vi.mocked(evaluateCandidate).mockReturnValue({ fires: false, dropPercent: null, reason: 'cold_start' })
-
-    const deleteBuilder = createDeleteBuilder([])
-    vi.mocked(db.delete).mockReturnValue(deleteBuilder as ReturnType<typeof db.delete>)
+    vi.mocked(db.delete).mockImplementation(() => createDeleteBuilder([]))
 
     const results = await detectOpportunitiesForWishlist(1, baseConfig)
 
-    // Should have called delete (for deleteCandidate per pair + stale cleanup)
     expect(db.delete).toHaveBeenCalled()
-    // Should NOT have called insert (no insertCandidate)
     expect(db.insert).not.toHaveBeenCalled()
-    // Result should be empty (no promotions)
     expect(results).toHaveLength(0)
   })
 
-  it('Test 4 (D-07 Branch B): evaluateCandidate fires=true, getCandidate=null → insertCandidate called, NOT promoted', async () => {
+  it('Test 4 (D-07 Branch B): fires=true, getCandidate=null → insertCandidate called, NOT promoted', async () => {
     const mockWishlist = [{ ...mockCard, oracleId: 'oracle-B' }]
     vi.mocked(getUserWishlist).mockResolvedValue(mockWishlist)
 
-    // All selects: cooldown returns [], candidate returns []
-    const selectBuilder = createSelectBuilder([])
-    vi.mocked(db.select).mockReturnValue(selectBuilder as ReturnType<typeof db.select>)
-
+    vi.mocked(db.select).mockImplementation(() => createSelectBuilder([]))
     vi.mocked(evaluateCandidate).mockReturnValue({ fires: true, dropPercent: 20.0 })
-
-    // deleteStaleCandidates + deleteCandidate
-    const deleteBuilder = createDeleteBuilder([])
-    vi.mocked(db.delete).mockReturnValue(deleteBuilder as ReturnType<typeof db.delete>)
-
-    // insertCandidate
-    const insertBuilder = createInsertBuilder([])
-    vi.mocked(db.insert).mockReturnValue(insertBuilder as ReturnType<typeof db.insert>)
+    vi.mocked(db.delete).mockImplementation(() => createDeleteBuilder([]))
+    vi.mocked(db.insert).mockImplementation(() => createInsertBuilder([]))
 
     const results = await detectOpportunitiesForWishlist(1, baseConfig)
 
-    // insertCandidate should have been called (4 times for 4 sources — all first-time candidates)
     expect(db.insert).toHaveBeenCalled()
-    // No promotion on first confirming run
     expect(results).toHaveLength(0)
   })
 
-  it('Test 5 (D-07 Branch C): evaluateCandidate fires=true, getCandidate returns existing → promoted + deleteCandidate called', async () => {
+  it('Test 5 (D-07 Branch C): fires=true, existing candidate → promoted + deleteCandidate called', async () => {
     const mockWishlist = [{ ...mockCard, oracleId: 'oracle-C', name: 'Black Lotus' }]
     vi.mocked(getUserWishlist).mockResolvedValue(mockWishlist)
 
     const existingCandidate = { id: 42, firstSeenAt: new Date('2026-04-10T15:00:00Z') }
 
-    // First calls (cooldown) → empty; subsequent (getCandidate) → existing
-    let selectCallIdx = 0
+    // Stateful mock: per-source call order is:
+    //   1: isInCooldown    → [] (not in cooldown)
+    //   2-5: price queries → [] (null prices — mocked evaluateCandidate ignores them)
+    //   6: getCandidate    → [existingCandidate]
+    // Pattern repeats every 6 selects for each source
+    let selectCallCount = 0
     vi.mocked(db.select).mockImplementation(() => {
-      selectCallIdx++
-      // cooldown calls return empty (no cooldown)
-      // getCandidate calls return existing
-      // We'll alternate based on call index within the chain
-      const result = selectCallIdx % 2 === 0 ? [existingCandidate] : []
-      const builder = createSelectBuilder(result)
-      return builder as ReturnType<typeof db.select>
+      selectCallCount++
+      const positionInGroup = ((selectCallCount - 1) % 6) + 1
+      return positionInGroup === 6 ? createSelectBuilder([existingCandidate]) : createSelectBuilder([])
     })
 
-    // getLatestPrice, getBaselineMean, getPriceSevenDaysAgo, getHistoryDaysForPair all need select too
-    // Let's use a simpler approach: mock all selects to return values that make things work
-    // Re-mock to always return existingCandidate for candidate lookups
-    const cooldownEmpty = createSelectBuilder([])
-    const candidateExists = createSelectBuilder([existingCandidate])
-    const priceRow = createSelectBuilder([
-      { priceBrl: '5200', avg: '5500', timestamp: new Date(), count: 45 },
-    ])
-    const historyRow = createSelectBuilder([{ days: 45 }])
-
-    vi.mocked(db.select).mockReturnValue(candidateExists as ReturnType<typeof db.select>)
-
     vi.mocked(evaluateCandidate).mockReturnValue({ fires: true, dropPercent: 20.0 })
-
-    const deleteBuilder = createDeleteBuilder([])
-    vi.mocked(db.delete).mockReturnValue(deleteBuilder as ReturnType<typeof db.delete>)
-
-    const insertBuilder = createInsertBuilder([])
-    vi.mocked(db.insert).mockReturnValue(insertBuilder as ReturnType<typeof db.insert>)
+    vi.mocked(db.delete).mockImplementation(() => createDeleteBuilder([]))
+    vi.mocked(db.insert).mockImplementation(() => createInsertBuilder([]))
 
     const results = await detectOpportunitiesForWishlist(1, baseConfig)
 
-    // deleteCandidate should have been called (promotion consumes candidate)
     expect(db.delete).toHaveBeenCalled()
-    // Should have at least 1 promoted opportunity
     expect(results.length).toBeGreaterThan(0)
-    // Check the shape of the first promoted result
-    if (results.length > 0) {
-      expect(results[0]).toMatchObject({
-        cardId: 'oracle-C',
-        cardName: 'Black Lotus',
-        source: expect.stringMatching(/ligamagic|tcgplayer|cardmarket|cardkingdom/),
-        dropPercent: 20.0,
-      })
-    }
+    expect(results[0]).toMatchObject({
+      cardId: 'oracle-C',
+      cardName: 'Black Lotus',
+      source: expect.stringMatching(/ligamagic|tcgplayer|cardmarket|cardkingdom/),
+      dropPercent: 20.0,
+    })
   })
 
   it('Test 6 (D-07 Branch D): deleteStaleCandidates is called exactly once per orchestrator invocation', async () => {
     vi.mocked(getUserWishlist).mockResolvedValue([])
-
-    const deleteBuilder = createDeleteBuilder([])
-    vi.mocked(db.delete).mockReturnValue(deleteBuilder as ReturnType<typeof db.delete>)
+    vi.mocked(db.delete).mockImplementation(() => createDeleteBuilder([]))
 
     await detectOpportunitiesForWishlist(1, baseConfig)
 
-    // db.delete should have been called exactly once (for stale cleanup)
     expect(db.delete).toHaveBeenCalledTimes(1)
   })
 
-  it('Test 7 (Multi-source): 2 sources promoted for same card yields 2 opportunities', async () => {
+  it('Test 7 (Multi-source): fires=true for all 4 sources on existing candidates → 4 opportunities', async () => {
     const mockWishlist = [{ ...mockCard, oracleId: 'oracle-multi', name: 'Mox Pearl' }]
     vi.mocked(getUserWishlist).mockResolvedValue(mockWishlist)
 
     const existingCandidate = { id: 99, firstSeenAt: new Date('2026-04-10') }
 
-    // All selects return existing candidate (simulates second run)
-    const candidateBuilder = createSelectBuilder([existingCandidate])
-    vi.mocked(db.select).mockReturnValue(candidateBuilder as ReturnType<typeof db.select>)
+    let selectCallCount = 0
+    vi.mocked(db.select).mockImplementation(() => {
+      selectCallCount++
+      const positionInGroup = ((selectCallCount - 1) % 6) + 1
+      return positionInGroup === 6 ? createSelectBuilder([existingCandidate]) : createSelectBuilder([])
+    })
 
     vi.mocked(evaluateCandidate).mockReturnValue({ fires: true, dropPercent: 22.5 })
-
-    const deleteBuilder = createDeleteBuilder([])
-    vi.mocked(db.delete).mockReturnValue(deleteBuilder as ReturnType<typeof db.delete>)
-
-    const insertBuilder = createInsertBuilder([])
-    vi.mocked(db.insert).mockReturnValue(insertBuilder as ReturnType<typeof db.insert>)
+    vi.mocked(db.delete).mockImplementation(() => createDeleteBuilder([]))
+    vi.mocked(db.insert).mockImplementation(() => createInsertBuilder([]))
 
     const results = await detectOpportunitiesForWishlist(1, baseConfig)
 
-    // 4 sources, all promoted → 4 opportunities
     expect(results).toHaveLength(4)
     const sources = results.map((r) => r.source)
     expect(sources).toContain('ligamagic')
@@ -321,14 +259,12 @@ describe('detectOpportunitiesForWishlist', () => {
 
   it('Test 8: empty wishlist → result is [], deleteStaleCandidates still called, info log has wishlist=0', async () => {
     vi.mocked(getUserWishlist).mockResolvedValue([])
-
-    const deleteBuilder = createDeleteBuilder([])
-    vi.mocked(db.delete).mockReturnValue(deleteBuilder as ReturnType<typeof db.delete>)
+    vi.mocked(db.delete).mockImplementation(() => createDeleteBuilder([]))
 
     const results = await detectOpportunitiesForWishlist(1, baseConfig)
 
     expect(results).toHaveLength(0)
-    expect(db.delete).toHaveBeenCalledTimes(1) // stale cleanup still runs
+    expect(db.delete).toHaveBeenCalledTimes(1)
     expect(logger.info).toHaveBeenCalledWith(expect.stringContaining('wishlist=0'))
   })
 })
@@ -339,34 +275,36 @@ describe('getRecentOpportunities', () => {
       detectedAt: new Date('2026-04-10'),
       cardName: 'Black Lotus',
       source: 'ligamagic',
-      currentPrice: 5200,
-      dropPercent: 20.0,
+      currentPrice: '5200.00',
+      dropPercent: '20.00',
     }
 
-    const selectBuilder = {
+    const selectBuilder: MockBuilder = {
       from: vi.fn().mockReturnThis(),
       innerJoin: vi.fn().mockReturnThis(),
       orderBy: vi.fn().mockReturnThis(),
       limit: vi.fn().mockResolvedValue([mockRow]),
     }
-    vi.mocked(db.select).mockReturnValue(selectBuilder as unknown as ReturnType<typeof db.select>)
+    vi.mocked(db.select).mockReturnValue(selectBuilder)
 
     const results = await getRecentOpportunities(10)
 
     expect(db.select).toHaveBeenCalled()
     expect(selectBuilder.orderBy).toHaveBeenCalled()
     expect(selectBuilder.limit).toHaveBeenCalledWith(10)
+    expect(results).toHaveLength(1)
+    expect(results[0].cardName).toBe('Black Lotus')
   })
 })
 
 describe('insertOpportunity', () => {
   it('Test 10: insertOpportunity maps numeric fields to .toFixed(2) strings for Drizzle numeric columns', async () => {
     const mockInserted = [{ id: 1, sentToUser: false }]
-    const insertBuilder = {
+    const insertBuilder: MockBuilder = {
       values: vi.fn().mockReturnThis(),
       returning: vi.fn().mockResolvedValue(mockInserted),
     }
-    vi.mocked(db.insert).mockReturnValue(insertBuilder as unknown as ReturnType<typeof db.insert>)
+    vi.mocked(db.insert).mockReturnValue(insertBuilder)
 
     await insertOpportunity({
       cardId: 'oracle-1',
