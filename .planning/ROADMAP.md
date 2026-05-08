@@ -145,11 +145,11 @@
 **Plans:** 5 plans
 
 **Wave 1 (Parallel):**
-- [x] 04-01-PLAN.md — Opportunities schema + migration + [BLOCKING] schema push + .env.example DETECT_* vars
-- [x] 04-02-PLAN.md — Detection config loader (TDD) — validates DETECT_* env vars with safe defaults
+- [ ] 04-01-PLAN.md — Opportunities schema + migration + [BLOCKING] schema push + .env.example DETECT_* vars
+- [ ] 04-02-PLAN.md — Detection config loader (TDD) — validates DETECT_* env vars with safe defaults
 
 **Wave 2 (Sequential):**
-- [x] 04-03-PLAN.md — Detection algorithm (pure detector + DB queries + wishlist orchestrator with cooldown and outlier guard)
+- [ ] 04-03-PLAN.md — Detection algorithm (pure detector + DB queries + wishlist orchestrator with cooldown and outlier guard)
 
 **Wave 3 (Parallel):**
 - [ ] 04-04-PLAN.md — Digest builder + Telegram sender + executePriceCollection hook (D-14/D-22/D-23/D-24)
