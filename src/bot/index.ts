@@ -5,6 +5,8 @@ import './commands/add' // Import to register the command
 import './commands/remove' // Import to register the command
 import './commands/list' // Import to register the command
 import './commands/price' // Import to register the command
+import './commands/history' // Import to register the command
+import './commands/config' // Import to register the command
 
 console.log('🤖 Starting Telegram bot...')
 console.log('📍 Chat ID whitelist:', process.env.TELEGRAM_CHAT_ID || 'NOT SET')
@@ -21,6 +23,8 @@ bot.api
     { command: 'remove', description: 'Remove card from wishlist' },
     { command: 'list', description: 'View your wishlist' },
     { command: 'price', description: 'Check card price' },
+    { command: 'history', description: 'View recent opportunities' },
+    { command: 'config', description: 'View detection configuration' },
   ])
   .then(() => console.log('✅ Commands registered'))
   .catch((err) => console.error('❌ Failed to register commands:', err))
