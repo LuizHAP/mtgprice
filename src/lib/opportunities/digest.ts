@@ -11,15 +11,11 @@
  * Security notes (T-04-04-08): errors are logged via Winston only; never echoed to chat.
  */
 
-import { bot } from '@/lib/telegram'
 import { logger } from '@/lib/logger'
 import { RATE_LIMITS, checkRateLimitPreset } from '@/lib/ratelimit/rate-limiter'
+import { bot } from '@/lib/telegram'
 import type { DetectedOpportunity } from './queries'
-import {
-  insertOpportunity,
-  markOpportunitySent,
-  getUnsentOpportunitiesLast24h,
-} from './queries'
+import { getUnsentOpportunitiesLast24h, insertOpportunity, markOpportunitySent } from './queries'
 
 // ─── Source display names ─────────────────────────────────────────────────────
 
@@ -156,6 +152,10 @@ export async function sendDigestAndPersist(
     return { persisted, sent: false, error: 'chat_id_missing' }
   }
   const chatId = Number(chatIdRaw)
+  if (!Number.isFinite(chatId)) {
+    logger.error(`TELEGRAM_CHAT_ID="${chatIdRaw}" is not a valid integer; cannot send digest`)
+    return { persisted, sent: false, error: 'chat_id_invalid' }
+  }
 
   // Build and send digest (T-04-04-01: plain text, no parse_mode)
   const digestText = buildDigest(merged, new Date())
@@ -193,8 +193,6 @@ export async function sendDigestAndPersist(
     }
   }
 
-  logger.info(
-    `Digest sent: ${opportunities.length} fresh + ${retryOps.length} retried`,
-  )
+  logger.info(`Digest sent: ${opportunities.length} fresh + ${retryOps.length} retried`)
   return { persisted, sent: true }
 }
