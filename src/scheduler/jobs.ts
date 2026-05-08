@@ -12,6 +12,11 @@
 import { db } from '@/db'
 import { cards } from '@/db/schema'
 import { logger } from '@/lib/logger'
+import {
+  detectOpportunitiesForWishlist,
+  loadDetectionConfig,
+  sendDigestAndPersist,
+} from '@/lib/opportunities'
 import fetchAllPrices from '@/scraper/orchestrator'
 import cron from 'node-cron'
 
@@ -116,6 +121,26 @@ export async function executePriceCollection(): Promise<{
       if (stats.errors.length > 5) {
         logger.debug(`  ... and ${stats.errors.length - 5} more errors`)
       }
+    }
+
+    // Phase 4 D-22: Run opportunity detection synchronously after fetchAllPrices.
+    // Detection failures are logged but MUST NOT mark the collection run as failed.
+    try {
+      const detectionConfig = loadDetectionConfig()
+      // Single-user mode: userId = 1 per Phase 1 D-09.
+      const opportunities = await detectOpportunitiesForWishlist(1, detectionConfig)
+      const digestResult = await sendDigestAndPersist(opportunities)
+      logger.info(
+        `Opportunity detection complete: ${digestResult.persisted} persisted, sent=${digestResult.sent}${
+          digestResult.error ? ` error=${digestResult.error}` : ''
+        }`,
+      )
+    } catch (detectionError) {
+      logger.error(
+        `Opportunity detection failed (collection run NOT marked as failed): ${
+          detectionError instanceof Error ? detectionError.message : String(detectionError)
+        }`,
+      )
     }
 
     return {
