@@ -1,19 +1,24 @@
+import { logger } from '../lib/logger'
 import { bot } from '../lib/telegram'
 import { whitelistMiddleware } from './middleware/whitelist'
-import './commands/start' // Import to register the command
-import './commands/add' // Import to register the command
-import './commands/remove' // Import to register the command
-import './commands/list' // Import to register the command
-import './commands/price' // Import to register the command
-import './commands/history' // Import to register the command
-import './commands/config' // Import to register the command
 
-console.log('🤖 Starting Telegram bot...')
-console.log('📍 Chat ID whitelist:', process.env.TELEGRAM_CHAT_ID || 'NOT SET')
-console.log('🔑 Bot token:', process.env.TELEGRAM_BOT_TOKEN ? 'SET' : 'NOT SET')
+logger.info('Starting Telegram bot')
+logger.info(`Chat ID whitelist: ${process.env.TELEGRAM_CHAT_ID || 'NOT SET'}`)
+logger.info(`Bot token: ${process.env.TELEGRAM_BOT_TOKEN ? 'SET' : 'NOT SET'}`)
 
-// Apply whitelist middleware to all commands
+// Apply whitelist middleware FIRST — must precede all command registrations.
+// ES module static imports are hoisted, so command modules are loaded via
+// dynamic imports below to guarantee they run after bot.use() is called.
 bot.use(whitelistMiddleware)
+
+// Command imports run AFTER middleware is in the chain
+await import('./commands/start')
+await import('./commands/add')
+await import('./commands/remove')
+await import('./commands/list')
+await import('./commands/price')
+await import('./commands/history')
+await import('./commands/config')
 
 // Register bot commands in Telegram menu
 bot.api
@@ -26,17 +31,18 @@ bot.api
     { command: 'history', description: 'View recent opportunities' },
     { command: 'config', description: 'View detection configuration' },
   ])
-  .then(() => console.log('✅ Commands registered'))
-  .catch((err) => console.error('❌ Failed to register commands:', err))
+  .then(() => logger.info('Bot commands registered in Telegram menu'))
+  .catch((err) =>
+    logger.error(`Failed to register bot commands: ${err instanceof Error ? err.message : String(err)}`),
+  )
 
 // Start bot polling
 bot
   .start()
   .then(() => {
-    console.log('✅ Telegram bot started successfully - waiting for messages...')
-    console.log('📱 Send /start <password> to authenticate')
+    logger.info('Telegram bot started successfully - waiting for messages')
   })
   .catch((error) => {
-    console.error('❌ Failed to start Telegram bot:', error)
+    logger.error(`Failed to start Telegram bot: ${error instanceof Error ? error.message : String(error)}`)
     process.exit(1)
   })
