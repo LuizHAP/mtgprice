@@ -1,0 +1,2 @@
+ALTER TABLE "wishlists" ADD COLUMN "is_auto_added" boolean DEFAULT false NOT NULL;--> statement-breakpoint
+CREATE UNIQUE INDEX "opportunities_card_source_unsent_unique_idx" ON "opportunities" USING btree ("card_id","source") WHERE sent_to_user = false;
