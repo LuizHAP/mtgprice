@@ -1,4 +1,129 @@
-import { describe, expect, test, vi } from 'vitest'
+import { beforeEach, describe, expect, it, test, vi } from 'vitest'
+
+// === Phase 5 — Metagame Refresh Scheduler ===
+
+vi.mock('@/scraper/metagame', () => ({
+  executeMetagameRefresh: vi.fn(),
+}))
+
+vi.mock('node-cron', () => {
+  const mockSchedule = vi.fn().mockReturnValue({
+    start: vi.fn(),
+    stop: vi.fn(),
+  })
+  return {
+    default: {
+      schedule: mockSchedule,
+    },
+    schedule: mockSchedule,
+  }
+})
+
+vi.mock('@/db', () => ({
+  db: {
+    query: {
+      cards: {
+        findMany: vi.fn().mockResolvedValue([]),
+      },
+    },
+  },
+}))
+
+vi.mock('@/scraper/orchestrator', () => ({
+  default: vi.fn().mockResolvedValue({ fetched: 0, skipped: 0, failed: 0, errors: [] }),
+}))
+
+vi.mock('@/lib/logger', () => ({
+  logger: {
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
+  },
+}))
+
+describe('scheduleMetagameRefresh', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    // biome-ignore lint/performance/noDelete: process.env requires delete to truly unset a var
+    delete process.env.CRON_METAGAME_REFRESH
+  })
+
+  it('registers a single cron.schedule job with { scheduled: false } at default Sunday 2 AM', async () => {
+    const { scheduleMetagameRefresh } = await import('../jobs')
+    const cronModule = await import('node-cron')
+
+    scheduleMetagameRefresh()
+
+    expect(cronModule.default.schedule).toHaveBeenCalledWith(
+      '0 2 * * 0',
+      expect.any(Function),
+      expect.objectContaining({ scheduled: false }),
+    )
+  })
+
+  it('honors CRON_METAGAME_REFRESH env var override', async () => {
+    process.env.CRON_METAGAME_REFRESH = '0 3 * * 1'
+    const { scheduleMetagameRefresh } = await import('../jobs')
+    const cronModule = await import('node-cron')
+
+    scheduleMetagameRefresh()
+
+    expect(cronModule.default.schedule).toHaveBeenCalledWith(
+      '0 3 * * 1',
+      expect.any(Function),
+      expect.anything(),
+    )
+  })
+
+  it('returned object has start() and stop() functions', async () => {
+    const { scheduleMetagameRefresh } = await import('../jobs')
+    const result = scheduleMetagameRefresh()
+    expect(typeof result.start).toBe('function')
+    expect(typeof result.stop).toBe('function')
+  })
+
+  it('cron callback invokes executeMetagameRefresh and logs the summary', async () => {
+    const { executeMetagameRefresh } = await import('@/scraper/metagame')
+    const mockExecuteMetagameRefresh = vi.mocked(executeMetagameRefresh)
+    mockExecuteMetagameRefresh.mockResolvedValueOnce({
+      addedCount: 100,
+      removedCount: 5,
+      skippedCount: 0,
+      perFormat: { commander: 50, standard: 30, modern: 20 },
+    })
+
+    const { scheduleMetagameRefresh } = await import('../jobs')
+    const cronModule = await import('node-cron')
+
+    scheduleMetagameRefresh()
+
+    const callArgs = vi.mocked(cronModule.default.schedule).mock.calls[0]
+    expect(callArgs).toBeDefined()
+    const callback = callArgs[1] as () => Promise<void>
+    await callback()
+
+    expect(mockExecuteMetagameRefresh).toHaveBeenCalled()
+  })
+
+  it('cron callback does NOT throw if executeMetagameRefresh rejects (defensive try/catch)', async () => {
+    const { executeMetagameRefresh } = await import('@/scraper/metagame')
+    const mockExecuteMetagameRefresh = vi.mocked(executeMetagameRefresh)
+    mockExecuteMetagameRefresh.mockRejectedValueOnce(new Error('orchestrator exploded'))
+
+    const { scheduleMetagameRefresh } = await import('../jobs')
+    const cronModule = await import('node-cron')
+
+    scheduleMetagameRefresh()
+
+    const mockScheduleCalls = vi.mocked(cronModule.default.schedule).mock.calls
+    const callArgs = mockScheduleCalls[mockScheduleCalls.length - 1]
+    const callback = callArgs[1] as () => Promise<void>
+
+    // Must NOT throw
+    await expect(callback()).resolves.toBeUndefined()
+  })
+})
 
 describe('Cron job scheduling', () => {
   describe('schedulePriceCollection', () => {

@@ -17,6 +17,7 @@ import {
   loadDetectionConfig,
   sendDigestAndPersist,
 } from '@/lib/opportunities'
+import { executeMetagameRefresh } from '@/scraper/metagame'
 import fetchAllPrices from '@/scraper/orchestrator'
 import cron from 'node-cron'
 
@@ -168,6 +169,7 @@ export async function executePriceCollection(): Promise<{
 let morningJob: cron.ScheduledTask | null = null
 let afternoonJob: cron.ScheduledTask | null = null
 let eveningJob: cron.ScheduledTask | null = null
+let metagameJob: cron.ScheduledTask | null = null
 
 /**
  * Schedule price collection with node-cron
@@ -241,6 +243,63 @@ export function schedulePriceCollection(): {
       morningJob?.stop()
       afternoonJob?.stop()
       eveningJob?.stop()
+    },
+  }
+}
+
+/**
+ * Schedule weekly metagame refresh with node-cron.
+ *
+ * Per CONTEXT.md D-02: Weekly Sunday refresh, dedicated cron job
+ * (NOT interleaved inside executePriceCollection).
+ *
+ * Default schedule: '0 2 * * 0' = 2:00 AM every Sunday.
+ * Override via process.env.CRON_METAGAME_REFRESH.
+ *
+ * The cron callback invokes executeMetagameRefresh() from @/scraper/metagame
+ * and logs the returned summary. Defensive try/catch ensures the scheduler
+ * never crashes even if the orchestrator throws.
+ *
+ * @returns Object with start() and stop() methods, mirroring schedulePriceCollection
+ *
+ * @example
+ * ```ts
+ * const refresher = scheduleMetagameRefresh()
+ * refresher.start() // begin weekly cron
+ * refresher.stop()  // halt weekly cron (e.g., on bot shutdown)
+ * ```
+ */
+export function scheduleMetagameRefresh(): {
+  start: () => void
+  stop: () => void
+} {
+  const schedule = process.env.CRON_METAGAME_REFRESH || '0 2 * * 0' // Sunday 2:00 AM
+
+  logger.info(`Scheduling metagame refresh: schedule=${schedule}`)
+
+  metagameJob = cron.schedule(
+    schedule,
+    async () => {
+      logger.info('Weekly metagame refresh triggered')
+      try {
+        const summary = await executeMetagameRefresh()
+        logger.info(`Weekly metagame refresh complete: ${JSON.stringify(summary)}`)
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error)
+        logger.error(`Weekly metagame refresh threw an error (scheduler continues): ${message}`)
+      }
+    },
+    { scheduled: false },
+  )
+
+  return {
+    start: () => {
+      logger.info('Starting metagame refresh scheduler')
+      metagameJob?.start()
+    },
+    stop: () => {
+      logger.info('Stopping metagame refresh scheduler')
+      metagameJob?.stop()
     },
   }
 }
