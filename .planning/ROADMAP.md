@@ -22,7 +22,7 @@
 | 2. Core Data Collection | 5/5 | Complete   | 2026-03-06 | ✓ |
 | 3. User Interface & Wishlist | 4/5 | Gap Closure | - | - |
 | 4. Opportunity Detection & Notifications | 0/5 | Planned | - | - |
-| 5. Metagame Integration | 0/2 | Not started | - | - |
+| 5. Metagame Integration | 0/5 | Planned | - | - |
 | 6. Polish & Optimization | 0/2 | Not started | - | - |
 
 ## Phase Details
@@ -170,7 +170,20 @@
 2. Sistema auto-adiciona top cartas mais jogadas de Modern ao monitoramento
 3. Sistema auto-adiciona top X cartas mais populares de Commander ao monitoramento
 
-**Plans:** TBD
+**Plans:** 5 plans
+
+**Wave 1 (Foundation):**
+- [ ] 05-01-PLAN.md — Wishlists is_auto_added column + SCRYFALL_HEAVY rate limit preset + Wave 0 test stubs + [BLOCKING] schema push
+
+**Wave 2 (Parallel — fetchers + resolver):**
+- [ ] 05-02-PLAN.md — EDHREC Commander fetcher + MTGTop8 Standard/Modern fetcher (cheerio) with TDD
+- [ ] 05-03-PLAN.md — Scryfall /cards/collection batch resolver with SCRYFALL_HEAVY rate limit + retry
+
+**Wave 3 (Sequential — orchestrator):**
+- [ ] 05-04-PLAN.md — Metagame orchestrator: compose fetchers + resolver, upsert cards (D-06), insert wishlists with isAutoAdded=true (D-07), remove stale auto-added rows (D-05)
+
+**Wave 4 (Sequential — scheduler integration):**
+- [ ] 05-05-PLAN.md — Weekly Sunday cron registration (scheduleMetagameRefresh) + .env.example CRON_METAGAME_REFRESH
 
 ---
 
@@ -218,9 +231,9 @@
 | NOTIF-01 | 4 | 04-04 | Planned |
 | NOTIF-02 | 4 | 04-05 | Planned |
 | NOTIF-03 | 2 | 02-04 | Complete (2026-03-06) |
-| META-01 | 5 | - | Pending |
-| META-02 | 5 | - | Pending |
-| META-03 | 5 | - | Pending |
+| META-01 | 5 | 05-02, 05-04, 05-05 | Planned |
+| META-02 | 5 | 05-02, 05-04, 05-05 | Planned |
+| META-03 | 5 | 05-02, 05-04, 05-05 | Planned |
 | DASH-01 | 3 | 03-02, 03-03 | Pending |
 | DASH-02 | 3 | 03-03 | Pending |
 
