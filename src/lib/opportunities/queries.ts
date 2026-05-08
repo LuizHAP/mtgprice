@@ -221,7 +221,6 @@ export async function deleteCandidate(cardId: string, source: string): Promise<v
   await db
     .delete(detectionCandidates)
     .where(and(eq(detectionCandidates.cardId, cardId), eq(detectionCandidates.source, source)))
-    .returning({ id: detectionCandidates.id })
 }
 
 // ─── 9. deleteStaleCandidates ─────────────────────────────────────────────────
