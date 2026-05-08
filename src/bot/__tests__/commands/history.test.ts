@@ -12,17 +12,17 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-// ─── Mocks ────────────────────────────────────────────────────────────────────
+// ─── Hoisted stubs (must be hoisted so vi.mock factory can reference them) ────
 
-// Map of registered command handlers: command name → handler fn
-const commandHandlers: Record<string, (ctx: unknown) => Promise<void>> = {}
+const commandHandlers = vi.hoisted(() => ({}) as Record<string, (ctx: unknown) => Promise<void>>)
 
-// Stub bot that captures bot.command('name', fn) registrations
-const botStub = {
+const botStub = vi.hoisted(() => ({
   command: vi.fn((name: string, handler: (ctx: unknown) => Promise<void>) => {
     commandHandlers[name] = handler
   }),
-}
+}))
+
+// ─── Mocks ────────────────────────────────────────────────────────────────────
 
 vi.mock('@/lib/telegram', () => ({ bot: botStub }))
 
