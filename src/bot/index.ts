@@ -1,5 +1,6 @@
 import { logger } from '../lib/logger'
 import { bot } from '../lib/telegram'
+import { scheduleMetagameRefresh, schedulePriceCollection } from '../scheduler'
 import { whitelistMiddleware } from './middleware/whitelist'
 
 logger.info('Starting Telegram bot')
@@ -35,6 +36,11 @@ bot.api
   .catch((err) =>
     logger.error(`Failed to register bot commands: ${err instanceof Error ? err.message : String(err)}`),
   )
+
+// Start schedulers
+schedulePriceCollection().start()
+scheduleMetagameRefresh().start()
+logger.info('Schedulers started (price collection 3x daily, metagame refresh weekly)')
 
 // Start bot polling
 bot
