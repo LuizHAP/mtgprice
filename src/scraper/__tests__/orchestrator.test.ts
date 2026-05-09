@@ -1,4 +1,102 @@
+import pLimit from 'p-limit'
 import { describe, expect, test, vi } from 'vitest'
+
+describe('fetchAllPrices concurrency (Phase 6 / D-08)', () => {
+  test('caps in-flight executions at SCRAPER_CONCURRENCY_PER_SOURCE', async () => {
+    // Verify p-limit itself enforces the cap — this is the unit-level test
+    // for the concurrency mechanism used by fetchAllPrices.
+    const concurrency = 3
+    const limit = pLimit(concurrency)
+
+    let inFlight = 0
+    let maxInFlight = 0
+
+    const tasks = Array.from({ length: 12 }, () =>
+      limit(async () => {
+        inFlight++
+        if (inFlight > maxInFlight) maxInFlight = inFlight
+        await new Promise((r) => setTimeout(r, 10))
+        inFlight--
+      }),
+    )
+
+    await Promise.all(tasks)
+
+    expect(maxInFlight).toBeLessThanOrEqual(concurrency)
+    expect(maxInFlight).toBeGreaterThan(1) // proves it's not sequential
+  })
+
+  test('preserves FetchAllPricesStats return shape', async () => {
+    // Mock dependencies that fetchCardPriceFromAllSources uses so we can
+    // drive fetchAllPrices end-to-end and verify the stats shape.
+    vi.resetModules()
+    vi.doMock('@/scraper/smart-refresh', () => ({
+      shouldFetchPrice: vi.fn().mockResolvedValue(true),
+    }))
+    vi.doMock('@/scraper/providers/liga-magic', () => ({
+      fetchCardPrice: vi.fn().mockResolvedValue(10),
+    }))
+    vi.doMock('@/scraper/providers/tcgplayer', () => ({
+      fetchCardPrice: vi.fn().mockResolvedValue(null),
+    }))
+    vi.doMock('@/scraper/providers/cardmarket', () => ({
+      fetchCardPrice: vi.fn().mockResolvedValue(null),
+    }))
+    vi.doMock('@/scraper/providers/cardkingdom', () => ({
+      fetchCardPrice: vi.fn().mockResolvedValue(null),
+    }))
+    vi.doMock('@/db/queries/prices', () => ({
+      insertPrice: vi.fn().mockResolvedValue(undefined),
+    }))
+    vi.doMock('@/lib/currency', () => ({
+      convertToBRL: vi.fn().mockResolvedValue(50),
+    }))
+    const { fetchAllPrices } = await import('@/scraper/orchestrator')
+    const stats = await fetchAllPrices(['a', 'b'])
+    expect(stats).toMatchObject({
+      total: 2,
+      fetched: expect.any(Number),
+      skipped: expect.any(Number),
+      failed: expect.any(Number),
+      errors: expect.any(Array),
+    })
+    expect(stats.total).toBe(2)
+    expect(typeof stats.fetched).toBe('number')
+    expect(Array.isArray(stats.errors)).toBe(true)
+    vi.resetModules()
+  })
+})
+
+describe('orchestrator retry-then-circuit-breaker ordering (Phase 6 / D-06)', () => {
+  test('imports withRetry from @/lib/retry', async () => {
+    // Smoke test: the orchestrator module must import withRetry.
+    // Read the source as text rather than via reflection (no runtime API).
+    const fs = await import('node:fs/promises')
+    const src = await fs.readFile('src/scraper/orchestrator.ts', 'utf8')
+    expect(src).toMatch(/import\s+\{\s*withRetry\s*\}\s+from\s+['"]@\/lib\/retry['"]/)
+  })
+
+  test('imports pLimit from p-limit', async () => {
+    const fs = await import('node:fs/promises')
+    const src = await fs.readFile('src/scraper/orchestrator.ts', 'utf8')
+    expect(src).toMatch(/import\s+pLimit\s+from\s+['"]p-limit['"]/)
+  })
+
+  test('composes raw fetch through withRetry BEFORE wrapWithCircuitBreaker (D-06 order)', async () => {
+    const fs = await import('node:fs/promises')
+    const src = await fs.readFile('src/scraper/orchestrator.ts', 'utf8')
+    // The composeReliable helper must call withRetry inside a function passed to wrapWithCircuitBreaker.
+    expect(src).toMatch(/withRetry\s*\(/)
+    expect(src).toMatch(/wrapWithCircuitBreaker\s*\(/)
+    // Order check: in the composeReliable helper, withRetry must appear before wrapWithCircuitBreaker.
+    const composeIdx = src.indexOf('composeReliable')
+    const retryIdx = src.indexOf('withRetry', composeIdx)
+    const breakerIdx = src.indexOf('wrapWithCircuitBreaker', composeIdx)
+    expect(retryIdx).toBeGreaterThan(-1)
+    expect(breakerIdx).toBeGreaterThan(-1)
+    expect(retryIdx).toBeLessThan(breakerIdx)
+  })
+})
 
 describe('Fetch orchestration', () => {
   describe('orchestrateFetch', () => {

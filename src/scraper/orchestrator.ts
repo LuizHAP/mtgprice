@@ -3,21 +3,35 @@
  *
  * Coordinates fetching prices from all 4 sources (Liga Magic, TCGPlayer,
  * CardMarket, CardKingdom) with correct priority, currency conversion,
- * smart refresh filtering, and circuit breaker fault tolerance.
+ * smart refresh filtering, circuit breaker fault tolerance, and
+ * per-source concurrency capping via p-limit.
  *
- * This completes the data collection pipeline.
+ * Composition order (per D-06): raw fetcher → withRetry → wrapWithCircuitBreaker
+ * This ensures transient failures are retried BEFORE the circuit breaker
+ * counts them toward its failure threshold.
  */
 
+import { withRetry } from '@/lib/retry'
 import { insertPrice } from '../db/queries/prices'
 import { type Currency, convertToBRL } from '../lib/currency'
 import { logger } from '../lib/logger'
+import { wrapWithCircuitBreaker } from './circuit-breaker'
 import { shouldFetchPrice } from './smart-refresh'
 
-import { default as fetchCardKingdomPrice } from './providers/cardkingdom'
-import { default as fetchCardMarketPrice } from './providers/cardmarket'
-// Import all fetchers
+import pLimit from 'p-limit'
+
+import { fetchCardPrice as fetchCardKingdomPrice } from './providers/cardkingdom'
+import { fetchCardPrice as fetchCardMarketPrice } from './providers/cardmarket'
+// Import raw (unwrapped) fetchCardPrice from each provider for retry composition
 import { fetchCardPrice as fetchLigaMagicPrice } from './providers/liga-magic'
-import { default as fetchTCGPlayerPrice } from './providers/tcgplayer'
+import { fetchCardPrice as fetchTCGPlayerPrice } from './providers/tcgplayer'
+
+/**
+ * Per-source concurrency cap (D-08/D-09).
+ * Default 5: 5 concurrent × 4 sources = up to 20 in-flight requests,
+ * well within LIGAMAGIC (30/min) and TCGPLAYER (40/min) rate limit budgets.
+ */
+const CONCURRENCY_PER_SOURCE = Number(process.env.SCRAPER_CONCURRENCY_PER_SOURCE) || 5
 
 /**
  * Source metadata for orchestration
@@ -29,29 +43,30 @@ interface SourceMetadata {
 }
 
 /**
- * All price sources with their metadata
+ * Compose a reliable fetcher: raw fetch → withRetry → wrapWithCircuitBreaker (D-06 order)
+ *
+ * withRetry wraps the raw fn BEFORE the circuit breaker sees any failure.
+ * Only after all retry attempts are exhausted does the circuit breaker
+ * count a failure toward its threshold.
+ */
+function composeReliable(
+  rawFetch: (oracleId: string) => Promise<number | null>,
+  sourceName: string,
+): (oracleId: string) => Promise<number | null> {
+  const retried = (oracleId: string) => withRetry(() => rawFetch(oracleId))
+  const breakered = wrapWithCircuitBreaker(retried, sourceName)
+  return (oracleId: string) => breakered(oracleId).then((v) => v ?? null)
+}
+
+/**
+ * All price sources with their metadata.
+ * Each fetch is composed: raw → withRetry → circuit breaker (D-06 ordering).
  */
 const ALL_SOURCES: SourceMetadata[] = [
-  {
-    name: 'ligamagic',
-    currency: 'BRL',
-    fetch: fetchLigaMagicPrice,
-  },
-  {
-    name: 'tcgplayer',
-    currency: 'USD',
-    fetch: fetchTCGPlayerPrice,
-  },
-  {
-    name: 'cardmarket',
-    currency: 'EUR',
-    fetch: fetchCardMarketPrice,
-  },
-  {
-    name: 'cardkingdom',
-    currency: 'USD',
-    fetch: fetchCardKingdomPrice,
-  },
+  { name: 'ligamagic', currency: 'BRL', fetch: composeReliable(fetchLigaMagicPrice, 'Liga Magic') },
+  { name: 'tcgplayer', currency: 'USD', fetch: composeReliable(fetchTCGPlayerPrice, 'TCGPlayer') },
+  { name: 'cardmarket', currency: 'EUR', fetch: composeReliable(fetchCardMarketPrice, 'CardMarket') },
+  { name: 'cardkingdom', currency: 'USD', fetch: composeReliable(fetchCardKingdomPrice, 'CardKingdom') },
 ]
 
 /**
@@ -191,6 +206,7 @@ export interface FetchAllPricesStats {
  * Fetch prices for multiple cards across all sources
  *
  * Orchestrates batch fetching with:
+ * - p-limit concurrency cap (SCRAPER_CONCURRENCY_PER_SOURCE, default 5)
  * - Smart refresh filtering (skip fresh cards)
  * - Liga Magic sequential first (per card)
  * - International sources in parallel (per card)
@@ -214,42 +230,40 @@ export async function fetchAllPrices(oracleIds: string[]): Promise<FetchAllPrice
     errors: [],
   }
 
-  logger.info(`Starting price collection for ${oracleIds.length} cards`)
+  logger.info(
+    `Starting price collection for ${oracleIds.length} cards (concurrency=${CONCURRENCY_PER_SOURCE})`,
+  )
 
-  // Sequential per-card fetch (respects rate limits better)
-  for (let i = 0; i < oracleIds.length; i++) {
-    const oracleId = oracleIds[i]
+  const limit = pLimit(CONCURRENCY_PER_SOURCE)
 
-    try {
-      const results = await fetchCardPriceFromAllSources(oracleId)
-
-      // Count successes
-      const successCount = Object.values(results).filter((r) => r.success).length
-      const skipCount = Object.values(results).filter((r) => r.error?.includes('Skipped')).length
-
-      stats.fetched += successCount
-      stats.skipped += skipCount
-
-      // Log progress every 10 cards
-      if ((i + 1) % 10 === 0) {
-        logger.info(`Progress: ${i + 1}/${oracleIds.length} cards processed`)
+  const tasks = oracleIds.map((oracleId, i) =>
+    limit(async () => {
+      try {
+        const results = await fetchCardPriceFromAllSources(oracleId)
+        const successCount = Object.values(results).filter((r) => r.success).length
+        const skipCount = Object.values(results).filter((r) => r.error?.includes('Skipped')).length
+        stats.fetched += successCount
+        stats.skipped += skipCount
+        if ((i + 1) % 10 === 0) {
+          logger.info(`Progress: ${i + 1}/${oracleIds.length} cards processed`)
+        }
+      } catch (error) {
+        stats.failed += 1
+        const errorMsg = error instanceof Error ? error.message : String(error)
+        stats.errors.push(`${oracleId}: ${errorMsg}`)
+        logger.error(`Failed to fetch prices for ${oracleId}: ${errorMsg}`)
       }
-    } catch (error) {
-      stats.failed += 1
-      const errorMsg = error instanceof Error ? error.message : String(error)
-      stats.errors.push(`${oracleId}: ${errorMsg}`)
-      logger.error(`Failed to fetch prices for ${oracleId}: ${errorMsg}`)
-    }
-  }
+    }),
+  )
+
+  await Promise.all(tasks)
 
   logger.info(
     `Price collection complete: ${stats.fetched} fetched, ${stats.skipped} skipped, ${stats.failed} failed`,
   )
-
   if (stats.errors.length > 0) {
     logger.warn(`Encountered ${stats.errors.length} errors during collection`)
   }
-
   return stats
 }
 
