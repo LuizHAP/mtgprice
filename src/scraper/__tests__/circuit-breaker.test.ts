@@ -1,4 +1,10 @@
-import { describe, expect, test, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
+import { wrapWithCircuitBreaker } from '../circuit-breaker'
+
+// Hoisted mock for @/lib/telegram so circuit-breaker's dynamic import resolves to a stub.
+vi.mock('@/lib/telegram', () => ({
+  bot: { api: { sendMessage: vi.fn() } },
+}))
 
 describe('Opossum circuit breaker behavior', () => {
   describe('Circuit state transitions', () => {
@@ -171,5 +177,94 @@ describe('Opossum circuit breaker behavior', () => {
       // - Fails fast during open state
       expect(true).toBe(false)
     })
+  })
+})
+
+// ============================================================================
+// Phase 6 — Health Alert Tests (D-01..D-04)
+// ============================================================================
+
+describe('Health alerts (Phase 6 / D-01..D-04)', () => {
+  let originalChatId: string | undefined
+  let sendMessageMock: ReturnType<typeof vi.fn>
+
+  beforeEach(async () => {
+    originalChatId = process.env.TELEGRAM_CHAT_ID
+    process.env.TELEGRAM_CHAT_ID = '12345'
+    const telegramModule = await import('@/lib/telegram')
+    sendMessageMock = telegramModule.bot.api.sendMessage as ReturnType<typeof vi.fn>
+    sendMessageMock.mockReset()
+    sendMessageMock.mockResolvedValue({ message_id: 1 })
+  })
+
+  afterEach(() => {
+    process.env.TELEGRAM_CHAT_ID = originalChatId
+  })
+
+  // Helper: build a circuit breaker that opens fast for testing.
+  function buildFlakyBreaker(sourceName: string) {
+    const failingFn = vi.fn(async () => {
+      throw new Error('boom')
+    })
+    return wrapWithCircuitBreaker(failingFn, sourceName, {
+      timeout: 100,
+      errorThresholdPercentage: 1, // trip on first failure
+      resetTimeout: 60000,
+      rollingCountTimeout: 1000,
+      rollingCountBuckets: 1,
+    })
+  }
+
+  test('sends Telegram alert when circuit opens for TCGPlayer', async () => {
+    const wrapped = buildFlakyBreaker('TCGPlayer')
+    // Fire enough requests to trigger the open transition.
+    for (let i = 0; i < 5; i++) {
+      await wrapped('any-oracle-id').catch(() => {})
+    }
+    // Allow event loop microtasks to flush the async open handler.
+    await new Promise((r) => setTimeout(r, 50))
+
+    expect(sendMessageMock).toHaveBeenCalled()
+    expect(sendMessageMock.mock.calls[0][0]).toBe(12345) // Number(TELEGRAM_CHAT_ID)
+  })
+
+  test('alert message uses exact D-03 format with sourceName interpolation', async () => {
+    const wrapped = buildFlakyBreaker('CardMarket')
+    for (let i = 0; i < 5; i++) {
+      await wrapped('any-oracle-id').catch(() => {})
+    }
+    await new Promise((r) => setTimeout(r, 50))
+
+    expect(sendMessageMock).toHaveBeenCalled()
+    const message = sendMessageMock.mock.calls[0][1]
+    expect(message).toBe(
+      '⚠️ Circuit breaker aberto: CardMarket está offline (60s reset). Últimas tentativas falharam.',
+    )
+  })
+
+  test('skips alert silently when TELEGRAM_CHAT_ID is unset', async () => {
+    process.env.TELEGRAM_CHAT_ID = ''
+
+    const wrapped = buildFlakyBreaker('Liga Magic')
+    for (let i = 0; i < 5; i++) {
+      await wrapped('any-oracle-id').catch(() => {})
+    }
+    await new Promise((r) => setTimeout(r, 50))
+
+    expect(sendMessageMock).not.toHaveBeenCalled()
+  })
+
+  test('does not propagate sendMessage errors (alert failure must not crash circuit pipeline)', async () => {
+    sendMessageMock.mockRejectedValueOnce(new Error('telegram down'))
+
+    const wrapped = buildFlakyBreaker('CardKingdom')
+    // The wrapped() calls themselves should not throw because of the alert failure.
+    for (let i = 0; i < 5; i++) {
+      await expect(wrapped('any-oracle-id').catch(() => null)).resolves.not.toThrow()
+    }
+    await new Promise((r) => setTimeout(r, 50))
+
+    // sendMessage was attempted, but the alert error did not propagate.
+    expect(sendMessageMock).toHaveBeenCalled()
   })
 })
