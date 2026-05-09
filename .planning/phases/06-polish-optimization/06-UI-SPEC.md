@@ -1,10 +1,11 @@
 ---
 phase: 6
 slug: polish-optimization
-status: draft
+status: approved
 shadcn_initialized: true
 preset: base-nova / neutral / css-variables
 created: 2026-05-09
+reviewed_at: 2026-05-09T00:00:00Z
 ---
 
 # Phase 6 — UI Design Contract
