@@ -14,12 +14,14 @@ describe('withRetry', () => {
 
   afterEach(() => {
     if (originalAttempts === undefined) {
-      process.env.SCRAPER_RETRY_ATTEMPTS = undefined
+      // biome-ignore lint/performance/noDelete: assigning undefined coerces to string "undefined" in process.env
+      delete process.env.SCRAPER_RETRY_ATTEMPTS
     } else {
       process.env.SCRAPER_RETRY_ATTEMPTS = originalAttempts
     }
     if (originalBaseDelay === undefined) {
-      process.env.SCRAPER_RETRY_BASE_DELAY_MS = undefined
+      // biome-ignore lint/performance/noDelete: assigning undefined coerces to string "undefined" in process.env
+      delete process.env.SCRAPER_RETRY_BASE_DELAY_MS
     } else {
       process.env.SCRAPER_RETRY_BASE_DELAY_MS = originalBaseDelay
     }
@@ -90,7 +92,8 @@ describe('withRetry', () => {
   })
 
   test('defaults maxAttempts to 3 when SCRAPER_RETRY_ATTEMPTS is unset', async () => {
-    process.env.SCRAPER_RETRY_ATTEMPTS = undefined
+    // biome-ignore lint/performance/noDelete: assigning undefined coerces to string "undefined" in process.env
+    delete process.env.SCRAPER_RETRY_ATTEMPTS
     const fn = vi
       .fn()
       .mockRejectedValueOnce(new Error('x'))
