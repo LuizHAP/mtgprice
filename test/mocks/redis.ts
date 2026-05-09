@@ -155,10 +155,21 @@ class MockRedis {
       this.currentTime = Date.now() / 1000
     }
     this.currentTime += seconds
+    // When mock time advances past a rate-limit interval, the bucket refills.
+    // The rate-limiter's local cache must be cleared so the next checkRateLimit
+    // call hits Redis and discovers the refilled bucket (Plan 07-02 deviation fix).
+    const resetFn = (globalThis as Record<string, unknown>).__rateLimitCacheReset
+    if (typeof resetFn === 'function') {
+      resetFn()
+    }
   }
 
   /**
-   * Reset mock state
+   * Reset mock state.
+   *
+   * Also clears the rate-limiter's in-process local Map cache when present.
+   * This keeps token-bucket sequential-consumption tests passing after the
+   * 100ms local cache was added to rate-limiter.ts (Plan 07-02, deviation fix).
    */
   reset = (): void => {
     this.data = {
@@ -167,6 +178,11 @@ class MockRedis {
       evalHistory: [],
     }
     this.currentTime = 0
+    // Call the rate-limiter cache reset hook if it has been registered.
+    const resetFn = (globalThis as Record<string, unknown>).__rateLimitCacheReset
+    if (typeof resetFn === 'function') {
+      resetFn()
+    }
   }
 
   /**

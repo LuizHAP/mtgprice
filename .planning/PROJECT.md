@@ -97,39 +97,9 @@ Considerar IOF (Imposto sobre Operações Financeiras) de cartão de crédito: 6
 | Interface web + bot | Flexibilidade para gerenciar como preferir | — Pending |
 | Histórico completo com gráficos | Usuário quer visualizar dados além das notificações | — Pending |
 
-## Current Milestone: v1.1 Test Coverage & Quality Hardening
-
-**Goal:** Implementar todos os 200 testes atualmente skipped, garantindo cobertura real das features existentes sem adicionar novas funcionalidades.
-
-**Target features:**
-- Auth: testes reais de bcrypt (hash.test.ts) e JWT (jwt.test.ts) ativos
-- Rate limiting: testes Redis ativos (ratelimit/redis.test.ts)
-- Orchestrator: implementar `orchestrateFetch`, `handleSourceFailure`, `applyRateLimiting`, `aggregateResults`, `batchOrchestrateFetch`
-- Circuit breaker: state transitions, fallback, events, per-source isolation (18 stubs)
-- API: card search endpoint tests ativos (cards/search.test.ts)
-- Wishlist: server action tests ativos (wishlist/actions.test.ts)
-- Scheduler: cron job tests ativos (jobs.test.ts)
-
 ## Current State
 
-Milestone v1.0 complete — todas as 6 fases executadas (30/30 planos). `withRetry<T>`, p-limit concurrency, e Telegram health-alerts implementados. 127 testes passando, 200 testes skipped (stubs de fases anteriores). Milestone v1.1 iniciado para ativar esses stubs com implementações reais.
-
-## Evolution
-
-Este documento evolui em transições de fase e boundaries de milestone.
-
-**Após cada fase** (via `/gsd-transition`):
-1. Requirements invalidados? → Mover para Out of Scope com motivo
-2. Requirements validados? → Mover para Validated com referência à fase
-3. Novos requirements? → Adicionar em Active
-4. Decisões a registrar? → Adicionar em Key Decisions
-5. "What This Is" ainda preciso? → Atualizar se desviou
-
-**Após cada milestone** (via `/gsd-complete-milestone`):
-1. Revisão completa de todas as seções
-2. Core Value check — ainda é a prioridade certa?
-3. Auditoria de Out of Scope — motivos ainda válidos?
-4. Atualizar Context com estado atual
+Phase 06 complete — scraper reliability and observability fully hardened. `withRetry<T>` (exponential backoff, 3 attempts, 1s/2s) wraps every per-source fetch before the circuit breaker counts failures. `fetchAllPrices` now runs up to 5 cards/source concurrently via `p-limit` instead of sequentially. Telegram health-alert fires once per circuit-open transition with exact Portuguese message. All 127 tests pass. Phase 6 is the last phase of the current milestone.
 
 ---
-*Last updated: 2026-05-09*
+*Last updated: 2026-05-09

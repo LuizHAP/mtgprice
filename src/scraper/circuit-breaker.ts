@@ -76,9 +76,8 @@ export function wrapWithCircuitBreaker<T, R>(
     // Phase 6 D-01..D-04: Telegram health alert.
     // Lazy import keeps test setup from throwing when TELEGRAM_BOT_TOKEN is unset.
     const chatId = process.env.TELEGRAM_CHAT_ID
-    const botToken = process.env.TELEGRAM_BOT_TOKEN
-    if (!chatId || !botToken) {
-      // Graceful no-op when Telegram is not configured.
+    if (!chatId) {
+      // Graceful no-op when chat id is not configured (single-user mode setup gap).
       return
     }
 

@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, vi } from 'vitest'
+import { afterAll, beforeAll } from 'vitest'
 
 // Set up environment variables for tests
 process.env.JWT_SECRET = 'test-secret-key-for-jwt-signing'

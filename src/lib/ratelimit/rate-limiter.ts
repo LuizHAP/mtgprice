@@ -46,6 +46,21 @@ export const RATE_LIMITS = {
   LIGAMAGIC: { limit: 30, interval: 60 }, // Unknown → conservative 30
 } as const
 
+const LOCAL_CACHE_TTL_MS = 100
+const localCache = new Map<string, { result: RateLimitResult; cachedAt: number }>()
+
+/**
+ * Test helper — clears the in-memory cache between tests.
+ * Not part of the public runtime API; safe to call from production code (no-op effect).
+ */
+export function __resetRateLimitCache(): void {
+  localCache.clear()
+}
+// Register the cache reset function on globalThis so that MockRedis.reset()
+// can call it via the __rateLimitCacheReset hook (Plan 07-02 deviation fix).
+// This keeps token-bucket sequential-consumption tests green after the cache was added.
+;(globalThis as Record<string, unknown>).__rateLimitCacheReset = __resetRateLimitCache
+
 /**
  * Lua script for atomic token bucket operations
  *
@@ -111,17 +126,41 @@ export async function checkRateLimit(
   interval: number,
   tokens = 1,
 ): Promise<RateLimitResult> {
+  const cacheKey = `${key}:${limit}:${interval}:${tokens}`
+  const cached = localCache.get(cacheKey)
+  if (cached && Date.now() - cached.cachedAt < LOCAL_CACHE_TTL_MS) {
+    return cached.result
+  }
+
   const redis = getClient()
 
-  const result = await redis.eval(TOKEN_BUCKET_SCRIPT, 1, `ratelimit:${key}`, limit, interval, tokens)
+  let result: unknown
+  try {
+    result = await redis.eval(TOKEN_BUCKET_SCRIPT, 1, `ratelimit:${key}`, limit, interval, tokens)
+  } catch (_err) {
+    // Fail open per CONTEXT.md "Claude's Discretion" — Redis outage must not block requests.
+    const failOpen: RateLimitResult = { allowed: true, remaining: -1 }
+    // Do NOT cache a fail-open response — let the next call retry Redis.
+    return failOpen
+  }
 
   // ioredis returns Lua script results as [number, number]
   const [allowed, remaining] = result as [number, number]
 
-  return {
+  const rateLimitResult: RateLimitResult = {
     allowed: allowed === 1,
     remaining,
   }
+
+  // Only cache denied results (allowed: false). When a request is allowed, tokens
+  // are consumed and the bucket state changes on every call — caching would suppress
+  // that consumption and break sequential token-bucket exhaustion tests (and production
+  // behaviour). Caching denied responses is safe: when the bucket is empty it stays
+  // empty until the interval expires, so repeated denials within 100ms are stable.
+  if (!rateLimitResult.allowed) {
+    localCache.set(cacheKey, { result: rateLimitResult, cachedAt: Date.now() })
+  }
+  return rateLimitResult
 }
 
 /**
