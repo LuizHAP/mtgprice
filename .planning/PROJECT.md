@@ -102,4 +102,4 @@ Considerar IOF (Imposto sobre Operações Financeiras) de cartão de crédito: 6
 Phase 04 complete — opportunity detection + Telegram digest + /history + /config commands all live. Pipeline: price collection → detect drops ≥15% (two-consecutive-runs guard, 7-day cooldown) → grouped digest sent to whitelisted chat. Bot now has 7 registered commands. Next: Phase 05 (metagame-integration).
 
 ---
-*Last updated: 2026-05-08 after Phase 04 completion*
+*Last updated: 2026-05-08
