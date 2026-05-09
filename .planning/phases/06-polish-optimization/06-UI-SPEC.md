@@ -71,7 +71,7 @@ Inherited from existing components. No new typographic roles introduced in Phase
 | Role | Size | Weight | Line Height | Source |
 |------|------|--------|-------------|--------|
 | Body | 14px (text-sm) | 400 (regular) | 1.5 | PriceTable, CardGrid sub-labels |
-| Label | 16px (text-base) | 600 (semibold) | 1.5 | CardGrid card names (font-semibold) |
+| Label | 16px (text-base) | 700 (bold) | 1.5 | CardGrid card names (font-semibold) |
 | Heading | 20px (text-xl) | 700 (bold) | 1.2 | Header "MTG Price Monitor" (text-xl font-bold) |
 | Display | 24px (text-2xl) | 700 (bold) | 1.2 | EmptyState h2 (text-2xl font-bold) |
 
@@ -126,7 +126,7 @@ Accent reserved for: Primary action buttons (Button default variant). NOT used f
 | Destructive dialog title | "Remove Selected Cards" | CardGrid.tsx |
 | Destructive dialog body | "Are you sure you want to remove {N} cards from your wishlist? This action cannot be undone." | CardGrid.tsx |
 | Destructive dialog confirm | "Remove {N} Cards" | CardGrid.tsx |
-| Destructive dialog cancel | "Cancel" | CardGrid.tsx |
+| Destructive dialog cancel | "Keep Cards" | CardGrid.tsx |
 | Image fallback | "No image" | CardGrid.tsx |
 
 ### Telegram Health Alerts (new in Phase 6 — from CONTEXT.md D-03)
