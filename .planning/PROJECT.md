@@ -99,7 +99,7 @@ Considerar IOF (Imposto sobre Operações Financeiras) de cartão de crédito: 6
 
 ## Current State
 
-Phase 06 complete — scraper reliability and observability fully hardened. `withRetry<T>` (exponential backoff, 3 attempts, 1s/2s) wraps every per-source fetch before the circuit breaker counts failures. `fetchAllPrices` now runs up to 5 cards/source concurrently via `p-limit` instead of sequentially. Telegram health-alert fires once per circuit-open transition with exact Portuguese message. All 127 tests pass. Phase 6 is the last phase of the current milestone.
+Phase 07 complete — auth and rate-limit test coverage activated. All 16 previously-todo test stubs are now active and passing: 4 bcrypt hash tests, 5 JWT tests, 7 Redis rate-limiter tests. Rate-limiter gained a 100ms Map-based local cache (cache-denied-only) and `REDIS_CLUSTER_NODES`-driven cluster detection. Full suite: 143 tests pass, 38 todo remaining. TEST-01, TEST-02, TEST-03 validated. Phase 07 is the first phase of milestone v1.1 (Test Coverage & Quality Hardening).
 
 ---
 *Last updated: 2026-05-09
