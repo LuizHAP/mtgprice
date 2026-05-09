@@ -99,7 +99,7 @@ Considerar IOF (Imposto sobre Operações Financeiras) de cartão de crédito: 6
 
 ## Current State
 
-Phase 04 complete — opportunity detection + Telegram digest + /history + /config commands all live. Pipeline: price collection → detect drops ≥15% (two-consecutive-runs guard, 7-day cooldown) → grouped digest sent to whitelisted chat. Bot now has 7 registered commands. Next: Phase 05 (metagame-integration).
+Phase 06 complete — scraper reliability and observability fully hardened. `withRetry<T>` (exponential backoff, 3 attempts, 1s/2s) wraps every per-source fetch before the circuit breaker counts failures. `fetchAllPrices` now runs up to 5 cards/source concurrently via `p-limit` instead of sequentially. Telegram health-alert fires once per circuit-open transition with exact Portuguese message. All 127 tests pass. Phase 6 is the last phase of the current milestone.
 
 ---
-*Last updated: 2026-05-08
+*Last updated: 2026-05-09
