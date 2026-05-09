@@ -3,44 +3,67 @@
  *
  * Tests for AUTH-01 requirement: JWT-based session management
  *
- * TODO: Implement in Plan 01-04 TDD cycle
+ * Activated in Plan 07-01 (TEST-02)
  */
 
+import { signToken, verifyToken } from '@/lib/auth'
+import jwt from 'jsonwebtoken'
 import { describe, expect, it } from 'vitest'
 
+// NOTE: process.env.JWT_SECRET is set globally in test/setup.ts as
+// 'test-secret-key-for-jwt-signing'. Do NOT redeclare in beforeAll/afterAll —
+// unsetting it would break other tests in the suite (Pitfall 4 in 07-RESEARCH.md).
+
 describe('JWT token generation and verification', () => {
-  it.todo('should sign token with user payload', async () => {
-    // Verify JWT contains user ID in payload
-    // Verify token is signed with secret from environment variable
-    // Verify token expires after configured duration (1 day)
-    // Implementation in Plan 01-04
+  it('should sign token with user payload', async () => {
+    const token = signToken(42, 'user@example.com')
+    expect(typeof token).toBe('string')
+    // Standard JWT shape: header.payload.signature
+    expect(token.split('.')).toHaveLength(3)
+    // Payload contains the user info we signed
+    const decoded = jwt.decode(token) as { userId: number; email: string }
+    expect(decoded.userId).toBe(42)
+    expect(decoded.email).toBe('user@example.com')
   })
 
-  it.todo('should verify valid token', async () => {
-    // Verify valid token is accepted
-    // Verify user payload is correctly extracted
-    // Verify expiration time is checked
-    // Implementation in Plan 01-04
+  it('should verify valid token', async () => {
+    const token = signToken(42, 'user@example.com')
+    const payload = verifyToken(token)
+    expect(payload.userId).toBe(42)
+    expect(payload.email).toBe('user@example.com')
   })
 
-  it.todo('should reject invalid token', async () => {
-    // Verify malformed token is rejected
-    // Verify token with invalid signature is rejected
-    // Verify tampered token is rejected
-    // Implementation in Plan 01-04
+  it('should reject invalid token', async () => {
+    // Malformed token
+    expect(() => verifyToken('not.a.valid.token')).toThrow()
+    // Tampered signature on a real token
+    const valid = signToken(1, 'a@b.com')
+    const parts = valid.split('.')
+    const tampered = `${parts[0]}.${parts[1]}.tamperedsignature`
+    expect(() => verifyToken(tampered)).toThrow()
   })
 
-  it.todo('should reject expired token', async () => {
-    // Verify expired token is rejected
-    // Verify error message indicates expiration
-    // Verify user must re-authenticate after expiration
-    // Implementation in Plan 01-04
+  it('should reject expired token', async () => {
+    // Use jsonwebtoken directly with negative expiresIn → instantly-expired token.
+    // This avoids vi.useFakeTimers() which has known issues with async mocks in Vitest 3.x.
+    const secret = process.env.JWT_SECRET as string
+    const expiredToken = jwt.sign({ userId: 1, email: 'test@example.com' }, secret, { expiresIn: -1 })
+    expect(() => verifyToken(expiredToken)).toThrow()
   })
 
-  it.todo('should include issued-at and expiration claims', async () => {
-    // Verify iat (issued at) claim is present
-    // Verify exp (expiration) claim is present
-    // Verify expiration time is iat + configured duration
-    // Implementation in Plan 01-04
+  it('should include issued-at and expiration claims', async () => {
+    const before = Math.floor(Date.now() / 1000)
+    const token = signToken(42, 'user@example.com')
+    const payload = verifyToken(token)
+    // iat is set by jsonwebtoken at sign time
+    expect(payload.iat).toBeDefined()
+    expect(payload.iat).toBeGreaterThanOrEqual(before)
+    // exp is set because signToken passes expiresIn: '1d'
+    expect(payload.exp).toBeDefined()
+    // 1 day = 86400 seconds — allow ±2s drift for clock granularity
+    const exp = payload.exp ?? 0
+    const iat = payload.iat ?? 0
+    expect(exp - iat).toBeGreaterThanOrEqual(86398)
+    expect(exp - iat).toBeLessThanOrEqual(86402)
   })
 })

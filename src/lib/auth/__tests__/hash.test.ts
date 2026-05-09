@@ -3,36 +3,43 @@
  *
  * Tests for AUTH-01 requirement: Secure password storage with bcrypt
  *
- * TODO: Implement in Plan 01-04 TDD cycle
+ * Activated in Plan 07-01 (TEST-01)
  */
 
+import { comparePassword, hashPassword } from '@/lib/auth/password'
+import bcrypt from 'bcryptjs'
 import { describe, expect, it } from 'vitest'
 
 describe('Password hashing with bcrypt', () => {
-  it.todo('should hash password with 10 salt rounds', async () => {
-    // Verify password is hashed with bcrypt
-    // Verify salt rounds is 10 (optimal balance of security and performance)
-    // Verify hash is different from original password
-    // Implementation in Plan 01-04
+  it('should hash password with 10 salt rounds', async () => {
+    const password = 'mySecretPassword123'
+    const hash = await hashPassword(password)
+    expect(typeof hash).toBe('string')
+    expect(hash).not.toBe(password)
+    expect(bcrypt.getRounds(hash)).toBe(10)
   })
 
-  it.todo('should compare correct password successfully', async () => {
-    // Verify bcrypt.compare returns true for correct password
-    // Verify comparison handles hashed passwords correctly
-    // Implementation in Plan 01-04
+  it('should compare correct password successfully', async () => {
+    const password = 'correctPassword!'
+    const hash = await hashPassword(password)
+    const result = await comparePassword(password, hash)
+    expect(result).toBe(true)
   })
 
-  it.todo('should reject incorrect password', async () => {
-    // Verify bcrypt.compare returns false for incorrect password
-    // Verify comparison is case-sensitive
-    // Verify timing attack resistance (constant-time comparison)
-    // Implementation in Plan 01-04
+  it('should reject incorrect password', async () => {
+    const password = 'correctPassword!'
+    const wrongPassword = 'wrongPassword!'
+    const hash = await hashPassword(password)
+    const result = await comparePassword(wrongPassword, hash)
+    expect(result).toBe(false)
   })
 
-  it.todo('should generate different hashes for same password', async () => {
-    // Verify each hash uses unique salt
-    // Verify two hashes of same password are different
-    // Verify both hashes validate correctly
-    // Implementation in Plan 01-04
+  it('should generate different hashes for same password', async () => {
+    const password = 'samePassword'
+    const hash1 = await hashPassword(password)
+    const hash2 = await hashPassword(password)
+    expect(hash1).not.toBe(hash2)
+    expect(await comparePassword(password, hash1)).toBe(true)
+    expect(await comparePassword(password, hash2)).toBe(true)
   })
 })
