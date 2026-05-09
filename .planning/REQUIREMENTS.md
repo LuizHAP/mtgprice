@@ -1,6 +1,7 @@
 # Requirements: MTG Price Monitor
 
 **Defined:** 2026-03-05
+**Updated:** 2026-05-09 (Milestone v1.1)
 **Core Value:** Jogadores de MTG compram cartas no momento ideal baseado em análise de tendências de preço e comparação entre múltiplas fontes (BR + internacional).
 
 ## v1 Requirements
@@ -18,119 +19,111 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **PRICE-02**: Sistema coleta preços da TCGPlayer (EUA)
 - [ ] **PRICE-03**: Sistema coleta preços da CardMarket (Europa)
 - [ ] **PRICE-04**: Sistema coleta preços da CardKingdom (EUA)
-- [ ] **PRICE-05**: Sistema converte preços USD/EUR → BRL com IOF de 6.38% (cartão de crédito)
-- [x] **PRICE-06**: Sistema implementa rate limiting para respeitar limites das APIs e evitar bloqueios (ex: Scryfall 10 req/sec)
-- [ ] **PRICE-07**: Sistema realiza checagens de preços 2-3x ao dia de forma agendada
-- [x] **PRICE-08**: Sistema armazena histórico de preços para cada carta/fonte
+- [ ] **PRICE-05**: Preços internacionais são convertidos para BRL com IOF de 6.38%
+- [x] **PRICE-06**: Sistema respeita rate limits de APIs externas
+- [ ] **PRICE-07**: Sistema armazena histórico de preços com schema otimizado
+- [ ] **PRICE-08**: Sistema realiza checagens de preços 2-3x ao dia de forma agendada
 
 ### Wishlist
 
-- [x] **WISH-01**: User pode adicionar cartas específicas à wishlist manualmente
-- [x] **WISH-02**: User pode remover cartas da wishlist
-- [x] **WISH-03**: User pode buscar cartas por nome no sistema
-- [ ] **WISH-04**: User pode gerenciar wishlist via comandos do Telegram bot (/add, /remove, /wishlist)
-- [x] **WISH-05**: User pode gerenciar wishlist via interface web dashboard
+- [ ] **WISH-01**: User pode adicionar cartas à wishlist via interface web
+- [ ] **WISH-02**: User pode remover cartas da wishlist via interface web
+- [ ] **WISH-03**: User pode buscar cartas por nome no sistema
+- [ ] **WISH-04**: User pode adicionar/remover cartas via Telegram bot
+- [ ] **WISH-05**: User pode visualizar lista de cartas monitoradas via interface web
 
-### Detecção de Oportunidade
+### Detecção de Oportunidades
 
-- [ ] **DETECT-01**: Sistema detecta quando preço caiu X% na última semana E está abaixo da média histórica
-- [ ] **DETECT-02**: Sistema gera alertas quando preço cai X% (threshold-based)
-- [ ] **DETECT-03**: Sistema implementa batching de alertas para evitar alert fatigue (40% churn rate)
-- [ ] **DETECT-04**: Alertas contêm: nome da carta, preço atual, preço médio, % queda, fonte(s)
+- [x] **DETECT-01**: Sistema detecta quando preço caiu ≥15% vs baseline 30 dias
+- [x] **DETECT-02**: Sistema verifica duas execuções consecutivas antes de alertar
+- [x] **DETECT-03**: Sistema aplica cooldown por carta/fonte após alertar
+- [x] **DETECT-04**: Sistema ignora outliers estatísticos (zscore > 3)
 
 ### Notificações
 
-- [ ] **NOTIF-01**: Sistema envia alertas de oportunidade via Telegram bot
-- [ ] **NOTIF-02**: Telegram bot responde a comandos: /price (consultar preço), /history (histórico de alertas), /config (configurações)
-- [ ] **NOTIF-03**: Sistema respeita frequência de checagem 2-3x ao dia (não real-time)
+- [x] **NOTIF-01**: Sistema envia alertas de oportunidade via Telegram bot
+- [x] **NOTIF-02**: Alertas são agrupados em digest para evitar spam
+- [x] **NOTIF-03**: Sistema executa coleta de preços 2-3x ao dia de forma agendada
 
 ### Metagame
 
-- [ ] **META-01**: Sistema auto-adiciona top cartas mais jogadas de Standard ao monitoramento
-- [ ] **META-02**: Sistema auto-adiciona top cartas mais jogadas de Modern ao monitoramento
-- [ ] **META-03**: Sistema auto-adiciona top X cartas mais populares de Commander ao monitoramento
+- [ ] **META-01**: Sistema auto-adiciona top cartas de Standard ao monitoramento
+- [ ] **META-02**: Sistema auto-adiciona top cartas de Modern ao monitoramento
+- [ ] **META-03**: Sistema auto-adiciona top cartas de Commander ao monitoramento
 
 ### Dashboard
 
-- [x] **DASH-01**: User pode comparar preços da mesma carta entre múltiplas fontes (Liga Magic, TCGPlayer, CardMarket, CardKingdom)
-- [x] **DASH-02**: User pode visualizar lista de cartas monitoradas via interface web
+- [ ] **DASH-01**: User pode comparar preços entre múltiplas fontes
+- [ ] **DASH-02**: User pode visualizar lista de cartas monitoradas via interface web
 
-## v2 Requirements
+---
 
-Deferred to future release. Tracked but not in current roadmap.
+## v1.1 Requirements — Test Coverage & Quality Hardening
 
-### Analytics
+Requirements for milestone v1.1. Goal: ativar os 200 testes skipped e 54 todos.
 
-- **ANALY-01**: User pode visualizar gráficos de histórico de preços (7d, 30d, 90d, all-time)
-- **ANALY-02**: User pode ver valor total da sua wishlist/collection
+### Auth Tests
 
-### Formatos Expandidos
+- [ ] **TEST-01**: Tests ativos para bcrypt hash (hash com 10 salt rounds, compare correto, rejeitar senha errada, unicidade de salt)
+- [ ] **TEST-02**: Tests ativos para JWT (sign com payload, verify válido, rejeitar token inválido, rejeitar token expirado, claims iat/exp)
 
-- **META-04**: Sistema auto-adiciona staples de Pioneer
-- **META-05**: Sistema auto-adiciona staples de Legacy
-- **META-06**: Sistema auto-adiciona staples de Vintage
-- **META-07**: Sistema auto-adiciona staples de Pauper
+### Rate Limit Tests
 
-### UX Enhancements
+- [ ] **TEST-03**: Tests ativos para Redis rate limiter (armazenar estado, Lua script atômico, erros de conexão, persistência, cluster HA, memory pressure, cache local)
 
-- **WISH-06**: User pode adicionar cartas escaneando com câmera
-- **NOTIF-04**: User pode configurar thresholds customizados por carta
-- **NOTIF-05**: User pode configurar filtros de notificação por formato
+### Circuit Breaker Tests
+
+- [ ] **TEST-04**: Tests ativos para state transitions (closed→open→half-open→closed lifecycle)
+- [ ] **TEST-05**: Tests ativos para fallback function (execute fallback, cached data, handle fallback errors)
+- [ ] **TEST-06**: Tests ativos para event emission (open, close, halfOpen, fallback events)
+- [ ] **TEST-07**: Tests ativos para per-source isolation (breakers independentes, timeouts por source, stats por source)
+
+### API & DB Integration Tests
+
+- [ ] **TEST-08**: Tests ativos para card search endpoint (match por nome, empty result, case-insensitive, limit 10, mínimo 2 chars)
+- [ ] **TEST-09**: Tests ativos para wishlist server actions (addCard, FK violation, removeCard, searchCards variantes)
+
+### Scheduler Tests
+
+- [ ] **TEST-10**: Tests ativos para schedulePriceCollection (cron registration, custom schedule, invalid expressions)
+- [ ] **TEST-11**: Tests ativos para executePriceCollection (run orchestration, error handling, duration metrics, concorrência)
+
+### Orchestrator Tests
+
+- [ ] **TEST-12**: Implementar `orchestrateFetch`, `handleSourceFailure`, `applyRateLimiting` + tests ativos
+- [ ] **TEST-13**: Implementar `aggregateResults`, `batchOrchestrateFetch` + tests ativos
+
+---
+
+## Future Requirements
+
+*Deferred to future milestones*
+
+- Interface web completa com gráficos de histórico de preços
+- Configuração de formatos monitorados via web
+- A/B testing de thresholds de detecção de oportunidade
+- Suporte a Redis cluster para alta disponibilidade
 
 ## Out of Scope
 
-Explicitly excluded. Documented to prevent scope creep.
-
-| Feature | Reason |
-|---------|--------|
-| Compra automática de cartas | Sistema alerta apenas, não executa compra. Alta complexidade, questões de pagamento/confiança. |
-| Previsão de preços futuros (ML) | Análise baseada em histórico, não em machine learning. Alta complexidade, baixa precisão, falsa confiança. |
-| Monitoramento de lojas físicas | Apenas lojas online com API/web scraping. Lojas físicas não têm APIs, scraping não confiável. |
-| Leilões (eBay) | Apenas preços fixos. Leilões são dinâmicos, time-critical, difíceis de automatizar. |
-| Atualizações em tempo real | 2-3x ao dia é suficiente. Real-time tem limites de API, custo de infra, beneficio marginal. |
-| Features sociais (share, leaderboards) | Não é core value prop. Scope creep, privacidade. |
-| Aplicativo mobile (iOS/Android) | Web dashboard + Telegram bot sufficient inicialmente. Custo muito alto para v1. |
-| All-format coverage from day 1 | Start com Standard/Modern/Commander, expandir depois. Disponibilidade de dados varia. |
+- **Compra automática de cartas** — O sistema só alerta, não executa compra
+- **Previsão de preços futuros** — Análise baseada em histórico, não em machine learning
+- **Monitoramento de card singles em lojas físicas** — Apenas lojas online com API/web scraping
+- **Sistema de leilão** — Não acompanha leilões, apenas preços fixos
 
 ## Traceability
 
-Which phases cover which requirements. Updated during roadmap creation.
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | Phase 1 | Complete |
-| AUTH-02 | Phase 1 | Complete |
-| PRICE-01 | Phase 2 | Pending |
-| PRICE-02 | Phase 2 | Pending |
-| PRICE-03 | Phase 2 | Pending |
-| PRICE-04 | Phase 2 | Pending |
-| PRICE-05 | Phase 2 | Pending |
-| PRICE-06 | Phase 1 | Complete |
-| PRICE-07 | Phase 2 | Pending |
-| PRICE-08 | Phase 1, 2 | Complete |
-| WISH-01 | Phase 3 | Complete |
-| WISH-02 | Phase 3 | Complete |
-| WISH-03 | Phase 3 | Complete |
-| WISH-04 | Phase 3 | Pending |
-| WISH-05 | Phase 3 | Complete |
-| DETECT-01 | Phase 4 | Pending |
-| DETECT-02 | Phase 4 | Pending |
-| DETECT-03 | Phase 4 | Pending |
-| DETECT-04 | Phase 4 | Pending |
-| NOTIF-01 | Phase 4 | Pending |
-| NOTIF-02 | Phase 4 | Pending |
-| NOTIF-03 | Phase 2 | Pending |
-| META-01 | Phase 5 | Pending |
-| META-02 | Phase 5 | Pending |
-| META-03 | Phase 5 | Pending |
-| DASH-01 | Phase 3 | Complete |
-| DASH-02 | Phase 3 | Complete |
-
-**Coverage:**
-- v1 requirements: 24 total
-- Mapped to phases: 24
-- Unmapped: 0 ✓
-
----
-*Requirements defined: 2026-03-05*
-*Last updated: 2026-03-05 after roadmap creation*
+| AUTH-01 | 1 | Complete |
+| AUTH-02 | 1 | Complete |
+| PRICE-01–08 | 2 | Complete |
+| NOTIF-01–03 | 4 | Complete |
+| DETECT-01–04 | 4 | Complete |
+| META-01–03 | 5 | Complete |
+| TEST-01–02 | v1.1 Phase 7 | Planned |
+| TEST-03 | v1.1 Phase 7 | Planned |
+| TEST-04–07 | v1.1 Phase 8 | Planned |
+| TEST-08–09 | v1.1 Phase 9 | Planned |
+| TEST-10–11 | v1.1 Phase 10 | Planned |
+| TEST-12–13 | v1.1 Phase 11 | Planned |
