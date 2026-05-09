@@ -204,11 +204,11 @@
 **Plans:** 3 plans
 
 **Wave 1 (Parallel):**
-- [ ] 06-01-PLAN.md — withRetry helper (TDD): exponential-backoff retry wrapper for D-05/D-06
-- [ ] 06-03-PLAN.md — Telegram health alert on circuit breaker open (D-01..D-04)
+- [x] 06-01-PLAN.md — withRetry helper (TDD): exponential-backoff retry wrapper for D-05/D-06
+- [x] 06-03-PLAN.md — Telegram health alert on circuit breaker open (D-01..D-04)
 
 **Wave 2 (Sequential):**
-- [ ] 06-02-PLAN.md — Wire withRetry + p-limit concurrency into orchestrator (D-06/D-07/D-08/D-09)
+- [x] 06-02-PLAN.md — Wire withRetry + p-limit concurrency into orchestrator (D-06/D-07/D-08/D-09)
 
 ---
 
