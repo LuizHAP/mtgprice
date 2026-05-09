@@ -256,7 +256,11 @@
 3. `pnpm test:run` shows 0 skipped tests in `ratelimit/redis.test.ts` — Lua script atomicity, connection error handling, memory pressure, and cluster HA cases all pass
 4. No `biome-ignore` comment is missing where `delete process.env.*` is used in test teardown
 
-**Plans:** TBD
+**Plans:** 2 plans
+
+**Wave 1 (Parallel):**
+- [ ] 07-01-PLAN.md — Activate bcrypt hash and JWT test stubs (TEST-01, TEST-02)
+- [ ] 07-02-PLAN.md — Add 100ms local cache + REDIS_CLUSTER_NODES detection, activate 7 Redis rate-limiter tests (TEST-03)
 
 ---
 
