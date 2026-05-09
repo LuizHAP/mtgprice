@@ -66,11 +66,33 @@ export function wrapWithCircuitBreaker<T, R>(
   })
 
   // Log circuit state changes for monitoring
-  breaker.on('open', () => {
+  breaker.on('open', async () => {
+    // Existing Winston log (Phase 2 — preserved unchanged)
     logger.warn(`Circuit breaker opened for ${sourceName}`, {
       source: sourceName,
       state: 'OPEN',
     })
+
+    // Phase 6 D-01..D-04: Telegram health alert.
+    // Lazy import keeps test setup from throwing when TELEGRAM_BOT_TOKEN is unset.
+    const chatId = process.env.TELEGRAM_CHAT_ID
+    if (!chatId) {
+      // Graceful no-op when chat id is not configured (single-user mode setup gap).
+      return
+    }
+
+    try {
+      // Dynamic import per Pitfall 3: avoids loading bot at circuit-breaker import time.
+      const { bot } = await import('@/lib/telegram')
+      await bot.api.sendMessage(
+        Number(chatId),
+        `⚠️ Circuit breaker aberto: ${sourceName} está offline (60s reset). Últimas tentativas falharam.`,
+      )
+    } catch (alertError) {
+      // Never let alert delivery failure propagate — circuit breaker pipeline must keep running.
+      const message = alertError instanceof Error ? alertError.message : String(alertError)
+      logger.error(`Failed to send circuit-breaker health alert for ${sourceName}: ${message}`)
+    }
   })
 
   breaker.on('halfOpen', () => {
