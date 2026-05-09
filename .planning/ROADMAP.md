@@ -173,17 +173,17 @@
 **Plans:** 5 plans
 
 **Wave 1 (Foundation):**
-- [ ] 05-01-PLAN.md — Wishlists is_auto_added column + SCRYFALL_HEAVY rate limit preset + Wave 0 test stubs + [BLOCKING] schema push
+- [x] 05-01-PLAN.md — Wishlists is_auto_added column + SCRYFALL_HEAVY rate limit preset + Wave 0 test stubs + [BLOCKING] schema push
 
 **Wave 2 (Parallel — fetchers + resolver):**
-- [ ] 05-02-PLAN.md — EDHREC Commander fetcher + MTGTop8 Standard/Modern fetcher (cheerio) with TDD
-- [ ] 05-03-PLAN.md — Scryfall /cards/collection batch resolver with SCRYFALL_HEAVY rate limit + retry
+- [x] 05-02-PLAN.md — EDHREC Commander fetcher + MTGTop8 Standard/Modern fetcher (cheerio) with TDD
+- [x] 05-03-PLAN.md — Scryfall /cards/collection batch resolver with SCRYFALL_HEAVY rate limit + retry
 
 **Wave 3 (Sequential — orchestrator):**
-- [ ] 05-04-PLAN.md — Metagame orchestrator: compose fetchers + resolver, upsert cards (D-06), insert wishlists with isAutoAdded=true (D-07), remove stale auto-added rows (D-05)
+- [x] 05-04-PLAN.md — Metagame orchestrator: compose fetchers + resolver, upsert cards (D-06), insert wishlists with isAutoAdded=true (D-07), remove stale auto-added rows (D-05)
 
 **Wave 4 (Sequential — scheduler integration):**
-- [ ] 05-05-PLAN.md — Weekly Sunday cron registration (scheduleMetagameRefresh) + .env.example CRON_METAGAME_REFRESH
+- [x] 05-05-PLAN.md — Weekly Sunday cron registration (scheduleMetagameRefresh) + .env.example CRON_METAGAME_REFRESH
 
 ---
 
