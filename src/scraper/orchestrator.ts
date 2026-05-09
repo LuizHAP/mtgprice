@@ -235,8 +235,9 @@ export async function fetchAllPrices(oracleIds: string[]): Promise<FetchAllPrice
   )
 
   const limit = pLimit(CONCURRENCY_PER_SOURCE)
+  let completedCount = 0
 
-  const tasks = oracleIds.map((oracleId, i) =>
+  const tasks = oracleIds.map((oracleId) =>
     limit(async () => {
       try {
         const results = await fetchCardPriceFromAllSources(oracleId)
@@ -244,10 +245,12 @@ export async function fetchAllPrices(oracleIds: string[]): Promise<FetchAllPrice
         const skipCount = Object.values(results).filter((r) => r.error?.includes('Skipped')).length
         stats.fetched += successCount
         stats.skipped += skipCount
-        if ((i + 1) % 10 === 0) {
-          logger.info(`Progress: ${i + 1}/${oracleIds.length} cards processed`)
+        completedCount++
+        if (completedCount % 10 === 0) {
+          logger.info(`Progress: ${completedCount}/${oracleIds.length} cards processed`)
         }
       } catch (error) {
+        completedCount++
         stats.failed += 1
         const errorMsg = error instanceof Error ? error.message : String(error)
         stats.errors.push(`${oracleId}: ${errorMsg}`)
