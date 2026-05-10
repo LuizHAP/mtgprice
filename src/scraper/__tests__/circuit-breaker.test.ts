@@ -416,7 +416,7 @@ describe('Health alerts (Phase 6 / D-01..D-04)', () => {
     const wrapped = buildFlakyBreaker('CardKingdom')
     // The wrapped() calls themselves should not throw because of the alert failure.
     for (let i = 0; i < 5; i++) {
-      await expect(wrapped('any-oracle-id').catch(() => null)).resolves.not.toThrow()
+      await expect(wrapped('any-oracle-id')).resolves.not.toThrow()
     }
     await new Promise((r) => setTimeout(r, 50))
 
