@@ -235,7 +235,7 @@
 | Phase | Plans Complete | Status | Completed | Verified |
 |-------|----------------|--------|-----------|----------|
 | 7. Auth & Rate Limit Tests | 2/2 | Complete   | 2026-05-10 | ✓ |
-| 8. Circuit Breaker Tests | 0/? | Not started | - | - |
+| 8. Circuit Breaker Tests | 0/1 | Not started | - | - |
 | 9. API & DB Integration Tests | 0/? | Not started | - | - |
 | 10. Scheduler Tests | 0/? | Not started | - | - |
 | 11. Orchestrator Functions & Tests | 0/? | Not started | - | - |
@@ -278,7 +278,10 @@
 3. `pnpm test:run` shows 0 skipped tests for event emission cases — open, close, halfOpen, and fallback events fire at the right moments
 4. `pnpm test:run` shows 0 skipped tests for per-source isolation cases — independent breaker instances, per-source timeouts, and per-source stats verified
 
-**Plans:** TBD
+**Plans:** 1 plan
+
+**Wave 1 (Sequential):**
+- [ ] 08-01-PLAN.md — Activate all 18 circuit breaker test stubs (state, fallback, events, per-source isolation)
 
 ---
 
