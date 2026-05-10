@@ -2,32 +2,36 @@
 
 **Created:** 2026-03-05
 **Granularity:** Standard
-**Phases:** 6
-**Coverage:** 24/24 requirements mapped
+**Phases:** 11 (v1.0: 1–6, v1.1: 7–11)
+**Coverage:** 24/24 v1.0 requirements + 13/13 v1.1 requirements mapped
 
-## Phases
+---
+
+## Milestone v1.0 — Core System
+
+### Phases
 
 - [x] **Phase 1: Foundation & Infrastructure** - Database, authentication, and base infrastructure (completed 2026-03-05)
 - [x] **Phase 2: Core Data Collection** - Multi-source price collection with currency conversion (completed 2026-03-06, verified ✓)
-- [ ] **Phase 3: User Interface & Wishlist** - Web dashboard and Telegram bot for wishlist management
-- [ ] **Phase 4: Opportunity Detection & Notifications** - Alert system with batching and smart thresholds
-- [ ] **Phase 5: Metagame Integration** - Automatic format-based monitoring
-- [ ] **Phase 6: Polish & Optimization** - Performance, UX improvements, and monitoring
+- [x] **Phase 3: User Interface & Wishlist** - Web dashboard and Telegram bot for wishlist management
+- [x] **Phase 4: Opportunity Detection & Notifications** - Alert system with batching and smart thresholds
+- [x] **Phase 5: Metagame Integration** - Automatic format-based monitoring
+- [x] **Phase 6: Polish & Optimization** - Performance, UX improvements, and monitoring
 
-## Progress
+### Progress
 
 | Phase | Plans Complete | Status | Completed | Verified |
 |-------|----------------|--------|-----------|----------|
 | 1. Foundation & Infrastructure | 6/6 | Complete   | 2026-03-05 | ✓ |
 | 2. Core Data Collection | 5/5 | Complete   | 2026-03-06 | ✓ |
-| 3. User Interface & Wishlist | 4/5 | Gap Closure | - | - |
-| 4. Opportunity Detection & Notifications | 0/5 | Planned | - | - |
-| 5. Metagame Integration | 0/5 | Planned | - | - |
-| 6. Polish & Optimization | 0/3 | Planned | - | - |
+| 3. User Interface & Wishlist | 5/5 | Complete   | — | — |
+| 4. Opportunity Detection & Notifications | 5/5 | Complete   | — | — |
+| 5. Metagame Integration | 5/5 | Complete   | — | — |
+| 6. Polish & Optimization | 3/3 | Complete   | — | ✓ |
 
-## Phase Details
+### Phase Details
 
-### Phase 1: Foundation & Infrastructure
+#### Phase 1: Foundation & Infrastructure
 
 **Goal:** Sistema possui base de dados otimizada para séries temporais, autenticação de usuários funcionando, e infraestrutura de rate limiting implementada
 
@@ -56,7 +60,7 @@
 
 ---
 
-### Phase 2: Core Data Collection
+#### Phase 2: Core Data Collection
 
 **Goal:** Sistema coleta preços de múltiplas fontes (BR + internacional) automaticamente 2-3x ao dia com conversão de moeda correta
 
@@ -91,7 +95,7 @@
 
 ---
 
-### Phase 3: User Interface & Wishlist
+#### Phase 3: User Interface & Wishlist
 
 **Goal:** User pode gerenciar wishlist e visualizar dados de preços através de dashboard web e bot do Telegram
 
@@ -106,7 +110,7 @@
 4. User pode comparar preços da mesma carta entre múltiplas fontes (Liga Magic, TCGPlayer, CardMarket, CardKingdom)
 5. User pode visualizar lista de cartas monitoradas via interface web
 
-**Plans:** 5 plans + 1 gap closure plan
+**Plans:** 5/5 plans complete
 
 **Wave 0 (Parallel):**
 - [x] 03-00-PLAN.md — Test infrastructure setup (Vitest config + test stubs for UI and bot commands)
@@ -120,13 +124,13 @@
 - [x] 03-04-PLAN.md — Telegram bot commands (/add, /remove, /list, /price) with conversational flows and rate limiting
 
 **Gap Closure (Wave 3):**
-- [ ] 03-05-PLAN.md — Fix DELETE endpoint 500 error and add unique constraint for duplicate detection
+- [x] 03-05-PLAN.md — Fix DELETE endpoint 500 error and add unique constraint for duplicate detection
 
-**UAT Status:** 2 issues identified (see 03-UAT.md)
+**UI hint**: yes
 
 ---
 
-### Phase 4: Opportunity Detection & Notifications
+#### Phase 4: Opportunity Detection & Notifications
 
 **Goal:** Sistema detecta oportunidades de compra e envia alertas via Telegram sem causar alert fatigue
 
@@ -142,7 +146,7 @@
 5. Alertas contêm: nome da carta, preço atual, preço médio, % queda, fonte(s)
 6. Telegram bot responde a comandos: /price (consultar preço), /history (histórico de alertas), /config (configurações)
 
-**Plans:** 5 plans
+**Plans:** 5/5 plans complete
 
 **Wave 1 (Parallel):**
 - [x] 04-01-PLAN.md — Opportunities schema + migration + [BLOCKING] schema push + .env.example DETECT_* vars
@@ -157,7 +161,7 @@
 
 ---
 
-### Phase 5: Metagame Integration
+#### Phase 5: Metagame Integration
 
 **Goal:** Sistema automaticamente monitora top cartas de formatos populares sem intervenção manual do usuário
 
@@ -170,7 +174,7 @@
 2. Sistema auto-adiciona top cartas mais jogadas de Modern ao monitoramento
 3. Sistema auto-adiciona top X cartas mais populares de Commander ao monitoramento
 
-**Plans:** 5 plans
+**Plans:** 5/5 plans complete
 
 **Wave 1 (Foundation):**
 - [x] 05-01-PLAN.md — Wishlists is_auto_added column + SCRYFALL_HEAVY rate limit preset + Wave 0 test stubs + [BLOCKING] schema push
@@ -187,7 +191,7 @@
 
 ---
 
-### Phase 6: Polish & Optimization
+#### Phase 6: Polish & Optimization
 
 **Goal:** Sistema é performático, confiável, e preparado para escalonamento
 
@@ -201,7 +205,7 @@
 3. Dashboard carrega em < 2 segundos para consultas comuns
 4. Sistema possui monitoramento de saúde e alertas de falhas
 
-**Plans:** 3 plans
+**Plans:** 3/3 plans complete
 
 **Wave 1 (Parallel):**
 - [x] 06-01-PLAN.md — withRetry helper (TDD): exponential-backoff retry wrapper for D-05/D-06
@@ -212,7 +216,129 @@
 
 ---
 
+---
+
+## Milestone v1.1 — Test Coverage & Quality Hardening
+
+**Goal:** Ativar os 200 testes skipped implementando as features que os stubs prometem cobrir, sem adicionar novas funcionalidades.
+
+### Phases
+
+- [x] **Phase 7: Auth & Rate Limit Tests** - Activate bcrypt, JWT, and Redis rate limiter test suites
+- [ ] **Phase 8: Circuit Breaker Tests** - Implement 18 test.skip stubs for circuit breaker behavior
+- [ ] **Phase 9: API & DB Integration Tests** - Activate card search and wishlist server action tests with real DB helpers
+- [ ] **Phase 10: Scheduler Tests** - Activate schedulePriceCollection and executePriceCollection test stubs
+- [ ] **Phase 11: Orchestrator Functions & Tests** - Implement missing orchestrator functions and activate their tests
+
+### Progress
+
+| Phase | Plans Complete | Status | Completed | Verified |
+|-------|----------------|--------|-----------|----------|
+| 7. Auth & Rate Limit Tests | 2/2 | Complete   | 2026-05-10 | ✓ |
+| 8. Circuit Breaker Tests | 0/? | Not started | - | - |
+| 9. API & DB Integration Tests | 0/? | Not started | - | - |
+| 10. Scheduler Tests | 0/? | Not started | - | - |
+| 11. Orchestrator Functions & Tests | 0/? | Not started | - | - |
+
+### Phase Details
+
+#### Phase 7: Auth & Rate Limit Tests
+
+**Goal:** All auth and rate limit test stubs are active and passing — existing bcrypt, JWT, and Redis rate limiter code is fully verified by tests
+
+**Depends on:** Phase 6 (all v1.0 code complete and stable)
+
+**Requirements:** TEST-01, TEST-02, TEST-03
+
+**Success Criteria** (what must be TRUE):
+1. `pnpm test:run` shows 0 skipped tests in `hash.test.ts` — bcrypt hash/compare/salt-uniqueness cases all pass
+2. `pnpm test:run` shows 0 skipped tests in `jwt.test.ts` — sign, verify, invalid token, expired token, and iat/exp claims cases all pass
+3. `pnpm test:run` shows 0 skipped tests in `ratelimit/redis.test.ts` — Lua script atomicity, connection error handling, memory pressure, and cluster HA cases all pass
+4. No `biome-ignore` comment is missing where `delete process.env.*` is used in test teardown
+
+**Plans:** 2 plans
+
+**Wave 1 (Parallel):**
+- [ ] 07-01-PLAN.md — Activate bcrypt hash and JWT test stubs (TEST-01, TEST-02)
+- [ ] 07-02-PLAN.md — Add 100ms local cache + REDIS_CLUSTER_NODES detection, activate 7 Redis rate-limiter tests (TEST-03)
+
+---
+
+#### Phase 8: Circuit Breaker Tests
+
+**Goal:** All 18 circuit breaker test stubs are active and passing — state machine transitions, fallback behavior, event emission, and per-source isolation are verified
+
+**Depends on:** Phase 7 (baseline test suite green)
+
+**Requirements:** TEST-04, TEST-05, TEST-06, TEST-07
+
+**Success Criteria** (what must be TRUE):
+1. `pnpm test:run` shows 0 skipped tests for state transition cases — closed→open→half-open→closed lifecycle passes
+2. `pnpm test:run` shows 0 skipped tests for fallback cases — fallback function executes, cached data is returned, fallback errors are handled
+3. `pnpm test:run` shows 0 skipped tests for event emission cases — open, close, halfOpen, and fallback events fire at the right moments
+4. `pnpm test:run` shows 0 skipped tests for per-source isolation cases — independent breaker instances, per-source timeouts, and per-source stats verified
+
+**Plans:** TBD
+
+---
+
+#### Phase 9: API & DB Integration Tests
+
+**Goal:** Card search endpoint and wishlist server action tests are active with real database helpers — integration-level coverage confirms DB queries and FK constraints behave correctly
+
+**Depends on:** Phase 7 (baseline test suite green)
+
+**Requirements:** TEST-08, TEST-09
+
+**Success Criteria** (what must be TRUE):
+1. `pnpm test:run` shows 0 skipped tests in `cards/search.test.ts` — name match, empty result, case-insensitive, limit-10, and minimum-2-chars cases all pass against a real test DB
+2. `pnpm test:run` shows 0 skipped tests in `wishlist/actions.test.ts` — addCard, FK violation, removeCard, and searchCards variant cases all pass against a real test DB
+3. `seedTestCard`, `seedTestWishlist`, and `truncateTable` test helpers exist and are used by both test files
+4. Tests clean up after themselves — no data bleeds between test runs
+
+**Plans:** TBD
+
+---
+
+#### Phase 10: Scheduler Tests
+
+**Goal:** All scheduler test stubs are active and passing — cron registration, custom schedules, invalid expression handling, orchestration execution, error handling, and concurrency guard are verified
+
+**Depends on:** Phase 7 (baseline test suite green)
+
+**Requirements:** TEST-10, TEST-11
+
+**Success Criteria** (what must be TRUE):
+1. `pnpm test:run` shows 0 skipped tests for `schedulePriceCollection` — cron registration, custom schedule override, and invalid expression rejection all pass
+2. `pnpm test:run` shows 0 skipped tests for `executePriceCollection` — successful orchestration run, error handling (no unhandled rejection), duration metrics, and concurrency guard all pass
+3. No real network calls or DB writes occur during scheduler tests — all side effects are mocked
+
+**Plans:** TBD
+
+---
+
+#### Phase 11: Orchestrator Functions & Tests
+
+**Goal:** Missing orchestrator functions are implemented in `src/scraper/orchestrator.ts` and their tests are active and passing — fetch orchestration, failure handling, rate limiting application, result aggregation, and batch processing are verified end-to-end
+
+**Depends on:** Phase 8 (circuit breaker tests green), Phase 9 (DB integration tests green), Phase 10 (scheduler tests green)
+
+**Requirements:** TEST-12, TEST-13
+
+**Success Criteria** (what must be TRUE):
+1. `orchestrateFetch`, `handleSourceFailure`, and `applyRateLimiting` exist in `src/scraper/orchestrator.ts` and are exported
+2. `aggregateResults` and `batchOrchestrateFetch` exist in `src/scraper/orchestrator.ts` and are exported
+3. `pnpm test:run` shows 0 skipped tests for orchestrator function tests — all TEST-12 stubs (orchestrateFetch, handleSourceFailure, applyRateLimiting) pass
+4. `pnpm test:run` shows 0 skipped tests for batch orchestrator tests — all TEST-13 stubs (aggregateResults, batchOrchestrateFetch) pass
+5. New functions integrate without breaking existing `fetchCardPriceFromAllSources` and `fetchAllPrices` contracts
+
+**Plans:** TBD
+
+---
+
 ## Traceability
+
+### v1.0 Requirements
 
 | Requirement | Phase | Plan | Status |
 |-------------|-------|------|--------|
@@ -226,30 +352,44 @@
 | PRICE-06 | 1 | 01-03 | Complete (2026-03-05) |
 | PRICE-07 | 2 | 02-04 | Complete (2026-03-06) |
 | PRICE-08 | 1, 2 | 01-02, 02-04 | Complete (2026-03-06) |
-| WISH-01 | 3 | 03-01, 03-03, 03-04, 03-05 | Gap Closure |
-| WISH-02 | 3 | 03-01, 03-03, 03-04, 03-05 | Gap Closure |
-| WISH-03 | 3 | 03-02, 03-03 | Pending |
-| WISH-04 | 3 | 03-04 | Pending |
-| WISH-05 | 3 | 03-03 | Pending |
-| DETECT-01 | 4 | 04-03 | Planned |
-| DETECT-02 | 4 | 04-03 | Planned |
-| DETECT-03 | 4 | 04-03, 04-04 | Planned |
-| DETECT-04 | 4 | 04-03, 04-04 | Planned |
-| NOTIF-01 | 4 | 04-04 | Planned |
-| NOTIF-02 | 4 | 04-05 | Planned |
+| WISH-01 | 3 | 03-01, 03-03, 03-04, 03-05 | Complete |
+| WISH-02 | 3 | 03-01, 03-03, 03-04, 03-05 | Complete |
+| WISH-03 | 3 | 03-02, 03-03 | Complete |
+| WISH-04 | 3 | 03-04 | Complete |
+| WISH-05 | 3 | 03-03 | Complete |
+| DETECT-01 | 4 | 04-03 | Complete |
+| DETECT-02 | 4 | 04-03 | Complete |
+| DETECT-03 | 4 | 04-03, 04-04 | Complete |
+| DETECT-04 | 4 | 04-03, 04-04 | Complete |
+| NOTIF-01 | 4 | 04-04 | Complete |
+| NOTIF-02 | 4 | 04-05 | Complete |
 | NOTIF-03 | 2 | 02-04 | Complete (2026-03-06) |
-| META-01 | 5 | 05-02, 05-04, 05-05 | Planned |
-| META-02 | 5 | 05-02, 05-04, 05-05 | Planned |
-| META-03 | 5 | 05-02, 05-04, 05-05 | Planned |
-| DASH-01 | 3 | 03-02, 03-03 | Pending |
-| DASH-02 | 3 | 03-03 | Pending |
+| META-01 | 5 | 05-02, 05-04, 05-05 | Complete |
+| META-02 | 5 | 05-02, 05-04, 05-05 | Complete |
+| META-03 | 5 | 05-02, 05-04, 05-05 | Complete |
+| DASH-01 | 3 | 03-02, 03-03 | Complete |
+| DASH-02 | 3 | 03-03 | Complete |
 
-**Coverage:**
-- v1 requirements: 24 total
-- Mapped to phases: 24
-- Mapped to plans: 15/24 (AUTH-01, AUTH-02, PRICE-01 through PRICE-08, NOTIF-03, WISH-01 through WISH-05, DASH-01, DASH-02)
-- Completed: 11/24 (AUTH-01, AUTH-02, PRICE-01 through PRICE-08, NOTIF-03)
-- Unmapped: 9 (Phase 4-6 requirements)
+### v1.1 Requirements
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| TEST-01 | 7 | Pending |
+| TEST-02 | 7 | Pending |
+| TEST-03 | 7 | Pending |
+| TEST-04 | 8 | Pending |
+| TEST-05 | 8 | Pending |
+| TEST-06 | 8 | Pending |
+| TEST-07 | 8 | Pending |
+| TEST-08 | 9 | Pending |
+| TEST-09 | 9 | Pending |
+| TEST-10 | 10 | Pending |
+| TEST-11 | 10 | Pending |
+| TEST-12 | 11 | Pending |
+| TEST-13 | 11 | Pending |
+
+**Coverage v1.0:** 24/24 requirements mapped, all complete
+**Coverage v1.1:** 13/13 requirements mapped, 0/13 complete
 
 ---
 
@@ -266,33 +406,21 @@ Phase 2 (Data Collection)
     Phase 5 (Metagame)
         ↓
     Phase 6 (Polish)
+        ↓
+    Phase 7 (Auth & Rate Limit Tests)        ← v1.1 starts here
+        ↓
+    Phase 8 (Circuit Breaker Tests)
+    Phase 9 (API & DB Integration Tests)     ← parallel with Phase 8
+    Phase 10 (Scheduler Tests)               ← parallel with Phase 8 & 9
+        ↓
+    Phase 11 (Orchestrator Functions & Tests)
 ```
 
-**Key dependencies:**
-- Phase 2 requires Phase 1's database schema and rate limiting
-- Phase 3 requires Phase 2's price data to display
-- Phase 4 requires Phase 2's historical data AND Phase 3's user preferences
-- Phase 5 requires Phase 2's data collection and Phase 3's wishlist infrastructure
-- Phase 6 requires all core functionality to be complete
+**Key v1.1 dependencies:**
+- Phases 8, 9, 10 all depend on Phase 7 (baseline test suite green before adding more tests)
+- Phase 11 depends on Phases 8, 9, 10 (orchestrator wires together circuit breakers, DB, and scheduler concerns)
 
 ---
 
-## Research Considerations
-
-From research/SUMMARY.md, the following areas need attention during planning:
-
-**Phase 2 (Data Collection):**
-- Liga Magic API availability — verify robots.txt and ToS
-- TCGPlayer API pricing and rate limits
-
-**Phase 4 (Opportunity Detection):**
-- Algorithm tuning for "below historical average" threshold
-- Optimal batching strategy to prevent alert fatigue
-
-**Phase 5 (Metagame Integration):**
-- MTGTop8 and EDHREC API availability — may require scraping
-- Format-specific "staple" detection logic
-
----
 *Roadmap created: 2026-03-05*
-*Last updated: 2026-03-07*
+*Last updated: 2026-05-09 (v1.1 phases 7–11 appended)*
