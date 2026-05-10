@@ -99,7 +99,7 @@ Considerar IOF (Imposto sobre Operações Financeiras) de cartão de crédito: 6
 
 ## Current State
 
-Phase 07 complete — auth and rate-limit test coverage activated. All 16 previously-todo test stubs are now active and passing: 4 bcrypt hash tests, 5 JWT tests, 7 Redis rate-limiter tests. Rate-limiter gained a 100ms Map-based local cache (cache-denied-only) and `REDIS_CLUSTER_NODES`-driven cluster detection. Full suite: 143 tests pass, 38 todo remaining. TEST-01, TEST-02, TEST-03 validated. Phase 07 is the first phase of milestone v1.1 (Test Coverage & Quality Hardening).
+Phase 08 complete — circuit breaker test coverage activated. All 18 previously-skipped stubs in `src/scraper/__tests__/circuit-breaker.test.ts` are now active and passing: state transitions (closed→open→half-open→closed), fallback function behavior, event emission (open/close/halfOpen/fallback), per-source circuit breaker isolation, and integration scenarios (cascading failure prevention, auto-recovery, rapid-request fast-fail). Full suite: 161 tests pass, 182 skipped (pre-existing stubs from earlier phases), 38 todo. Production source untouched. TEST-04 through TEST-07 validated. Phase 08 is the second phase of milestone v1.1 (Test Coverage & Quality Hardening).
 
 ---
-*Last updated: 2026-05-09
+*Last updated: 2026-05-10
