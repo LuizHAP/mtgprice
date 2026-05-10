@@ -225,7 +225,7 @@
 ### Phases
 
 - [x] **Phase 7: Auth & Rate Limit Tests** - Activate bcrypt, JWT, and Redis rate limiter test suites
-- [ ] **Phase 8: Circuit Breaker Tests** - Implement 18 test.skip stubs for circuit breaker behavior
+- [x] **Phase 8: Circuit Breaker Tests** - Implement 18 test.skip stubs for circuit breaker behavior (completed 2026-05-10, verified ✓)
 - [ ] **Phase 9: API & DB Integration Tests** - Activate card search and wishlist server action tests with real DB helpers
 - [ ] **Phase 10: Scheduler Tests** - Activate schedulePriceCollection and executePriceCollection test stubs
 - [ ] **Phase 11: Orchestrator Functions & Tests** - Implement missing orchestrator functions and activate their tests
@@ -235,7 +235,7 @@
 | Phase | Plans Complete | Status | Completed | Verified |
 |-------|----------------|--------|-----------|----------|
 | 7. Auth & Rate Limit Tests | 2/2 | Complete   | 2026-05-10 | ✓ |
-| 8. Circuit Breaker Tests | 0/1 | Not started | - | - |
+| 8. Circuit Breaker Tests | 1/1 | Complete   | 2026-05-10 | ✓ |
 | 9. API & DB Integration Tests | 0/? | Not started | - | - |
 | 10. Scheduler Tests | 0/? | Not started | - | - |
 | 11. Orchestrator Functions & Tests | 0/? | Not started | - | - |
@@ -380,10 +380,10 @@
 | TEST-01 | 7 | Pending |
 | TEST-02 | 7 | Pending |
 | TEST-03 | 7 | Pending |
-| TEST-04 | 8 | Pending |
-| TEST-05 | 8 | Pending |
-| TEST-06 | 8 | Pending |
-| TEST-07 | 8 | Pending |
+| TEST-04 | 8 | Complete (2026-05-10) |
+| TEST-05 | 8 | Complete (2026-05-10) |
+| TEST-06 | 8 | Complete (2026-05-10) |
+| TEST-07 | 8 | Complete (2026-05-10) |
 | TEST-08 | 9 | Pending |
 | TEST-09 | 9 | Pending |
 | TEST-10 | 10 | Pending |
@@ -392,7 +392,7 @@
 | TEST-13 | 11 | Pending |
 
 **Coverage v1.0:** 24/24 requirements mapped, all complete
-**Coverage v1.1:** 13/13 requirements mapped, 0/13 complete
+**Coverage v1.1:** 13/13 requirements mapped, 4/13 complete (TEST-04..07 via Phase 8)
 
 ---
 
@@ -426,4 +426,4 @@ Phase 2 (Data Collection)
 ---
 
 *Roadmap created: 2026-03-05*
-*Last updated: 2026-05-09 (v1.1 phases 7–11 appended)*
+*Last updated: 2026-05-10 (phase 8 complete)*
