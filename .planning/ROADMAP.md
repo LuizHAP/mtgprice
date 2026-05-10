@@ -281,7 +281,7 @@
 **Plans:** 1 plan
 
 **Wave 1 (Sequential):**
-- [ ] 08-01-PLAN.md — Activate all 18 circuit breaker test stubs (state, fallback, events, per-source isolation)
+- [x] 08-01-PLAN.md — Activate all 18 circuit breaker test stubs (state, fallback, events, per-source isolation)
 
 ---
 
