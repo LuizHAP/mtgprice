@@ -1,6 +1,6 @@
-import { wrapWithCircuitBreaker } from '../circuit-breaker'
 import CircuitBreaker from 'opossum'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
+import { wrapWithCircuitBreaker } from '../circuit-breaker'
 
 // Hoisted mock for @/lib/telegram so circuit-breaker's dynamic import resolves to a stub.
 vi.mock('@/lib/telegram', () => ({
