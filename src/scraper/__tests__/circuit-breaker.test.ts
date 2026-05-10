@@ -354,7 +354,11 @@ describe('Health alerts (Phase 6 / D-01..D-04)', () => {
   })
 
   afterEach(() => {
-    process.env.TELEGRAM_CHAT_ID = originalChatId
+    if (originalChatId === undefined) {
+      delete process.env.TELEGRAM_CHAT_ID
+    } else {
+      process.env.TELEGRAM_CHAT_ID = originalChatId
+    }
   })
 
   // Helper: build a circuit breaker that opens fast for testing.
