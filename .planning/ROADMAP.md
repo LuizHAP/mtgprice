@@ -305,8 +305,8 @@
 - [x] 09-01-PLAN.md — Fix DATABASE_URL credentials, create no-param `src/test/helpers/db.ts`, extract `searchCards` into `src/lib/cards/queries.ts`, refactor route handler to delegate
 
 **Wave 2 (Parallel — test activation):**
-- [ ] 09-02-PLAN.md — Activate 5 `cards/search.test.ts` integration tests against real PostgreSQL (TEST-08)
-- [ ] 09-03-PLAN.md — Activate 6 `wishlist/actions.test.ts` integration tests with FK chain + real FK-violation test (TEST-09)
+- [x] 09-02-PLAN.md — Activate 5 `cards/search.test.ts` integration tests against real PostgreSQL (TEST-08)
+- [x] 09-03-PLAN.md — Activate 6 `wishlist/actions.test.ts` integration tests with FK chain + real FK-violation test (TEST-09)
 
 ---
 
