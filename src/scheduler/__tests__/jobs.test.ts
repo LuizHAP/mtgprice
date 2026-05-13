@@ -11,9 +11,11 @@ vi.mock('node-cron', () => {
     start: vi.fn(),
     stop: vi.fn(),
   })
+  const mockValidate = vi.fn().mockReturnValue(true)
   return {
     default: {
       schedule: mockSchedule,
+      validate: mockValidate,
     },
     schedule: mockSchedule,
   }
@@ -40,6 +42,12 @@ vi.mock('@/lib/logger', () => ({
     error: vi.fn(),
     debug: vi.fn(),
   },
+}))
+
+vi.mock('@/lib/opportunities', () => ({
+  detectOpportunitiesForWishlist: vi.fn().mockResolvedValue([]),
+  sendDigestAndPersist: vi.fn().mockResolvedValue({ persisted: 0, sent: false }),
+  loadDetectionConfig: vi.fn().mockReturnValue({}),
 }))
 
 describe('scheduleMetagameRefresh', () => {
