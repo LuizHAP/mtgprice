@@ -238,7 +238,7 @@
 | 8. Circuit Breaker Tests | 1/1 | Complete   | 2026-05-10 | ✓ |
 | 9. API & DB Integration Tests | 0/3 | Not started | - | - |
 | 10. Scheduler Tests | 0/1 | 1/1 | Complete    | 2026-05-13 |
-| 11. Orchestrator Functions & Tests | 0/2 | Not started | - | - |
+| 11. Orchestrator Functions & Tests | 0/2 | 1/2 | In Progress|  |
 
 ### Phase Details
 
@@ -345,10 +345,10 @@
 4. `pnpm test:run` shows 0 skipped tests for batch orchestrator tests — all TEST-13 stubs (aggregateResults, batchOrchestrateFetch) pass
 5. New functions integrate without breaking existing `fetchCardPriceFromAllSources` and `fetchAllPrices` contracts
 
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 **Wave 1 (Sequential — TEST-12 functions):**
-- [ ] 11-01-PLAN.md — Add orchestrateFetch alias, handleSourceFailure, applyRateLimiting + activate 10 TEST-12 test stubs
+- [x] 11-01-PLAN.md — Add orchestrateFetch alias, handleSourceFailure, applyRateLimiting + activate 10 TEST-12 test stubs
 
 **Wave 2 (Sequential — TEST-13 + integration):**
 - [ ] 11-02-PLAN.md — Add PriceRecord, aggregateResults, batchOrchestrateFetch alias + activate 10 TEST-13 + Integration test stubs
