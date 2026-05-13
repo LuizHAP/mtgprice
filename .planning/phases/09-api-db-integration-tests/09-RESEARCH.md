@@ -431,22 +431,25 @@ export async function addCardToWishlist(userId: number, cardId: string): Promise
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **DATABASE_URL credentials in test/setup.ts**
    - What we know: `test/setup.ts` has `postgres:postgres`; docker-compose uses `mtgprice:mtgprice_password`.
    - What's unclear: Whether the user's local PostgreSQL accepts `postgres:postgres` via a separate setup (outside docker-compose).
    - Recommendation: The plan should include a Wave 0 task that verifies connectivity (start docker container, confirm URL matches). If the credentials are wrong, `test/setup.ts` line 6 must be updated to `postgresql://mtgprice:mtgprice_password@localhost:5432/mtgprice`.
+   - **RESOLVED:** Plan 09-01 Task 1 updates `test/setup.ts` to use `postgresql://mtgprice:mtgprice_password@localhost:5432/mtgprice`.
 
 2. **User seeding for wishlist tests**
    - What we know: `wishlists.user_id` references `users.id` with `ON DELETE no action`. `seedTestWishlist` defaults `userId: 1`.
    - What's unclear: Whether the new `src/test/helpers/db.ts` should export a `seedTestUser()` function, or whether tests should manually insert a user.
    - Recommendation: Add `seedTestUser(userData?)` to `src/test/helpers/db.ts` so that wishlist tests can call it in `beforeEach` before calling `seedTestWishlist`.
+   - **RESOLVED:** Plan 09-01 Task 1 adds `seedTestUser(userData?)` to `src/test/helpers/db.ts`; Plan 09-03 uses it in `beforeEach`.
 
 3. **`searchCards` 2-char behavior: throw vs return `[]`**
    - What we know: The route handler returns a 400 response for `query.length < 2`. The test must validate consistent behavior.
    - What's unclear: Planner's choice — either throw (test uses `rejects.toThrow()`) or return `[]` (test uses `expect(result).toEqual([])`).
    - Recommendation: **Throw an error** — this is consistent with the route handler's semantics (validation failure), and the test can mirror what the route returns for a 400: `expect(searchCards('A')).rejects.toThrow('Query must be at least 2 characters long')`.
+   - **RESOLVED:** Plan 09-01 Task 2 implements `searchCards` to throw `'Query must be at least 2 characters long'` for inputs shorter than 2 chars.
 
 ---
 
