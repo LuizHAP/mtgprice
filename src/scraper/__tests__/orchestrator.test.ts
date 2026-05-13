@@ -1,6 +1,6 @@
 import pLimit from 'p-limit'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
-import { handleSourceFailure, applyRateLimiting } from '@/scraper/orchestrator'
+import { handleSourceFailure, applyRateLimiting, aggregateResults, type AllSourcesResult, type PriceRecord } from '@/scraper/orchestrator'
 import { logger } from '@/lib/logger'
 import { checkRateLimitPreset } from '@/lib/ratelimit/rate-limiter'
 
@@ -327,39 +327,71 @@ describe('Fetch orchestration', () => {
   })
 
   describe('aggregateResults', () => {
-    test.skip('should collect prices from all successful sources', async () => {
-      // TODO: Implement test for result aggregation
-      // Should verify:
-      // - Returns array of price objects
-      // - Includes card_id, source, price_brl, timestamp
-      // - Filters out null results
-      expect(true).toBe(false)
+    beforeEach(() => {
+      vi.clearAllMocks()
     })
 
-    test.skip('should deduplicate prices from same source', async () => {
-      // TODO: Implement test for deduplication
-      // Should verify:
-      // - One price per (card_id, source) pair
-      // - Uses latest timestamp if duplicates exist
-      expect(true).toBe(false)
+    test('should collect prices from all successful sources', () => {
+      const fixture: AllSourcesResult = {
+        ligamagic: { success: true, price: 10 },
+        tcgplayer: { success: true, price: 50 },
+        cardmarket: { success: false, error: 'not found' },
+        cardkingdom: { success: false, error: 'timeout' },
+      }
+      const records: PriceRecord[] = aggregateResults('oracle-abc', fixture)
+      expect(records).toHaveLength(2)
+      expect(records[0]).toEqual({ oracleId: 'oracle-abc', source: 'ligamagic', priceBrl: 10 })
+      expect(records[1]).toEqual({ oracleId: 'oracle-abc', source: 'tcgplayer', priceBrl: 50 })
     })
 
-    test.skip('should handle partial results (some sources failed)', async () => {
-      // TODO: Implement test for partial results
-      // Should verify:
-      // - Returns successful prices
-      // - Logs which sources failed
-      // - Does not fail entire orchestration
-      expect(true).toBe(false)
+    test('should deduplicate prices from same source', () => {
+      // AllSourcesResult type structurally guarantees one entry per source key.
+      // Assert the structural invariant: each source appears exactly once in the output.
+      const fixture: AllSourcesResult = {
+        ligamagic: { success: true, price: 10 },
+        tcgplayer: { success: true, price: 20 },
+        cardmarket: { success: true, price: 30 },
+        cardkingdom: { success: true, price: 40 },
+      }
+      const records: PriceRecord[] = aggregateResults('oracle-dup', fixture)
+      expect(new Set(records.map((r) => r.source)).size).toBe(records.length)
     })
 
-    test.skip('should return empty array if all sources fail', async () => {
-      // TODO: Implement test for total failure
-      // Should verify:
-      // - Returns empty array
-      // - Logs critical error
-      // - Does not throw exception
-      expect(true).toBe(false)
+    test('should handle partial results (some sources failed)', () => {
+      const fixture: AllSourcesResult = {
+        ligamagic: { success: true, price: 15 },
+        tcgplayer: { success: false, error: 'timeout' },
+        cardmarket: { success: true, price: 25 },
+        cardkingdom: { success: false, error: 'network error' },
+      }
+      const records: PriceRecord[] = aggregateResults('oracle-xyz', fixture)
+      expect(records).toHaveLength(2)
+      const sources = records.map((r) => r.source)
+      expect(sources).toContain('ligamagic')
+      expect(sources).toContain('cardmarket')
+      expect(sources).not.toContain('tcgplayer')
+      expect(sources).not.toContain('cardkingdom')
+      expect(() => aggregateResults('oracle-xyz', fixture)).not.toThrow()
+    })
+
+    test('should return empty array if all sources fail', () => {
+      const allFailed: AllSourcesResult = {
+        ligamagic: { success: false, error: 'down' },
+        tcgplayer: { success: false, error: 'down' },
+        cardmarket: { success: false, error: 'down' },
+        cardkingdom: { success: false, error: 'down' },
+      }
+      expect(() => aggregateResults('oracle-fail', allFailed)).not.toThrow()
+      expect(aggregateResults('oracle-fail', allFailed)).toEqual([])
+
+      // Edge case: success:true but price is undefined — must be filtered out (RESEARCH Pitfall 4)
+      const successNullPrice: AllSourcesResult = {
+        ligamagic: { success: true, price: undefined },
+        tcgplayer: { success: true, price: undefined },
+        cardmarket: { success: true, price: undefined },
+        cardkingdom: { success: true, price: undefined },
+      }
+      expect(aggregateResults('oracle-fail', successNullPrice)).toEqual([])
     })
   })
 

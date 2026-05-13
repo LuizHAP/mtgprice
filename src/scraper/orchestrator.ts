@@ -275,6 +275,42 @@ export default fetchAllPrices
 export const orchestrateFetch = fetchCardPriceFromAllSources
 
 /**
+ * D-07: Flat price record for a single (card, source) pair.
+ * Produced by aggregateResults from an AllSourcesResult.
+ * Property names match existing AllSourcesResult conventions:
+ *   oracleId — camelCase, matches oracle ID usage throughout
+ *   source   — lowercase string key (ligamagic | tcgplayer | cardmarket | cardkingdom)
+ *   priceBrl — BRL-denominated price (international prices already converted by orchestrator)
+ */
+export interface PriceRecord {
+  oracleId: string
+  source: string
+  priceBrl: number
+}
+
+/**
+ * D-06: Convert per-source results into a flat array of price records.
+ *
+ * Pure function — no DB writes, no logging, no async I/O.
+ * Filters out entries where success===false or price===undefined (RESEARCH Pitfall 4:
+ * success:true does NOT guarantee price is defined).
+ *
+ * @param oracleId - Oracle ID of the card, forwarded to every PriceRecord
+ * @param results  - AllSourcesResult map from fetchCardPriceFromAllSources / orchestrateFetch
+ * @returns Flat array of PriceRecord for each source that returned a valid price.
+ *          Returns [] if all sources failed or price was undefined on success.
+ */
+export function aggregateResults(oracleId: string, results: AllSourcesResult): PriceRecord[] {
+  return Object.entries(results)
+    .filter(([, result]) => result.success && result.price !== undefined)
+    .map(([source, result]) => ({
+      oracleId,
+      source,
+      priceBrl: result.price as number,
+    }))
+}
+
+/**
  * D-04: Normalize source failure into SourceFetchResult and log with context.
  * Called when a price source fails during orchestration.
  * Does NOT maintain a failure counter — Opossum circuit breakers handle threshold logic.
