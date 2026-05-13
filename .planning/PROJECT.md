@@ -99,7 +99,7 @@ Considerar IOF (Imposto sobre Operações Financeiras) de cartão de crédito: 6
 
 ## Current State
 
-Phase 10 complete — Scheduler test stubs activated for `schedulePriceCollection` and `executePriceCollection`. Added `cron.validate()` guard (throws `Error('Invalid cron expression: ...')` on invalid env-var expressions) and `durationMs` tracking (captured at all 4 return paths) to `jobs.ts`. Extended node-cron mock with `validate` and added `@/lib/opportunities` mock in the test file. 7 stubs now active (3 schedulePriceCollection + 4 executePriceCollection); 10 out-of-scope stubs remain skipped. Full suite: 179 passed, 164 skipped, 38 todo. TEST-10 and TEST-11 validated. Phase 10 is the fourth phase of milestone v1.1 (Test Coverage & Quality Hardening).
+Phase 11 complete — Orchestrator function exports and test stubs fully activated. Added `orchestrateFetch` alias, `handleSourceFailure`, `applyRateLimiting`, `aggregateResults`, `batchOrchestrateFetch`, and `PriceRecord` interface to `src/scraper/orchestrator.ts`. Activated all 20 `test.skip` stubs in `orchestrator.test.ts` (25 orchestrator tests now pass). Full suite: 199 passed, 144 skipped, 38 todo. TEST-12 and TEST-13 validated. Phase 11 is the final phase of milestone v1.1 (Test Coverage & Quality Hardening).
 
 ---
 *Last updated: 2026-05-13
