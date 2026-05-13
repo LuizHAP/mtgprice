@@ -310,6 +310,9 @@ export function aggregateResults(oracleId: string, results: AllSourcesResult): P
     }))
 }
 
+// D-08: batchOrchestrateFetch is a named alias for fetchAllPrices (mirrors orchestrateFetch alias pattern)
+export const batchOrchestrateFetch = fetchAllPrices
+
 /**
  * D-04: Normalize source failure into SourceFetchResult and log with context.
  * Called when a price source fails during orchestration.
