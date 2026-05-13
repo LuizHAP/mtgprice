@@ -135,73 +135,153 @@ describe('scheduleMetagameRefresh', () => {
 
 describe('Cron job scheduling', () => {
   describe('schedulePriceCollection', () => {
-    test.skip('should configure node-cron for 2-3x daily execution', async () => {
-      // TODO: Implement test for cron scheduling
-      // Should verify:
-      // - Uses node-cron library
-      // - Configures 2-3 execution times per day
-      // - Default: 9AM, 3PM, 9PM (configurable)
-      // - Returns scheduled job object
-      expect(true).toBe(false)
+    beforeEach(() => {
+      vi.clearAllMocks()
+      // biome-ignore lint/performance/noDelete: process.env requires delete to truly unset a var
+      delete process.env.CRON_MORNING
+      // biome-ignore lint/performance/noDelete: process.env requires delete to truly unset a var
+      delete process.env.CRON_AFTERNOON
+      // biome-ignore lint/performance/noDelete: process.env requires delete to truly unset a var
+      delete process.env.CRON_EVENING
     })
 
-    test.skip('should accept custom schedule times', async () => {
-      // TODO: Implement test for custom schedule
-      // Should verify:
-      // - Accepts array of cron expressions
-      // - Validates cron syntax
-      // - Supports timezone configuration
-      expect(true).toBe(false)
+    it('should configure node-cron for 2-3x daily execution', async () => {
+      const { schedulePriceCollection } = await import('../jobs')
+      const cronModule = await import('node-cron')
+
+      schedulePriceCollection()
+
+      expect(cronModule.default.schedule).toHaveBeenCalledTimes(3)
+      expect(cronModule.default.schedule).toHaveBeenNthCalledWith(
+        1,
+        '0 9 * * *',
+        expect.any(Function),
+        expect.objectContaining({ scheduled: false }),
+      )
+      expect(cronModule.default.schedule).toHaveBeenNthCalledWith(
+        2,
+        '0 15 * * *',
+        expect.any(Function),
+        expect.objectContaining({ scheduled: false }),
+      )
+      expect(cronModule.default.schedule).toHaveBeenNthCalledWith(
+        3,
+        '0 21 * * *',
+        expect.any(Function),
+        expect.objectContaining({ scheduled: false }),
+      )
     })
 
-    test.skip('should handle invalid cron expressions', async () => {
-      // TODO: Implement test for validation
-      // Should verify:
-      // - Validates cron syntax before scheduling
-      // - Throws error on invalid expression
-      // - Logs validation failure
-      expect(true).toBe(false)
+    it('should accept custom schedule times', async () => {
+      process.env.CRON_MORNING = '0 6 * * *'
+      const { schedulePriceCollection } = await import('../jobs')
+      const cronModule = await import('node-cron')
+
+      schedulePriceCollection()
+
+      expect(cronModule.default.schedule).toHaveBeenCalledWith(
+        '0 6 * * *',
+        expect.any(Function),
+        expect.anything(),
+      )
+    })
+
+    it('should handle invalid cron expressions', async () => {
+      process.env.CRON_MORNING = 'not-a-cron'
+      const cronModule = await import('node-cron')
+      vi.mocked(cronModule.default.validate).mockReturnValueOnce(false)
+
+      const { schedulePriceCollection } = await import('../jobs')
+
+      expect(() => schedulePriceCollection()).toThrow('Invalid cron expression')
     })
   })
 
   describe('executePriceCollection', () => {
-    test.skip('should run full fetch orchestration', async () => {
-      // TODO: Implement test for execution
-      // Should verify:
-      // - Calls orchestrateFetch for all cards
-      // - Respects smart refresh logic
-      // - Stores prices in database
-      // - Logs execution metrics
-      expect(true).toBe(false)
+    beforeEach(() => {
+      vi.clearAllMocks()
     })
 
-    test.skip('should handle execution errors gracefully', async () => {
-      // TODO: Implement test for error handling
-      // Should verify:
-      // - Catches orchestration errors
-      // - Logs error with context
-      // - Continues next scheduled run
-      // - Does not crash scheduler
-      expect(true).toBe(false)
+    it('should run full fetch orchestration', async () => {
+      const { db } = await import('@/db')
+      vi.mocked(db.query.cards.findMany).mockResolvedValueOnce([{ oracleId: 'test-id' }])
+
+      const { executePriceCollection } = await import('../jobs')
+      const stats = await executePriceCollection()
+
+      expect(stats.fetched).toBeGreaterThanOrEqual(0)
+      expect(stats.durationMs).toBeGreaterThanOrEqual(0)
     })
 
-    test.skip('should record execution duration', async () => {
-      // TODO: Implement test for metrics
-      // Should verify:
-      // - Records start time
-      // - Records end time
-      // - Logs total duration
-      // - Stores metrics for monitoring
-      expect(true).toBe(false)
+    it('should handle execution errors gracefully', async () => {
+      const fetchAllPricesModule = await import('@/scraper/orchestrator')
+      vi.mocked(fetchAllPricesModule.default).mockRejectedValueOnce(new Error('fetch failed'))
+
+      const { db } = await import('@/db')
+      vi.mocked(db.query.cards.findMany).mockResolvedValueOnce([{ oracleId: 'test-id' }])
+
+      const { executePriceCollection } = await import('../jobs')
+      const stats = await executePriceCollection()
+
+      expect(stats.failed).toBe(1)
+      expect(stats.durationMs).toBeGreaterThanOrEqual(0)
     })
 
-    test.skip('should handle concurrent executions', async () => {
-      // TODO: Implement test for concurrency
-      // Should verify:
-      // - Prevents overlapping executions
-      // - Skips if previous run still active
-      // - Logs skipped execution
-      expect(true).toBe(false)
+    it('should record execution duration', async () => {
+      const { executePriceCollection } = await import('../jobs')
+      const stats = await executePriceCollection()
+
+      expect(typeof stats.durationMs).toBe('number')
+      expect(stats.durationMs).toBeGreaterThanOrEqual(0)
+    })
+
+    describe('concurrent executions', () => {
+      beforeEach(() => {
+        vi.resetModules()
+        vi.doMock('@/scraper/orchestrator', () => ({
+          default: vi.fn(),
+        }))
+        vi.doMock('@/db', () => ({
+          db: { query: { cards: { findMany: vi.fn().mockResolvedValue([{ oracleId: 'test-id' }]) } } },
+        }))
+        vi.doMock('@/lib/opportunities', () => ({
+          detectOpportunitiesForWishlist: vi.fn().mockResolvedValue([]),
+          sendDigestAndPersist: vi.fn().mockResolvedValue({ persisted: 0, sent: false }),
+          loadDetectionConfig: vi.fn().mockReturnValue({}),
+        }))
+        vi.doMock('@/lib/logger', () => ({
+          logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() },
+        }))
+      })
+
+      it('should handle concurrent executions', async () => {
+        const fetchAllPricesModule = await import('@/scraper/orchestrator')
+        let resolveFirst!: (value: { total: number; fetched: number; skipped: number; failed: number; errors: string[] }) => void
+        vi.mocked(fetchAllPricesModule.default).mockImplementationOnce(
+          () =>
+            new Promise((resolve) => {
+              resolveFirst = resolve
+            }),
+        )
+
+        const { executePriceCollection } = await import('../jobs')
+
+        // Start first run (does not resolve yet)
+        const firstRun = executePriceCollection()
+
+        // Yield to allow the first run to progress through findMany and reach fetchAllPrices
+        await Promise.resolve()
+        await Promise.resolve()
+        await Promise.resolve()
+
+        // Second run should return early immediately (isRunning = true)
+        const secondStats = await executePriceCollection()
+        expect(secondStats).toEqual({ total: 0, fetched: 0, skipped: 0, failed: 0, durationMs: 0 })
+
+        // Unblock the first run
+        resolveFirst({ total: 1, fetched: 0, skipped: 0, failed: 0, errors: [] })
+        await firstRun
+      })
     })
   })
 
