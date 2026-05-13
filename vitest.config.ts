@@ -41,6 +41,10 @@ export default defineConfig({
     // Show verbose output for better debugging
     reporters: ['verbose'],
 
+    // Disable parallel file execution so integration tests sharing a real
+    // PostgreSQL database do not race on truncation/seeding between test files.
+    fileParallelism: false,
+
     // Enable global test utilities
     globals: true,
   },
