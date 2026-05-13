@@ -85,8 +85,8 @@ Requirements for milestone v1.1. Goal: ativar os 200 testes skipped e 54 todos.
 
 ### Scheduler Tests
 
-- [ ] **TEST-10**: Tests ativos para schedulePriceCollection (cron registration, custom schedule, invalid expressions)
-- [ ] **TEST-11**: Tests ativos para executePriceCollection (run orchestration, error handling, duration metrics, concorrência)
+- [x] **TEST-10**: Tests ativos para schedulePriceCollection (cron registration, custom schedule, invalid expressions)
+- [x] **TEST-11**: Tests ativos para executePriceCollection (run orchestration, error handling, duration metrics, concorrência)
 
 ### Orchestrator Tests
 

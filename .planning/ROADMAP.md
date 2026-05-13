@@ -227,7 +227,7 @@
 - [x] **Phase 7: Auth & Rate Limit Tests** - Activate bcrypt, JWT, and Redis rate limiter test suites
 - [x] **Phase 8: Circuit Breaker Tests** - Implement 18 test.skip stubs for circuit breaker behavior (completed 2026-05-10, verified ✓)
 - [ ] **Phase 9: API & DB Integration Tests** - Activate card search and wishlist server action tests with real DB helpers
-- [ ] **Phase 10: Scheduler Tests** - Activate schedulePriceCollection and executePriceCollection test stubs
+- [x] **Phase 10: Scheduler Tests** - Activate schedulePriceCollection and executePriceCollection test stubs (completed 2026-05-13)
 - [ ] **Phase 11: Orchestrator Functions & Tests** - Implement missing orchestrator functions and activate their tests
 
 ### Progress
@@ -237,7 +237,7 @@
 | 7. Auth & Rate Limit Tests | 2/2 | Complete   | 2026-05-10 | ✓ |
 | 8. Circuit Breaker Tests | 1/1 | Complete   | 2026-05-10 | ✓ |
 | 9. API & DB Integration Tests | 0/3 | Not started | - | - |
-| 10. Scheduler Tests | 0/1 | Planned | - | - |
+| 10. Scheduler Tests | 0/1 | 1/1 | Complete   | 2026-05-13 |
 | 11. Orchestrator Functions & Tests | 0/? | Not started | - | - |
 
 ### Phase Details
@@ -323,10 +323,10 @@
 2. `pnpm test:run` shows 0 skipped tests for `executePriceCollection` — successful orchestration run, error handling (no unhandled rejection), duration metrics, and concurrency guard all pass
 3. No real network calls or DB writes occur during scheduler tests — all side effects are mocked
 
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 
 **Wave 1 (Sequential):**
-- [ ] 10-01-PLAN.md — Add cron.validate guard + durationMs tracking to jobs.ts; activate 7 schedulePriceCollection + executePriceCollection test stubs (TEST-10, TEST-11)
+- [x] 10-01-PLAN.md — Add cron.validate guard + durationMs tracking to jobs.ts; activate 7 schedulePriceCollection + executePriceCollection test stubs (TEST-10, TEST-11)
 
 ---
 
