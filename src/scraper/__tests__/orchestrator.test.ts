@@ -1,5 +1,5 @@
 import pLimit from 'p-limit'
-import { describe, expect, test, vi } from 'vitest'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
 
 describe('fetchAllPrices concurrency (Phase 6 / D-08)', () => {
   test('caps in-flight executions at SCRAPER_CONCURRENCY_PER_SOURCE', async () => {
@@ -100,41 +100,139 @@ describe('orchestrator retry-then-circuit-breaker ordering (Phase 6 / D-06)', ()
 
 describe('Fetch orchestration', () => {
   describe('orchestrateFetch', () => {
-    test.skip('should fetch Liga Magic first (BR data priority)', async () => {
-      // TODO: Implement test for sequential Liga Magic
-      // Should verify:
-      // - Fetches Liga Magic first
-      // - Wait for completion before intl sources
-      // - Prioritizes BR data for Brazilian users
-      expect(true).toBe(false)
+    beforeEach(() => {
+      vi.clearAllMocks()
     })
 
-    test.skip('should fetch international sources in parallel', async () => {
-      // TODO: Implement test for parallel intl sources
-      // Should verify:
-      // - Fetches TCGPlayer, CardMarket, CardKingdom in parallel
-      // - Uses Promise.all for concurrent execution
-      // - Waits for all to complete
-      expect(true).toBe(false)
+    test('should fetch Liga Magic first (BR data priority)', async () => {
+      vi.resetModules()
+      vi.doMock('@/scraper/smart-refresh', () => ({
+        shouldFetchPrice: vi.fn().mockResolvedValue(true),
+      }))
+      vi.doMock('@/scraper/providers/liga-magic', () => ({
+        fetchCardPrice: vi.fn().mockResolvedValue(10),
+      }))
+      vi.doMock('@/scraper/providers/tcgplayer', () => ({
+        fetchCardPrice: vi.fn().mockResolvedValue(null),
+      }))
+      vi.doMock('@/scraper/providers/cardmarket', () => ({
+        fetchCardPrice: vi.fn().mockResolvedValue(null),
+      }))
+      vi.doMock('@/scraper/providers/cardkingdom', () => ({
+        fetchCardPrice: vi.fn().mockResolvedValue(null),
+      }))
+      vi.doMock('@/db/queries/prices', () => ({
+        insertPrice: vi.fn().mockResolvedValue(undefined),
+      }))
+      vi.doMock('@/lib/currency', () => ({
+        convertToBRL: vi.fn().mockResolvedValue(50),
+      }))
+      const { orchestrateFetch } = await import('@/scraper/orchestrator')
+      const results = await orchestrateFetch('test-oracle-id')
+      expect(results.ligamagic.success).toBe(true)
+      expect(results.ligamagic.price).toBe(10)
+      vi.resetModules()
     })
 
-    test.skip('should continue if one international source fails', async () => {
-      // TODO: Implement test for fault tolerance
-      // Should verify:
-      // - Continues if TCGPlayer fails
-      // - Continues if CardMarket fails
-      // - Continues if CardKingdom fails
-      // - Returns partial results
-      expect(true).toBe(false)
+    test('should fetch international sources in parallel', async () => {
+      vi.resetModules()
+      vi.doMock('@/scraper/smart-refresh', () => ({
+        shouldFetchPrice: vi.fn().mockResolvedValue(true),
+      }))
+      const ligaMagicMock = vi.fn().mockResolvedValue(10)
+      const tcgPlayerMock = vi.fn().mockResolvedValue(20)
+      const cardMarketMock = vi.fn().mockResolvedValue(15)
+      const cardKingdomMock = vi.fn().mockResolvedValue(18)
+      vi.doMock('@/scraper/providers/liga-magic', () => ({
+        fetchCardPrice: ligaMagicMock,
+      }))
+      vi.doMock('@/scraper/providers/tcgplayer', () => ({
+        fetchCardPrice: tcgPlayerMock,
+      }))
+      vi.doMock('@/scraper/providers/cardmarket', () => ({
+        fetchCardPrice: cardMarketMock,
+      }))
+      vi.doMock('@/scraper/providers/cardkingdom', () => ({
+        fetchCardPrice: cardKingdomMock,
+      }))
+      vi.doMock('@/db/queries/prices', () => ({
+        insertPrice: vi.fn().mockResolvedValue(undefined),
+      }))
+      vi.doMock('@/lib/currency', () => ({
+        convertToBRL: vi.fn().mockResolvedValue(50),
+      }))
+      const { orchestrateFetch } = await import('@/scraper/orchestrator')
+      const results = await orchestrateFetch('test-oracle-id')
+      expect(results.tcgplayer.success).toBe(true)
+      expect(results.cardmarket.success).toBe(true)
+      expect(results.cardkingdom.success).toBe(true)
+      vi.resetModules()
     })
 
-    test.skip('should handle complete Liga Magic failure gracefully', async () => {
-      // TODO: Implement test for primary source failure
-      // Should verify:
-      // - Logs Liga Magic failure
-      // - Continues with international sources
-      // - Returns results without BR data
-      expect(true).toBe(false)
+    test('should continue if one international source fails', async () => {
+      vi.resetModules()
+      vi.doMock('@/scraper/smart-refresh', () => ({
+        shouldFetchPrice: vi.fn().mockResolvedValue(true),
+      }))
+      vi.doMock('@/scraper/providers/liga-magic', () => ({
+        fetchCardPrice: vi.fn().mockResolvedValue(10),
+      }))
+      vi.doMock('@/scraper/providers/tcgplayer', () => ({
+        fetchCardPrice: vi.fn().mockRejectedValue(new Error('TCGPlayer unavailable')),
+      }))
+      vi.doMock('@/scraper/providers/cardmarket', () => ({
+        fetchCardPrice: vi.fn().mockResolvedValue(15),
+      }))
+      vi.doMock('@/scraper/providers/cardkingdom', () => ({
+        fetchCardPrice: vi.fn().mockResolvedValue(18),
+      }))
+      vi.doMock('@/db/queries/prices', () => ({
+        insertPrice: vi.fn().mockResolvedValue(undefined),
+      }))
+      vi.doMock('@/lib/currency', () => ({
+        convertToBRL: vi.fn().mockResolvedValue(50),
+      }))
+      const { orchestrateFetch } = await import('@/scraper/orchestrator')
+      const results = await orchestrateFetch('test-oracle-id')
+      expect(results.ligamagic.success).toBe(true)
+      expect(results.cardmarket.success).toBe(true)
+      expect(results.cardkingdom.success).toBe(true)
+      expect(results.tcgplayer.success).toBe(false)
+      expect(results.tcgplayer.error).toBeTruthy()
+      vi.resetModules()
+    })
+
+    test('should handle complete Liga Magic failure gracefully', async () => {
+      vi.resetModules()
+      vi.doMock('@/scraper/smart-refresh', () => ({
+        shouldFetchPrice: vi.fn().mockResolvedValue(true),
+      }))
+      vi.doMock('@/scraper/providers/liga-magic', () => ({
+        fetchCardPrice: vi.fn().mockRejectedValue(new Error('Liga Magic down')),
+      }))
+      vi.doMock('@/scraper/providers/tcgplayer', () => ({
+        fetchCardPrice: vi.fn().mockResolvedValue(20),
+      }))
+      vi.doMock('@/scraper/providers/cardmarket', () => ({
+        fetchCardPrice: vi.fn().mockResolvedValue(15),
+      }))
+      vi.doMock('@/scraper/providers/cardkingdom', () => ({
+        fetchCardPrice: vi.fn().mockResolvedValue(18),
+      }))
+      vi.doMock('@/db/queries/prices', () => ({
+        insertPrice: vi.fn().mockResolvedValue(undefined),
+      }))
+      vi.doMock('@/lib/currency', () => ({
+        convertToBRL: vi.fn().mockResolvedValue(50),
+      }))
+      const { orchestrateFetch } = await import('@/scraper/orchestrator')
+      const results = await orchestrateFetch('test-oracle-id')
+      expect(results.ligamagic.success).toBe(false)
+      expect(results.ligamagic.error).toBeTruthy()
+      expect(results.tcgplayer.success).toBe(true)
+      expect(results.cardmarket.success).toBe(true)
+      expect(results.cardkingdom.success).toBe(true)
+      vi.resetModules()
     })
   })
 

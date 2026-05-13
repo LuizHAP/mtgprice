@@ -269,3 +269,6 @@ export async function fetchAllPrices(oracleIds: string[]): Promise<FetchAllPrice
 
 // Export default function for convenience
 export default fetchAllPrices
+
+// D-03: orchestrateFetch is a named alias for fetchCardPriceFromAllSources
+export const orchestrateFetch = fetchCardPriceFromAllSources
