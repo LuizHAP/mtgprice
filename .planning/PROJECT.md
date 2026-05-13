@@ -99,7 +99,7 @@ Considerar IOF (Imposto sobre Operações Financeiras) de cartão de crédito: 6
 
 ## Current State
 
-Phase 09 complete — API & DB integration tests activated. All 11 previously-skipped integration stubs now pass against a real PostgreSQL database: 5 search tests (`src/api/__tests__/cards/search.test.ts`) and 6 wishlist action tests (`src/lib/wishlist/__tests__/actions.test.ts`). Key deliverables: credential fix in `test/setup.ts`, no-param DB helpers in `src/test/helpers/db.ts`, `searchCards` extracted into `src/lib/cards/queries.ts`, `fileParallelism: false` added to prevent DB data bleed between parallel test files. Full suite: 172 tests pass, 171 skipped, 38 todo. TEST-08 and TEST-09 validated. Phase 09 is the third phase of milestone v1.1 (Test Coverage & Quality Hardening).
+Phase 10 complete — Scheduler test stubs activated for `schedulePriceCollection` and `executePriceCollection`. Added `cron.validate()` guard (throws `Error('Invalid cron expression: ...')` on invalid env-var expressions) and `durationMs` tracking (captured at all 4 return paths) to `jobs.ts`. Extended node-cron mock with `validate` and added `@/lib/opportunities` mock in the test file. 7 stubs now active (3 schedulePriceCollection + 4 executePriceCollection); 10 out-of-scope stubs remain skipped. Full suite: 179 passed, 164 skipped, 38 todo. TEST-10 and TEST-11 validated. Phase 10 is the fourth phase of milestone v1.1 (Test Coverage & Quality Hardening).
 
 ---
 *Last updated: 2026-05-13
