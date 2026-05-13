@@ -1,12 +1,27 @@
 import pLimit from 'p-limit'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
-import { handleSourceFailure } from '@/scraper/orchestrator'
+import { handleSourceFailure, applyRateLimiting } from '@/scraper/orchestrator'
 import { logger } from '@/lib/logger'
+import { checkRateLimitPreset } from '@/lib/ratelimit/rate-limiter'
 
 // Top-level mock for logger (Pattern E) — needed by handleSourceFailure tests
 // vi.mock is hoisted by Vitest before imports, so mocking runs before the module loads
 vi.mock('@/lib/logger', () => ({
   logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() },
+}))
+
+// Top-level mock for rate-limiter — needed by applyRateLimiting tests
+vi.mock('@/lib/ratelimit/rate-limiter', () => ({
+  checkRateLimitPreset: vi.fn().mockResolvedValue({ allowed: true, remaining: 10 }),
+  RATE_LIMITS: {
+    LIGAMAGIC: { limit: 30, interval: 60 },
+    TCGPLAYER: { limit: 40, interval: 60 },
+    CARDMARKET: { limit: 40, interval: 60 },
+    CARDKINGDOM: { limit: 40, interval: 60 },
+    SCRYFALL: { limit: 10, interval: 1 },
+    SCRYFALL_HEAVY: { limit: 2, interval: 1 },
+    TELEGRAM: { limit: 100, interval: 60 },
+  },
 }))
 
 describe('fetchAllPrices concurrency (Phase 6 / D-08)', () => {
@@ -253,7 +268,7 @@ describe('Fetch orchestration', () => {
       const result = handleSourceFailure('tcgplayer', 'oracle-abc', new Error('boom'))
       expect(result).toEqual({ success: false, error: 'boom' })
       expect(vi.mocked(logger.error)).toHaveBeenCalledTimes(1)
-      const callArg = vi.mocked(logger.error).mock.calls[0]?.[0] as string
+      const callArg = vi.mocked(logger.error).mock.calls[0]?.[0] as unknown as string
       expect(callArg).toContain('tcgplayer')
       expect(callArg).toContain('oracle-abc')
       expect(callArg).toContain('boom')
@@ -270,40 +285,44 @@ describe('Fetch orchestration', () => {
       handleSourceFailure('tcgplayer', 'oracle-1', new Error('err1'))
       handleSourceFailure('tcgplayer', 'oracle-2', new Error('err2'))
       expect(vi.mocked(logger.error)).toHaveBeenCalledTimes(2)
-      const call1 = vi.mocked(logger.error).mock.calls[0]?.[0] as string
-      const call2 = vi.mocked(logger.error).mock.calls[1]?.[0] as string
+      const call1 = vi.mocked(logger.error).mock.calls[0]?.[0] as unknown as string
+      const call2 = vi.mocked(logger.error).mock.calls[1]?.[0] as unknown as string
       expect(call1).toContain('tcgplayer')
       expect(call2).toContain('tcgplayer')
     })
   })
 
   describe('applyRateLimiting', () => {
-    test.skip('should respect rate limits per source', async () => {
-      // TODO: Implement test for rate limit enforcement
-      // Should verify:
-      // - Liga Magic: 50 req/min (80% of unknown limit)
-      // - TCGPlayer: 40 req/min (80% of 50 req/min)
-      // - CardMarket: 40 req/min (80% of 50 req/min)
-      // - CardKingdom: 40 req/min (80% of 50 req/min)
-      expect(true).toBe(false)
+    beforeEach(() => {
+      vi.clearAllMocks()
+      // Re-prime the default mock implementation after clearAllMocks resets it
+      vi.mocked(checkRateLimitPreset).mockResolvedValue({ allowed: true, remaining: 10 })
     })
 
-    test.skip('should wait between requests to same source', async () => {
-      // TODO: Implement test for request spacing
-      // Should verify:
-      // - Calculates delay based on rate limit
-      // - Waits before next request to same source
-      // - Does not block other sources
-      expect(true).toBe(false)
+    test('should respect rate limits per source', async () => {
+      await applyRateLimiting('ligamagic')
+      expect(vi.mocked(checkRateLimitPreset)).toHaveBeenCalledWith('ligamagic', { limit: 30, interval: 60 })
+
+      vi.mocked(checkRateLimitPreset).mockClear()
+      await applyRateLimiting('tcgplayer')
+      expect(vi.mocked(checkRateLimitPreset)).toHaveBeenCalledWith('tcgplayer', { limit: 40, interval: 60 })
+
+      vi.mocked(checkRateLimitPreset).mockClear()
+      await applyRateLimiting('unknown')
+      expect(vi.mocked(checkRateLimitPreset)).not.toHaveBeenCalled()
     })
 
-    test.skip('should handle rate limit errors (429)', async () => {
-      // TODO: Implement test for 429 handling
-      // Should verify:
-      // - Detects 429 status
-      // - Implements exponential backoff
-      // - Retries request after backoff
-      expect(true).toBe(false)
+    test('should wait between requests to same source', async () => {
+      await applyRateLimiting('tcgplayer')
+      await applyRateLimiting('tcgplayer')
+      expect(vi.mocked(checkRateLimitPreset)).toHaveBeenCalledTimes(2)
+      expect(vi.mocked(checkRateLimitPreset)).toHaveBeenNthCalledWith(1, 'tcgplayer', { limit: 40, interval: 60 })
+      expect(vi.mocked(checkRateLimitPreset)).toHaveBeenNthCalledWith(2, 'tcgplayer', { limit: 40, interval: 60 })
+    })
+
+    test('should handle rate limit errors (429)', async () => {
+      vi.mocked(checkRateLimitPreset).mockResolvedValueOnce({ allowed: false, remaining: 0 })
+      await expect(applyRateLimiting('ligamagic')).rejects.toThrow('Rate limit exceeded for ligamagic')
     })
   })
 

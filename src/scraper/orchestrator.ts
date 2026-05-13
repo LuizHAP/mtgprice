@@ -12,6 +12,7 @@
  */
 
 import { withRetry } from '@/lib/retry'
+import { RATE_LIMITS, checkRateLimitPreset, type RateLimitConfig } from '@/lib/ratelimit/rate-limiter'
 import { insertPrice } from '../db/queries/prices'
 import { type Currency, convertToBRL } from '../lib/currency'
 import { logger } from '../lib/logger'
@@ -282,4 +283,34 @@ export function handleSourceFailure(source: string, oracleId: string, error: unk
   const errorMsg = error instanceof Error ? error.message : String(error)
   logger.error(`✗ ${source}: ${oracleId} - ${errorMsg}`)
   return { success: false, error: errorMsg }
+}
+
+/**
+ * Internal mapping of source name → rate limit preset.
+ * Used by applyRateLimiting to look up the preset for a given source.
+ * D-05 + RESEARCH: checkRateLimitPreset requires two args (key + preset).
+ */
+const SOURCE_RATE_LIMIT_MAP: Record<string, RateLimitConfig> = {
+  ligamagic: RATE_LIMITS.LIGAMAGIC,
+  tcgplayer: RATE_LIMITS.TCGPLAYER,
+  cardmarket: RATE_LIMITS.CARDMARKET,
+  cardkingdom: RATE_LIMITS.CARDKINGDOM,
+}
+
+/**
+ * D-05: Enforce rate limit for a source before making a fetch request.
+ * Delegates to checkRateLimitPreset with the source-specific preset (RESEARCH critical finding:
+ * checkRateLimitPreset requires two args — key + RateLimitConfig preset).
+ * Throws when the rate limit denies the request (allowed: false) so callers surface the denial.
+ * Unknown sources (not in SOURCE_RATE_LIMIT_MAP) are silently skipped.
+ */
+export async function applyRateLimiting(source: string): Promise<void> {
+  const preset = SOURCE_RATE_LIMIT_MAP[source.toLowerCase()]
+  if (!preset) {
+    return
+  }
+  const result = await checkRateLimitPreset(source, preset)
+  if (result.allowed === false) {
+    throw new Error(`Rate limit exceeded for ${source}`)
+  }
 }
