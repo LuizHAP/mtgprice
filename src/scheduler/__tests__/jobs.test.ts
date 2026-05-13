@@ -204,7 +204,8 @@ describe('Cron job scheduling', () => {
 
     it('should run full fetch orchestration', async () => {
       const { db } = await import('@/db')
-      vi.mocked(db.query.cards.findMany).mockResolvedValueOnce([{ oracleId: 'test-id' }])
+      // biome-ignore lint/suspicious/noExplicitAny: test mock only needs oracleId
+      vi.mocked(db.query.cards.findMany).mockResolvedValueOnce([{ oracleId: 'test-id' }] as any)
 
       const { executePriceCollection } = await import('../jobs')
       const stats = await executePriceCollection()
@@ -218,7 +219,8 @@ describe('Cron job scheduling', () => {
       vi.mocked(fetchAllPricesModule.default).mockRejectedValueOnce(new Error('fetch failed'))
 
       const { db } = await import('@/db')
-      vi.mocked(db.query.cards.findMany).mockResolvedValueOnce([{ oracleId: 'test-id' }])
+      // biome-ignore lint/suspicious/noExplicitAny: test mock only needs oracleId
+      vi.mocked(db.query.cards.findMany).mockResolvedValueOnce([{ oracleId: 'test-id' }] as any)
 
       const { executePriceCollection } = await import('../jobs')
       const stats = await executePriceCollection()
