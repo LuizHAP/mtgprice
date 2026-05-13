@@ -236,7 +236,7 @@
 |-------|----------------|--------|-----------|----------|
 | 7. Auth & Rate Limit Tests | 2/2 | Complete   | 2026-05-10 | ✓ |
 | 8. Circuit Breaker Tests | 1/1 | Complete   | 2026-05-10 | ✓ |
-| 9. API & DB Integration Tests | 0/? | Not started | - | - |
+| 9. API & DB Integration Tests | 0/3 | Not started | - | - |
 | 10. Scheduler Tests | 0/? | Not started | - | - |
 | 11. Orchestrator Functions & Tests | 0/? | Not started | - | - |
 
@@ -299,7 +299,14 @@
 3. `seedTestCard`, `seedTestWishlist`, and `truncateTable` test helpers exist and are used by both test files
 4. Tests clean up after themselves — no data bleeds between test runs
 
-**Plans:** TBD
+**Plans:** 3 plans
+
+**Wave 1 (Sequential — foundation):**
+- [ ] 09-01-PLAN.md — Fix DATABASE_URL credentials, create no-param `src/test/helpers/db.ts`, extract `searchCards` into `src/lib/cards/queries.ts`, refactor route handler to delegate
+
+**Wave 2 (Parallel — test activation):**
+- [ ] 09-02-PLAN.md — Activate 5 `cards/search.test.ts` integration tests against real PostgreSQL (TEST-08)
+- [ ] 09-03-PLAN.md — Activate 6 `wishlist/actions.test.ts` integration tests with FK chain + real FK-violation test (TEST-09)
 
 ---
 
@@ -384,8 +391,8 @@
 | TEST-05 | 8 | Complete (2026-05-10) |
 | TEST-06 | 8 | Complete (2026-05-10) |
 | TEST-07 | 8 | Complete (2026-05-10) |
-| TEST-08 | 9 | Pending |
-| TEST-09 | 9 | Pending |
+| TEST-08 | 9 | Planned (09-01 foundation, 09-02 activation) |
+| TEST-09 | 9 | Planned (09-01 foundation, 09-03 activation) |
 | TEST-10 | 10 | Pending |
 | TEST-11 | 10 | Pending |
 | TEST-12 | 11 | Pending |
@@ -426,4 +433,4 @@ Phase 2 (Data Collection)
 ---
 
 *Roadmap created: 2026-03-05*
-*Last updated: 2026-05-10 (phase 8 complete)*
+*Last updated: 2026-05-13 (phase 9 planned)*
