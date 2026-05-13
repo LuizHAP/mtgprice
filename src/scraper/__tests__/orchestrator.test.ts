@@ -502,31 +502,120 @@ describe('Fetch orchestration', () => {
   })
 
   describe('Integration scenarios', () => {
-    test.skip('should fetch single card from all sources', async () => {
-      // TODO: Implement test for single card
-      // Should verify:
-      // - Fetches from Liga Magic (sequential)
-      // - Fetches from TCGPlayer, CardMarket, CardKingdom (parallel)
-      // - Returns array of 4 price objects
-      expect(true).toBe(false)
+    beforeEach(() => {
+      vi.clearAllMocks()
     })
 
-    test.skip('should handle mixed success/failure across sources', async () => {
-      // TODO: Implement test for mixed results
-      // Should verify:
-      // - Liga Magic succeeds, TCGPlayer fails
-      // - CardMarket succeeds, CardKingdom fails
-      // - Returns 2 price objects (Liga Magic, CardMarket)
-      expect(true).toBe(false)
+    test('should fetch single card from all sources', async () => {
+      vi.resetModules()
+      vi.doMock('@/scraper/smart-refresh', () => ({
+        shouldFetchPrice: vi.fn().mockResolvedValue(true),
+      }))
+      vi.doMock('@/scraper/providers/liga-magic', () => ({
+        fetchCardPrice: vi.fn().mockResolvedValue(10),
+      }))
+      vi.doMock('@/scraper/providers/tcgplayer', () => ({
+        fetchCardPrice: vi.fn().mockResolvedValue(20),
+      }))
+      vi.doMock('@/scraper/providers/cardmarket', () => ({
+        fetchCardPrice: vi.fn().mockResolvedValue(15),
+      }))
+      vi.doMock('@/scraper/providers/cardkingdom', () => ({
+        fetchCardPrice: vi.fn().mockResolvedValue(18),
+      }))
+      vi.doMock('@/db/queries/prices', () => ({
+        insertPrice: vi.fn().mockResolvedValue(undefined),
+      }))
+      vi.doMock('@/lib/currency', () => ({
+        convertToBRL: vi.fn().mockResolvedValue(50),
+      }))
+      const { orchestrateFetch } = await import('@/scraper/orchestrator')
+      const result = await orchestrateFetch('oracle-single')
+      // All 4 source keys must be present
+      expect(result).toHaveProperty('ligamagic')
+      expect(result).toHaveProperty('tcgplayer')
+      expect(result).toHaveProperty('cardmarket')
+      expect(result).toHaveProperty('cardkingdom')
+      // All sources succeeded
+      expect(result.ligamagic.success).toBe(true)
+      expect(typeof result.ligamagic.price).toBe('number')
+      expect(result.tcgplayer.success).toBe(true)
+      expect(typeof result.tcgplayer.price).toBe('number')
+      expect(result.cardmarket.success).toBe(true)
+      expect(typeof result.cardmarket.price).toBe('number')
+      expect(result.cardkingdom.success).toBe(true)
+      expect(typeof result.cardkingdom.price).toBe('number')
+      vi.resetModules()
     })
 
-    test.skip('should complete large batch within time budget', async () => {
-      // TODO: Implement test for performance
-      // Should verify:
-      // - Processes 1000 cards
-      // - Completes within reasonable time (e.g., 30 minutes)
-      // - Respects all rate limits
-      expect(true).toBe(false)
+    test('should handle mixed success/failure across sources', async () => {
+      vi.resetModules()
+      vi.doMock('@/scraper/smart-refresh', () => ({
+        shouldFetchPrice: vi.fn().mockResolvedValue(true),
+      }))
+      vi.doMock('@/scraper/providers/liga-magic', () => ({
+        fetchCardPrice: vi.fn().mockResolvedValue(10),
+      }))
+      vi.doMock('@/scraper/providers/tcgplayer', () => ({
+        fetchCardPrice: vi.fn().mockRejectedValue(new Error('network error')),
+      }))
+      vi.doMock('@/scraper/providers/cardmarket', () => ({
+        fetchCardPrice: vi.fn().mockResolvedValue(25),
+      }))
+      vi.doMock('@/scraper/providers/cardkingdom', () => ({
+        fetchCardPrice: vi.fn().mockRejectedValue(new Error('timeout')),
+      }))
+      vi.doMock('@/db/queries/prices', () => ({
+        insertPrice: vi.fn().mockResolvedValue(undefined),
+      }))
+      vi.doMock('@/lib/currency', () => ({
+        convertToBRL: vi.fn().mockResolvedValue(50),
+      }))
+      const { orchestrateFetch } = await import('@/scraper/orchestrator')
+      const result = await orchestrateFetch('oracle-mix')
+      expect(result.ligamagic.success).toBe(true)
+      expect(result.cardmarket.success).toBe(true)
+      expect(result.tcgplayer.success).toBe(false)
+      expect(result.tcgplayer.error).toBeTruthy()
+      expect(result.cardkingdom.success).toBe(false)
+      expect(result.cardkingdom.error).toBeTruthy()
+      vi.resetModules()
+    })
+
+    test('should complete large batch within time budget', async () => {
+      vi.resetModules()
+      vi.doMock('@/scraper/smart-refresh', () => ({
+        shouldFetchPrice: vi.fn().mockResolvedValue(true),
+      }))
+      vi.doMock('@/scraper/providers/liga-magic', () => ({
+        fetchCardPrice: vi.fn().mockResolvedValue(10),
+      }))
+      vi.doMock('@/scraper/providers/tcgplayer', () => ({
+        fetchCardPrice: vi.fn().mockResolvedValue(20),
+      }))
+      vi.doMock('@/scraper/providers/cardmarket', () => ({
+        fetchCardPrice: vi.fn().mockResolvedValue(15),
+      }))
+      vi.doMock('@/scraper/providers/cardkingdom', () => ({
+        fetchCardPrice: vi.fn().mockResolvedValue(18),
+      }))
+      vi.doMock('@/db/queries/prices', () => ({
+        insertPrice: vi.fn().mockResolvedValue(undefined),
+      }))
+      vi.doMock('@/lib/currency', () => ({
+        convertToBRL: vi.fn().mockResolvedValue(50),
+      }))
+      const { batchOrchestrateFetch } = await import('@/scraper/orchestrator')
+      const t0 = performance.now()
+      const stats = await batchOrchestrateFetch(['a', 'b', 'c'])
+      const durationMs = performance.now() - t0
+      // Verify FetchAllPricesStats shape (RESEARCH Open Question 2: mock small batch, not 1000 cards)
+      expect(stats.total).toBe(3)
+      expect(typeof stats.fetched).toBe('number')
+      expect(Array.isArray(stats.errors)).toBe(true)
+      // Generous 5-second budget — all mocked and immediate
+      expect(durationMs).toBeLessThan(5000)
+      vi.resetModules()
     })
   })
 })
