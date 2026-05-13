@@ -99,7 +99,7 @@ Considerar IOF (Imposto sobre Operações Financeiras) de cartão de crédito: 6
 
 ## Current State
 
-Phase 08 complete — circuit breaker test coverage activated. All 18 previously-skipped stubs in `src/scraper/__tests__/circuit-breaker.test.ts` are now active and passing: state transitions (closed→open→half-open→closed), fallback function behavior, event emission (open/close/halfOpen/fallback), per-source circuit breaker isolation, and integration scenarios (cascading failure prevention, auto-recovery, rapid-request fast-fail). Full suite: 161 tests pass, 182 skipped (pre-existing stubs from earlier phases), 38 todo. Production source untouched. TEST-04 through TEST-07 validated. Phase 08 is the second phase of milestone v1.1 (Test Coverage & Quality Hardening).
+Phase 09 complete — API & DB integration tests activated. All 11 previously-skipped integration stubs now pass against a real PostgreSQL database: 5 search tests (`src/api/__tests__/cards/search.test.ts`) and 6 wishlist action tests (`src/lib/wishlist/__tests__/actions.test.ts`). Key deliverables: credential fix in `test/setup.ts`, no-param DB helpers in `src/test/helpers/db.ts`, `searchCards` extracted into `src/lib/cards/queries.ts`, `fileParallelism: false` added to prevent DB data bleed between parallel test files. Full suite: 172 tests pass, 171 skipped, 38 todo. TEST-08 and TEST-09 validated. Phase 09 is the third phase of milestone v1.1 (Test Coverage & Quality Hardening).
 
 ---
-*Last updated: 2026-05-10
+*Last updated: 2026-05-13
