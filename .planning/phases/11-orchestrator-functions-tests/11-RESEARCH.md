@@ -419,7 +419,7 @@ export async function checkRateLimitPreset(
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **applyRateLimiting test for "should handle rate limit errors (429)"**
    - What we know: The test stub comment says "detect 429 status, implement exponential backoff." But D-05 says `applyRateLimiting` just calls `checkRateLimitPreset`.
