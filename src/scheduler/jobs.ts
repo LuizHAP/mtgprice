@@ -76,7 +76,10 @@ export async function executePriceCollection(): Promise<{
   fetched: number
   skipped: number
   failed: number
+  durationMs: number
 }> {
+  const startTime = Date.now()
+
   // Prevent concurrent executions
   if (isRunning) {
     logger.warn('Price collection already running, skipping this execution')
@@ -85,6 +88,7 @@ export async function executePriceCollection(): Promise<{
       fetched: 0,
       skipped: 0,
       failed: 0,
+      durationMs: 0,
     }
   }
 
@@ -97,11 +101,14 @@ export async function executePriceCollection(): Promise<{
 
     if (cardIds.length === 0) {
       logger.warn('No monitored cards found in database')
+      const durationMs = Date.now() - startTime
+      logger.info(`Price collection took ${durationMs}ms`)
       return {
         total: 0,
         fetched: 0,
         skipped: 0,
         failed: 0,
+        durationMs,
       }
     }
 
@@ -144,19 +151,25 @@ export async function executePriceCollection(): Promise<{
       )
     }
 
+    const durationMs = Date.now() - startTime
+    logger.info(`Price collection took ${durationMs}ms`)
     return {
       total: cardIds.length,
       fetched: stats.fetched,
       skipped: stats.skipped,
       failed: stats.failed,
+      durationMs,
     }
   } catch (error) {
     logger.error(`Critical error during price collection: ${error}`)
+    const durationMs = Date.now() - startTime
+    logger.info(`Price collection took ${durationMs}ms`)
     return {
       total: 0,
       fetched: 0,
       skipped: 0,
       failed: 1,
+      durationMs,
     }
   } finally {
     isRunning = false
@@ -196,6 +209,13 @@ export function schedulePriceCollection(): {
   const morningSchedule = process.env.CRON_MORNING || '0 9 * * *' // 9:00 AM daily
   const afternoonSchedule = process.env.CRON_AFTERNOON || '0 15 * * *' // 3:00 PM daily
   const eveningSchedule = process.env.CRON_EVENING || '0 21 * * *' // 9:00 PM daily
+
+  // Validate all three expressions before scheduling (D-03)
+  for (const expr of [morningSchedule, afternoonSchedule, eveningSchedule]) {
+    if (!cron.validate(expr)) {
+      throw new Error(`Invalid cron expression: ${expr}`)
+    }
+  }
 
   logger.info(
     `Scheduling price collection: morning=${morningSchedule}, afternoon=${afternoonSchedule}, evening=${eveningSchedule}`,
