@@ -1,59 +1,49 @@
-import { seedTestCard } from '@/test/helpers/db'
-import { describe, test } from 'vitest'
+import { cards } from '@/db/schema'
+import { searchCards } from '@/lib/cards/queries'
+import { seedTestCard, truncateTable } from '@/test/helpers/db'
+import { beforeEach, describe, expect, test } from 'vitest'
 
 describe('Card Search API endpoint', () => {
-  // TODO: Implement these tests in plan 03-02 (Card autocomplete search)
-
-  test.skip('GET /api/cards/search returns matching cards by name', async () => {
-    // Given: Database has cards with names matching "Black Lotus"
-    // When: GET /api/cards/search?q=Black+Lotus
-    // Then: Returns array of matching cards
-    // Implementation plan:
-    // 1. Seed test cards: "Black Lotus", "Black Lotus (Arena)", "Lotus Petal"
-    // 2. Call GET /api/cards/search?q=Black+Lotus
-    // 3. Assert response contains "Black Lotus" and "Black Lotus (Arena)"
-    // 4. Assert response does not contain "Lotus Petal"
+  beforeEach(async () => {
+    await truncateTable(cards)
   })
 
-  test.skip('GET /api/cards/search returns empty array if no matches', async () => {
-    // Given: Database has no cards matching query
-    // When: GET /api/cards/search?q=NonExistentCard
-    // Then: Returns empty array
-    // Implementation plan:
-    // 1. Ensure database has no cards matching "NonExistentCard"
-    // 2. Call GET /api/cards/search?q=NonExistentCard
-    // 3. Assert response.data === []
+  test('GET /api/cards/search returns matching cards by name', async () => {
+    await seedTestCard({ name: 'Black Lotus', oracleId: 'test-bl-001' })
+    await seedTestCard({ name: 'Black Lotus (Arena)', oracleId: 'test-bl-002' })
+    await seedTestCard({ name: 'Lotus Petal', oracleId: 'test-lp-001' })
+
+    const results = await searchCards('Black Lotus')
+
+    expect(results.some((c) => c.name === 'Black Lotus')).toBe(true)
+    expect(results.some((c) => c.name === 'Black Lotus (Arena)')).toBe(true)
+    expect(results.some((c) => c.name === 'Lotus Petal')).toBe(false)
   })
 
-  test.skip('GET /api/cards/search is case-insensitive', async () => {
-    // Given: Database has card "Black Lotus"
-    // When: GET /api/cards/search?q=black+lotus
-    // Then: Returns "Black Lotus" (case-insensitive match)
-    // Implementation plan:
-    // 1. Seed test card: "Black Lotus"
-    // 2. Call GET /api/cards/search?q=black+lotus (lowercase)
-    // 3. Assert response contains "Black Lotus"
-    // 4. Also test with "BLACK LOTUS" (uppercase)
+  test('GET /api/cards/search returns empty array if no matches', async () => {
+    const results = await searchCards('NonExistentXYZ123')
+    expect(results).toEqual([])
   })
 
-  test.skip('GET /api/cards/search limits results to 10 cards', async () => {
-    // Given: Database has 20+ cards matching query
-    // When: GET /api/cards/search?q=Test
-    // Then: Returns maximum 10 results
-    // Implementation plan:
-    // 1. Seed 15 test cards with name starting with "Test"
-    // 2. Call GET /api/cards/search?q=Test
-    // 3. Assert response.length <= 10
-    // 4. Assert results are ordered by name (ASC)
+  test('GET /api/cards/search is case-insensitive', async () => {
+    await seedTestCard({ name: 'Black Lotus', oracleId: 'test-bl-ci-001' })
+
+    const lowerResults = await searchCards('black lotus')
+    const upperResults = await searchCards('BLACK LOTUS')
+
+    expect(lowerResults.some((c) => c.name === 'Black Lotus')).toBe(true)
+    expect(upperResults.some((c) => c.name === 'Black Lotus')).toBe(true)
   })
 
-  test.skip('GET /api/cards/search requires at least 2 characters', async () => {
-    // Given: User searches with 1 character
-    // When: GET /api/cards/search?q=A
-    // Then: Returns 400 Bad Request or empty array
-    // Implementation plan:
-    // 1. Call GET /api/cards/search?q=A (1 char)
-    // 2. Assert 400 status with error message OR empty array
-    // 3. Verify single-char searches are rejected for performance
+  test('GET /api/cards/search limits results to 10 cards', async () => {
+    for (let i = 0; i < 15; i++) {
+      await seedTestCard({ name: `Test Card ${i}`, oracleId: `test-limit-${i}` })
+    }
+    const results = await searchCards('Test Card')
+    expect(results.length).toBeLessThanOrEqual(10)
+  })
+
+  test('GET /api/cards/search requires at least 2 characters', async () => {
+    await expect(searchCards('A')).rejects.toThrow('Query must be at least 2 characters long')
   })
 })
