@@ -237,7 +237,7 @@
 | 7. Auth & Rate Limit Tests | 2/2 | Complete   | 2026-05-10 | ✓ |
 | 8. Circuit Breaker Tests | 1/1 | Complete   | 2026-05-10 | ✓ |
 | 9. API & DB Integration Tests | 0/3 | Not started | - | - |
-| 10. Scheduler Tests | 0/? | Not started | - | - |
+| 10. Scheduler Tests | 0/1 | Planned | - | - |
 | 11. Orchestrator Functions & Tests | 0/? | Not started | - | - |
 
 ### Phase Details
@@ -323,7 +323,10 @@
 2. `pnpm test:run` shows 0 skipped tests for `executePriceCollection` — successful orchestration run, error handling (no unhandled rejection), duration metrics, and concurrency guard all pass
 3. No real network calls or DB writes occur during scheduler tests — all side effects are mocked
 
-**Plans:** TBD
+**Plans:** 1 plan
+
+**Wave 1 (Sequential):**
+- [ ] 10-01-PLAN.md — Add cron.validate guard + durationMs tracking to jobs.ts; activate 7 schedulePriceCollection + executePriceCollection test stubs (TEST-10, TEST-11)
 
 ---
 
@@ -433,4 +436,4 @@ Phase 2 (Data Collection)
 ---
 
 *Roadmap created: 2026-03-05*
-*Last updated: 2026-05-13 (phase 9 planned)*
+*Last updated: 2026-05-13 (phase 10 planned)*
