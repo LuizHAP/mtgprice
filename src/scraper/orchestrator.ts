@@ -272,3 +272,14 @@ export default fetchAllPrices
 
 // D-03: orchestrateFetch is a named alias for fetchCardPriceFromAllSources
 export const orchestrateFetch = fetchCardPriceFromAllSources
+
+/**
+ * D-04: Normalize source failure into SourceFetchResult and log with context.
+ * Called when a price source fails during orchestration.
+ * Does NOT maintain a failure counter — Opossum circuit breakers handle threshold logic.
+ */
+export function handleSourceFailure(source: string, oracleId: string, error: unknown): SourceFetchResult {
+  const errorMsg = error instanceof Error ? error.message : String(error)
+  logger.error(`✗ ${source}: ${oracleId} - ${errorMsg}`)
+  return { success: false, error: errorMsg }
+}

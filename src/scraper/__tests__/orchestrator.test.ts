@@ -1,5 +1,13 @@
 import pLimit from 'p-limit'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { handleSourceFailure } from '@/scraper/orchestrator'
+import { logger } from '@/lib/logger'
+
+// Top-level mock for logger (Pattern E) — needed by handleSourceFailure tests
+// vi.mock is hoisted by Vitest before imports, so mocking runs before the module loads
+vi.mock('@/lib/logger', () => ({
+  logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() },
+}))
 
 describe('fetchAllPrices concurrency (Phase 6 / D-08)', () => {
   test('caps in-flight executions at SCRAPER_CONCURRENCY_PER_SOURCE', async () => {
@@ -237,32 +245,35 @@ describe('Fetch orchestration', () => {
   })
 
   describe('handleSourceFailure', () => {
-    test.skip('should log error with source context', async () => {
-      // TODO: Implement test for error logging
-      // Should verify:
-      // - Logs source name
-      // - Logs error message
-      // - Logs card being fetched
-      // - Includes stack trace
-      expect(true).toBe(false)
+    beforeEach(() => {
+      vi.clearAllMocks()
     })
 
-    test.skip('should continue with remaining sources', async () => {
-      // TODO: Implement test for continuation
-      // Should verify:
-      // - Does not throw on individual source failure
-      // - Continues orchestration
-      // - Returns results from successful sources
-      expect(true).toBe(false)
+    test('should log error with source context', () => {
+      const result = handleSourceFailure('tcgplayer', 'oracle-abc', new Error('boom'))
+      expect(result).toEqual({ success: false, error: 'boom' })
+      expect(vi.mocked(logger.error)).toHaveBeenCalledTimes(1)
+      const callArg = vi.mocked(logger.error).mock.calls[0]?.[0] as string
+      expect(callArg).toContain('tcgplayer')
+      expect(callArg).toContain('oracle-abc')
+      expect(callArg).toContain('boom')
     })
 
-    test.skip('should track failure count per source', async () => {
-      // TODO: Implement test for failure tracking
-      // Should verify:
-      // - Increments failure counter
-      // - Persists to monitoring
-      // - Triggers circuit breaker if threshold exceeded
-      expect(true).toBe(false)
+    test('should continue with remaining sources', () => {
+      expect(() => handleSourceFailure('cardmarket', 'oracle-xyz', new Error('network down'))).not.toThrow()
+      const result = handleSourceFailure('cardmarket', 'oracle-xyz', new Error('network down'))
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('network down')
+    })
+
+    test('should track failure count per source', () => {
+      handleSourceFailure('tcgplayer', 'oracle-1', new Error('err1'))
+      handleSourceFailure('tcgplayer', 'oracle-2', new Error('err2'))
+      expect(vi.mocked(logger.error)).toHaveBeenCalledTimes(2)
+      const call1 = vi.mocked(logger.error).mock.calls[0]?.[0] as string
+      const call2 = vi.mocked(logger.error).mock.calls[1]?.[0] as string
+      expect(call1).toContain('tcgplayer')
+      expect(call2).toContain('tcgplayer')
     })
   })
 
