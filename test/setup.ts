@@ -3,7 +3,7 @@ import { afterAll, beforeAll } from 'vitest'
 // Set up environment variables for tests
 process.env.JWT_SECRET = 'test-secret-key-for-jwt-signing'
 process.env.REDIS_URL = 'redis://localhost:6379'
-process.env.DATABASE_URL = 'postgresql://postgres:postgres@localhost:5432/mtgprice'
+process.env.DATABASE_URL = 'postgresql://mtgprice:mtgprice_password@localhost:5432/mtgprice'
 process.env.TELEGRAM_BOT_TOKEN = 'test-bot-token'
 
 // Mock console methods in test environment to reduce noise
